@@ -1,3 +1,5 @@
+PROTOCOLE POUR MERGE :
+
 1. git checkout main
 
 2. git pull
