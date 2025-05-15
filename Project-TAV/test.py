@@ -8,3 +8,5 @@ for i in range(100):
     print("ceci est un petit test\n{}".format(i))
 print(1+1)
 print("test")
+#test 
+# QU EST CE QUE VOUS VOULEZ FAIRE !!!!!!!!! DITES LE !!!!
