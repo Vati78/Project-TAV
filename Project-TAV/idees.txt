@@ -6,8 +6,8 @@ IDEES :
 2. Intelligence artificielle
 	bots pour jeu (échecs, …) -- carrément ca serait cool
 
-3. Logiciel (?)coder le puissance 4 et eventuellement y faire une ia
+3. Logiciel (?)
 
-4. 
+4. Coder le puissance 4 et eventuellement y faire une ia
 
 5. Ajoutez des idees si vous en avez...
