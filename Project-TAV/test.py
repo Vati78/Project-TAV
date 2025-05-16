@@ -11,3 +11,5 @@ print("test")
 #test 
 # QU EST CE QUE VOUS VOULEZ FAIRE !!!!!!!!! DITES LE !!!!
 #test de merge 
+
+chez = 2000
