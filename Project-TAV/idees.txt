@@ -6,6 +6,6 @@ IDEES :
 2. Intelligence artificielle
 	bots pour jeu (échecs, …)
 
-3. Logiciel
+3. Logiciel (?)
 
 4. Ajoutez des idees si vous en avez...
