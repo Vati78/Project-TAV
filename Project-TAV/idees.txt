@@ -1,6 +1,7 @@
 IDEES :
 
 1. Jeu vidéo
+	plateforme (// mario bross)
 
 2. Intelligence artificielle
 	bots pour jeu (échecs, …)
