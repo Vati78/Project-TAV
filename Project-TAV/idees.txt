@@ -1,9 +1,11 @@
 IDEES :
 
 1. Jeu vidéo
+	plateforme (// mario bross)
 
 2. Intelligence artificielle
+	bots pour jeu (échecs, …) -- carrément ca serait cool
 
-3. Logiciel
+3. Logiciel (?)
 
 4. Ajoutez des idees si vous en avez...
