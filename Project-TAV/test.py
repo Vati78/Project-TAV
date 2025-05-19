@@ -10,7 +10,8 @@ print(1+1+1)
 print("test")
 #test 
 # QU EST CE QUE VOUS VOULEZ FAIRE !!!!!!!!! DITES LE !!!!
-#test de merge 
+#test de merge 1.0
+#test de merge 1.1
 
 #nouveau tests
 #confirmation
