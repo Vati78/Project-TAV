@@ -5,7 +5,6 @@ Created on Thu May 15 17:25:32 2025
 @author: collier2
 """
 for i in range(100):
-
     print("ceci est un test {}".format(i))
 print(1+1+1)
 print("test")
