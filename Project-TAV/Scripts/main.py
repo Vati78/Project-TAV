@@ -1,6 +1,6 @@
-import const
+from const import *
 
-print(const.CONSTANTE)
+print(CONSTANTE)
 
-for x in range(2):
-    print(x)
+for x in range(CONSTANTE):
+    print(x*2)
