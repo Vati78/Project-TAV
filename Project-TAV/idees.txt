@@ -4,7 +4,7 @@ IDEES :
 	plateforme (// mario bross)
 
 2. Intelligence artificielle
-	bots pour jeu (échecs, …) -- carrément ca serait cool
+	bots pour jeu (échecs, …) -- carrément ca serait cool --- IL FAUT TENSORFLOW!
 
 3. Logiciel (?)
 
