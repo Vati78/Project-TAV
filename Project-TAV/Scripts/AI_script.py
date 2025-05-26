@@ -10,4 +10,7 @@
 
 import tensorflow as tf
 
+tensor = tf.Tensor([[0], [1], [2]])
+
+print(tensor)
 
