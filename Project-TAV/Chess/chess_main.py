@@ -408,6 +408,7 @@ def main():
 
     player = "w"
 
+    end=0
     while running:
         mouse_pos = pg.mouse.get_pos()
 
@@ -416,6 +417,7 @@ def main():
             if event.type == pg.QUIT:
                 #!! fermer la fenêtre
                 running = False
+                end=0
 
             # if the mouse button is down
             if event.type == pg.MOUSEBUTTONDOWN and event.button==1: #clic gauche
@@ -590,12 +592,19 @@ def main():
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
-            running = False
+            end=5
+            running=False
             #pg.draw.rect(win, GREY, (200, 200, 300, 200), border_radius=10)
             # win.blit(pg.font.Font(None, 36).render("White won !", True, (0, 0, 0)), (220, 210))
 
 
         pg.display.update()
+    win.fill(GREY)
+    draw_board()
+    draw_pieces()
+    pg.display.update()
+    time.sleep(end)
+    pg.quit()
 
 
 if __name__ == "__main__":
