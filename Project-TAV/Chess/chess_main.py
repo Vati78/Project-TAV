@@ -414,12 +414,15 @@ def main():
         for event in pg.event.get():
             # if the player quits
             if event.type == pg.QUIT:
+                #!! fermer la fenêtre
                 running = False
 
             # if the mouse button is down
-            if event.type == pg.MOUSEBUTTONDOWN:
-                val, get_pos = mouse_to_pos(mouse_pos)
-                if val and position[get_pos[1]][get_pos[0]] != " ":
+            if event.type == pg.MOUSEBUTTONDOWN and event.button==1: #clic gauche
+                val, get_pos = mouse_to_pos(mouse_pos) #si c'est dans le cadre, coordonnées en rectangles
+                if val and move_i:
+                    if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
+                elif val and position[get_pos[1]][get_pos[0]] != " ":
                     move_i = True
                     col_i = get_pos[0]
                     rank_i = get_pos[1]
@@ -427,13 +430,16 @@ def main():
                     move_i = False
 
             # if the mouse button is up
-            if event.type == pg.MOUSEBUTTONUP:
+            if event.type == pg.MOUSEBUTTONUP and event.button==1: #clic gauche
                 if 0<=mouse_pos[0]<=WIDTH and 0<=mouse_pos[1]<=HEIGHT:
                     val, get_pos = mouse_to_pos(mouse_pos)
                     if val and move_i:
-                        move_f = True
-                        col_f = get_pos[0]
-                        rank_f = get_pos[1]
+                        if get_pos[0]==col_i and get_pos[1]==rank_i:
+                            pass
+                        else:  
+                            move_f = True
+                            col_f = get_pos[0]
+                            rank_f = get_pos[1]
                     else:
                         move_f = False
                 else:
@@ -584,6 +590,7 @@ def main():
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
+            running = False
             #pg.draw.rect(win, GREY, (200, 200, 300, 200), border_radius=10)
             # win.blit(pg.font.Font(None, 36).render("White won !", True, (0, 0, 0)), (220, 210))
 
