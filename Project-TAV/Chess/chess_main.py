@@ -140,6 +140,10 @@ def in_check(player, col_k, rank_k):
                 for move in moves:
                     if move == (col_k, rank_k):
                         return True
+            elif position[rank[0]][col[0]][0] == opposite_color and position[rank[0]][col[0]][1] == "K":
+                if abs(col[0]-col_k)<=1 and abs(rank[0]-rank_k)<=1:
+                    print(abs(col[0]-col_k), abs(rank[0]-rank_k))
+                    return True
     return False
 
 # remove illegal moves if check
