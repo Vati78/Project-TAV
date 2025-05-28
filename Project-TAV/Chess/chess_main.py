@@ -419,7 +419,7 @@ def main():
         for event in pg.event.get():
             # if the player quits
             if event.type == pg.QUIT:
-                #!! fermer la fenêtre
+                # fermer la fenêtre
                 running = False
                 end=0
 
