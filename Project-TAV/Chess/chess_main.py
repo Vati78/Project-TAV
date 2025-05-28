@@ -408,6 +408,7 @@ def main():
 
     move_i = False
     move_f = False
+    clic = False #Si la souris est cliquée pour savoir ou afficher la pièce active
 
     player = "w"
 
@@ -425,6 +426,7 @@ def main():
             # if the mouse button is down
             if event.type == pg.MOUSEBUTTONDOWN and event.button==1: #clic gauche
                 val, get_pos = mouse_to_pos(mouse_pos) #si c'est dans le cadre, coordonnées en rectangles
+                if val: clic = True
                 if val and move_i:
                     if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
                 elif val and position[get_pos[1]][get_pos[0]] != " ":
@@ -438,6 +440,7 @@ def main():
             if event.type == pg.MOUSEBUTTONUP and event.button==1: #clic gauche
                 if 0<=mouse_pos[0]<=WIDTH and 0<=mouse_pos[1]<=HEIGHT:
                     val, get_pos = mouse_to_pos(mouse_pos)
+                    if val: clic = False
                     if val and move_i:
                         if get_pos[0]==col_i and get_pos[1]==rank_i:
                             pass
@@ -455,6 +458,12 @@ def main():
         win.fill(GREY)
         draw_board()
         draw_pieces()
+        if player == "w": t="White"
+        else: t="Black"
+        t+=" player is playing"
+        police = pg.font.SysFont("Arial", 20)
+        texte = police.render(t, True, (255,255,255))
+        win.blit(texte, (590, 10))
 
         #if the player drags a piece
         if move_i:
@@ -471,7 +480,7 @@ def main():
             # draws the piece where the mouse is
             win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
                                         (SQUARE + 20, SQUARE + 20)),
-                                        (mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2))
+                                        ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2) if (clic and move_i and not move_f) else (col_i*SQUARE - 10,rank_i*SQUARE - 10)))
 
 
 
