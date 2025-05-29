@@ -522,7 +522,7 @@ def main():
                                 list_pieces = ["wQ", "wR", "wN", "wB"]
 
                                 for pieces in enumerate(list_pieces):
-                                    win.blit(pg.transform.scale(pg.image.load(f"Pieces/{pieces[1]}.png"), (SQUARE, SQUARE)),
+                                    win.blit(pg.transform.scale(pg.image.load(f"Chess\Pieces/{pieces[1]}.png"), (SQUARE, SQUARE)),
                                              (col_f * SQUARE, pieces[0]*SQUARE))
 
                                 pg.display.update()
