@@ -1,7 +1,10 @@
 import pygame as pg
 import time
+import os
 
 pg.init()
+
+os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
 
 """
 Constants and initialization
@@ -62,7 +65,7 @@ def draw_pieces():
     for rank in enumerate(position):
         for col in enumerate(rank[1]):
             if col[1] != " ":
-                win.blit(pg.transform.scale(pg.image.load(f"Chess\Pieces/{col[1]}.png"), (SQUARE, SQUARE)), ((col[0])*SQUARE, (rank[0])*SQUARE))
+                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{col[1]}.png"), (SQUARE, SQUARE)), ((col[0])*SQUARE, (rank[0])*SQUARE))
 
 # translates mouse position to chess coordinates
 def mouse_to_pos(m_pos):
@@ -469,7 +472,7 @@ def main():
                 blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
 
             # draws the piece where the mouse is
-            win.blit(pg.transform.scale(pg.image.load(f"Chess\Pieces/{position[rank_i][col_i]}.png"),
+            win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
                                         (SQUARE + 20, SQUARE + 20)),
                                         (mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2))
 
@@ -522,7 +525,7 @@ def main():
                                 list_pieces = ["wQ", "wR", "wN", "wB"]
 
                                 for pieces in enumerate(list_pieces):
-                                    win.blit(pg.transform.scale(pg.image.load(f"Chess\Pieces/{pieces[1]}.png"), (SQUARE, SQUARE)),
+                                    win.blit(pg.transform.scale(pg.image.load(f"Pieces/{pieces[1]}.png"), (SQUARE, SQUARE)),
                                              (col_f * SQUARE, pieces[0]*SQUARE))
 
                                 pg.display.update()
