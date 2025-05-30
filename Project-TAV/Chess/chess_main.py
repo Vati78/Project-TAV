@@ -1,7 +1,10 @@
 import pygame as pg
 import time
+import os
 
 pg.init()
+
+os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
 
 """
 Constants and initialization
