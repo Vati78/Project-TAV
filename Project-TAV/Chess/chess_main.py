@@ -9,7 +9,7 @@ os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
 """
 Constants and initialization
 """
-SQUARE = 70
+SQUARE = 70 #135
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
@@ -466,7 +466,7 @@ def main():
         t+=" player is playing"
         police = pg.font.SysFont("Arial", 20)
         texte = police.render(t, True, (255,255,255))
-        win.blit(texte, (590, 10))
+        win.blit(texte, (WIDTH + 30, 10))
 
         #if the player drags a piece
         if move_i:
