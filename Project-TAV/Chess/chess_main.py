@@ -18,7 +18,9 @@ pg.display.set_caption("Chess")
 win.fill((50, 50, 50))
 
 GREEN = (118,150,86)
+dGREEN = (98,130,66)
 WHITE = (238,238,210)
+dWHITE = (218,218,190)
 GREY = (50, 50, 50)
 
 
@@ -472,18 +474,28 @@ def main():
         if move_i:
             # empty the square where the piece comes from
             if (col_i + rank_i) % 2 == 0:
-                pg.draw.rect(win, WHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
+                    pg.draw.rect(win, WHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                else: #draws a different square
+                    pg.draw.rect(win, dWHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
             else:
-                pg.draw.rect(win, GREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
+                    pg.draw.rect(win, GREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                else: #draws a different square
+                    pg.draw.rect(win, dGREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
 
             # draws all the possible moves
             if position[rank_i][col_i][0] == player:
                 blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
 
-            # draws the piece where the mouse is
-            win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
-                                        (SQUARE + 20, SQUARE + 20)),
-                                        ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2) if ((clic and move_i) or move_f) else (col_i*SQUARE - 10,rank_i*SQUARE - 10)))
+            if (clic and move_i) or move_f: # if the mouse is down: draws the piece where the mouse is
+                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
+                                            (SQUARE + 20, SQUARE + 20)),
+                                            ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2)))
+            else: # if the mouse is up: draws the piece at the initial place
+                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
+                                        (SQUARE, SQUARE)),
+                                        (col_i*SQUARE,rank_i*SQUARE))
 
 
 
