@@ -422,7 +422,7 @@ def main():
         for event in pg.event.get():
             # if the player quits
             if event.type == pg.QUIT:
-                # fermer la fenêtre
+                #fermer la fenêtre
                 running = False
                 end=0
 
@@ -445,7 +445,7 @@ def main():
                     val, get_pos = mouse_to_pos(mouse_pos)
                     if val: clic = False
                     if val and move_i:
-                        if get_pos[0]==col_i and get_pos[1]==rank_i:
+                        if get_pos[0]==col_i and get_pos[1]==rank_i and position[rank_i][col_i][0]==player:
                             pass
                         else:  
                             move_f = True
@@ -483,7 +483,7 @@ def main():
             # draws the piece where the mouse is
             win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
                                         (SQUARE + 20, SQUARE + 20)),
-                                        ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2) if (clic and move_i and not move_f) else (col_i*SQUARE - 10,rank_i*SQUARE - 10)))
+                                        ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2) if ((clic and move_i) or move_f) else (col_i*SQUARE - 10,rank_i*SQUARE - 10)))
 
 
 
