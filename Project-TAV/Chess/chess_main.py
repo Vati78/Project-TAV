@@ -18,9 +18,9 @@ pg.display.set_caption("Chess")
 win.fill((50, 50, 50))
 
 GREEN = (118,150,86)
-dGREEN = (98,130,66)
+dGREEN = (88,120,56)
 WHITE = (238,238,210)
-dWHITE = (218,218,190)
+dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 
 
