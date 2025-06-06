@@ -47,7 +47,7 @@ k_pos = {"w": (4, 7),
 
 last_move = (None, None, None, None, None)
 
-liste_position = []
+liste_position = [[rank[:] for rank in position]]
 
 """
 Functions
@@ -402,7 +402,7 @@ class Piece:
 Game
 """
 def main():
-    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position
+    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position
 
     running = True
 
@@ -421,6 +421,7 @@ def main():
     end=0
     while running:
         mouse_pos = pg.mouse.get_pos()
+        user_input = pg.key.get_pressed()
 
         for event in pg.event.get():
             # if the player quits
@@ -435,11 +436,15 @@ def main():
                 if val: clic = True
                 if val and move_i:
                     if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
-                    if click_move :
-                        move_f = True
-                        click_move = False
-                        col_f = get_pos[0]
-                        rank_f = get_pos[1]
+                    if click_move:
+                        if position[get_pos[1]][get_pos[0]][0] == player:
+                            move_i = False
+                            click_move = False
+                        else:
+                            move_f = True
+                            click_move = False
+                            col_f = get_pos[0]
+                            rank_f = get_pos[1]
                 elif val and position[get_pos[1]][get_pos[0]] != " ":
                     move_i = True
                     col_i = get_pos[0]
@@ -462,7 +467,6 @@ def main():
                                 click_move = False
                                 col_f = get_pos[0]
                                 rank_f = get_pos[1]
-
                         else:  
                             move_f = True
                             click_move = False
@@ -473,6 +477,12 @@ def main():
                 else:
                     move_f = False
                     move_i = False
+
+            #if user_input[pg.K_LEFT] and len(liste_position) > 1:
+             #   position = liste_position[-2]
+              #  player = "w" if len(liste_position)//2 == 1 else "b"
+
+
 
         # draws the board and the pieces
         win.fill(GREY)
@@ -625,7 +635,6 @@ def main():
 
                     # checks if 3-fold repetition
                     if player == "b":
-                        liste_position.append([rank[:] for rank in position])
                         if liste_position.count(position) == 3:
                             print("3-fold repetition")
 
@@ -633,6 +642,7 @@ def main():
 
             move_f = False
             move_i = False
+            liste_position.append([rank[:] for rank in position])
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
@@ -643,6 +653,7 @@ def main():
 
 
         pg.display.update()
+
     win.fill(GREY)
     draw_board()
     draw_pieces()
