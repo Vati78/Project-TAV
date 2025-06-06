@@ -414,6 +414,7 @@ def main():
     move_i = False
     move_f = False
     clic = False #Si la souris est cliquée pour savoir ou afficher la pièce active
+    click_move = False
 
     player = "w"
 
@@ -429,11 +430,16 @@ def main():
                 end=0
 
             # if the mouse button is down
-            if event.type == pg.MOUSEBUTTONDOWN and event.button==1: #clic gauche
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1: #clic gauche
                 val, get_pos = mouse_to_pos(mouse_pos) #si c'est dans le cadre, coordonnées en rectangles
                 if val: clic = True
                 if val and move_i:
                     if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
+                    if click_move :
+                        move_f = True
+                        click_move = False
+                        col_f = get_pos[0]
+                        rank_f = get_pos[1]
                 elif val and position[get_pos[1]][get_pos[0]] != " ":
                     move_i = True
                     col_i = get_pos[0]
@@ -446,11 +452,20 @@ def main():
                 if 0<=mouse_pos[0]<=WIDTH and 0<=mouse_pos[1]<=HEIGHT:
                     val, get_pos = mouse_to_pos(mouse_pos)
                     if val: clic = False
-                    if val and move_i:
+                    if val and move_i and not move_f:
                         if get_pos[0]==col_i and get_pos[1]==rank_i and position[rank_i][col_i][0]==player:
-                            pass
+                            if not click_move:
+                                click_move = True
+                                move_f = False
+                            else:
+                                move_f = True
+                                click_move = False
+                                col_f = get_pos[0]
+                                rank_f = get_pos[1]
+
                         else:  
                             move_f = True
+                            click_move = False
                             col_f = get_pos[0]
                             rank_f = get_pos[1]
                     else:
@@ -465,7 +480,7 @@ def main():
         draw_pieces()
         if player == "w": t="White"
         else: t="Black"
-        t+=" player is playing"
+        t += " is playing"
         police = pg.font.SysFont("Arial", 20)
         texte = police.render(t, True, (255,255,255))
         win.blit(texte, (WIDTH + 30, 10))
@@ -488,7 +503,7 @@ def main():
             if position[rank_i][col_i][0] == player:
                 blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
 
-            if (clic and move_i) or move_f: # if the mouse is down: draws the piece where the mouse is
+            if not click_move and clic and move_i: # if the mouse is down: draws the piece where the mouse is
                 win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
                                             (SQUARE + 20, SQUARE + 20)),
                                             ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2)))
