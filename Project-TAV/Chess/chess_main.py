@@ -503,7 +503,7 @@ def main():
             if position[rank_i][col_i][0] == player:
                 blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
 
-            if not click_move and clic and move_i: # if the mouse is down: draws the piece where the mouse is
+            if not click_move and clic and move_i and not move_f: # if the mouse is down: draws the piece where the mouse is
                 win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
                                             (SQUARE + 20, SQUARE + 20)),
                                             ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2)))
