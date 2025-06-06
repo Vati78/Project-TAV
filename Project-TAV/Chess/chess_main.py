@@ -478,6 +478,8 @@ def main():
         win.fill(GREY)
         draw_board()
         draw_pieces()
+
+        # draws who is playing
         if player == "w": t="White"
         else: t="Black"
         t += " is playing"
