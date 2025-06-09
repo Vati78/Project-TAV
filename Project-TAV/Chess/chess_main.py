@@ -478,9 +478,11 @@ def main():
                     move_f = False
                     move_i = False
 
-            #if user_input[pg.K_LEFT] and len(liste_position) > 1:
-             #   position = liste_position[-2]
-              #  player = "w" if len(liste_position)//2 == 1 else "b"
+            if user_input[pg.K_LEFT] and len(liste_position) > 1:
+                position = [rank[:] for rank in liste_position[-2]]
+                liste_position.pop(-1)
+
+                player = "w" if len(liste_position)%2 == 1 else "b"
 
 
 
@@ -627,9 +629,6 @@ def main():
                                                 position[6][col_i] = list_pieces[7-sq[1]]
                                                 promote = False
 
-
-
-
                     move(col_i, col_f, rank_i, rank_f)
                     last_move = (piece, col_i, col_f, rank_i, rank_f)
 
@@ -648,8 +647,6 @@ def main():
             print("checkmate or stalemate")
             end=5
             running=False
-            #pg.draw.rect(win, GREY, (200, 200, 300, 200), border_radius=10)
-            # win.blit(pg.font.Font(None, 36).render("White won !", True, (0, 0, 0)), (220, 210))
 
 
         pg.display.update()
