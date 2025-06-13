@@ -2,6 +2,8 @@ import pygame as pg
 import time
 import os
 
+#test d'ajout
+
 pg.init()
 
 os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
