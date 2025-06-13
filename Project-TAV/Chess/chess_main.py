@@ -2,6 +2,8 @@ import pygame as pg
 import time
 import os
 
+#test d'ajout
+
 pg.init()
 
 os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
@@ -408,6 +410,7 @@ def main():
 
     col_i = None
     col_f = None
+
     rank_i = None
     rank_f = None
 
@@ -416,9 +419,11 @@ def main():
     clic = False #Si la souris est cliquée pour savoir ou afficher la pièce active
     click_move = False
 
+    pos_index = 0
     player = "w"
 
     end=0
+
     while running:
         mouse_pos = pg.mouse.get_pos()
         user_input = pg.key.get_pressed()
@@ -431,8 +436,8 @@ def main():
                 end=0
 
             # if the mouse button is down
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1: #clic gauche
-                val, get_pos = mouse_to_pos(mouse_pos) #si c'est dans le cadre, coordonnées en rectangles
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                val, get_pos = mouse_to_pos(mouse_pos)
                 if val: clic = True
                 if val and move_i:
                     if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
@@ -478,54 +483,41 @@ def main():
                     move_f = False
                     move_i = False
 
-            if user_input[pg.K_LEFT] and len(liste_position) > 1:
-                position = [rank[:] for rank in liste_position[-2]]
-                liste_position.pop(-1)
+            if user_input[pg.K_LEFT] and pos_index > 0:
+                position = [rank[:] for rank in liste_position[pos_index-1]]
+                pos_index -= 1
+                move_i = False
+                move_f = False
+                click_move = False
 
-                player = "w" if len(liste_position)%2 == 1 else "b"
+                player = "w" if player == "b" else "b"
 
+            if user_input[pg.K_RIGHT] and pos_index < len(liste_position)-1:
+                position = [rank[:] for rank in liste_position[pos_index+1]]
+                pos_index += 1
+                move_i = False
+                move_f = False
+                click_move = False
 
+                player = "w" if player == "b" else "b"
 
-        # draws the board and the pieces
-        win.fill(GREY)
-        draw_board()
-        draw_pieces()
+            if user_input[pg.K_UP]:
+                position = [rank[:] for rank in liste_position[-1]]
+                pos_index = len(liste_position)-1
+                move_i = False
+                move_f = False
+                click_move = False
 
-        # draws who is playing
-        if player == "w": t="White"
-        else: t="Black"
-        t += " is playing"
-        police = pg.font.SysFont("Arial", 20)
-        texte = police.render(t, True, (255,255,255))
-        win.blit(texte, (WIDTH + 30, 10))
+                player = "w" if pos_index%2 == 0 else "b"
 
-        #if the player drags a piece
-        if move_i:
-            # empty the square where the piece comes from
-            if (col_i + rank_i) % 2 == 0:
-                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
-                    pg.draw.rect(win, WHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
-                else: #draws a different square
-                    pg.draw.rect(win, dWHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
-            else:
-                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
-                    pg.draw.rect(win, GREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
-                else: #draws a different square
-                    pg.draw.rect(win, dGREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+            if user_input[pg.K_DOWN]:
+                position = [rank[:] for rank in liste_position[0]]
+                pos_index = 0
+                move_i = False
+                move_f = False
+                click_move = False
 
-            # draws all the possible moves
-            if position[rank_i][col_i][0] == player:
-                blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
-
-            if not click_move and clic and move_i and not move_f: # if the mouse is down: draws the piece where the mouse is
-                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
-                                            (SQUARE + 20, SQUARE + 20)),
-                                            ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2)))
-            else: # if the mouse is up: draws the piece at the initial place
-                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
-                                        (SQUARE, SQUARE)),
-                                        (col_i*SQUARE,rank_i*SQUARE))
-
+                player = "w"
 
 
         # if a move is played
@@ -632,21 +624,66 @@ def main():
                     move(col_i, col_f, rank_i, rank_f)
                     last_move = (piece, col_i, col_f, rank_i, rank_f)
 
+                    if pos_index < len(liste_position)-1:
+                        del liste_position[pos_index+1:]
+
                     # checks if 3-fold repetition
                     if player == "b":
                         if liste_position.count(position) == 3:
                             print("3-fold repetition")
 
                     player = "w" if player == "b" else "b"
+                    liste_position.append([rank[:] for rank in position])
+                    pos_index += 1
 
             move_f = False
             move_i = False
-            liste_position.append([rank[:] for rank in position])
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
             end=5
             running=False
+
+        # draws the board and the pieces
+        win.fill(GREY)
+        draw_board()
+        draw_pieces()
+
+        # draws who is playing
+        t="White" if player == "w" else "Black"
+        t += " is playing"
+        police = pg.font.SysFont("Arial", 20)
+        texte = police.render(t, True, (255,255,255))
+        win.blit(texte, (WIDTH + 30, 10))
+
+        #if the player drags a piece
+        if move_i:
+            # empty the square where the piece comes from
+            if (col_i + rank_i) % 2 == 0:
+                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
+                    pg.draw.rect(win, WHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                else: #draws a different square
+                    pg.draw.rect(win, dWHITE, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+            else:
+                if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
+                    pg.draw.rect(win, GREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+                else: #draws a different square
+                    pg.draw.rect(win, dGREEN, (col_i * SQUARE, rank_i * SQUARE, SQUARE, SQUARE))
+
+
+            # draws all the possible moves
+            if position[rank_i][col_i][0] == player:
+                blit_legal_moves(remove_illegal(player, col_i, rank_i, get_type(col_i, rank_i).legal_moves(col_i, rank_i)))
+
+            if move_i and not move_f and clic and not click_move: # if the mouse is down: draws the piece where the mouse is
+                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
+                                            (SQUARE + 20, SQUARE + 20)),
+                                            ((mouse_pos[0]-(SQUARE+20)//2, mouse_pos[1]-(SQUARE+20)//2)))
+            else: # if the mouse is up: draws the piece at the initial place
+                win.blit(pg.transform.scale(pg.image.load(f"Pieces/{position[rank_i][col_i]}.png"),
+                                        (SQUARE, SQUARE)),
+                                        (col_i*SQUARE,rank_i*SQUARE))
+
 
 
         pg.display.update()
