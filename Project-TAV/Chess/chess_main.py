@@ -2,8 +2,6 @@ import pygame as pg
 import time
 import os
 
-#test d'ajout
-
 pg.init()
 
 os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
@@ -429,9 +427,7 @@ def main():
         user_input = pg.key.get_pressed()
 
         for event in pg.event.get():
-            # if the player quits
             if event.type == pg.QUIT:
-                #fermer la fenêtre
                 running = False
                 end=0
 
@@ -443,7 +439,8 @@ def main():
                     if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
                     if click_move:
                         if position[get_pos[1]][get_pos[0]][0] == player:
-                            move_i = False
+                            col_i = get_pos[0]
+                            rank_i = get_pos[1]
                             click_move = False
                         else:
                             move_f = True
@@ -458,7 +455,7 @@ def main():
                     move_i = False
 
             # if the mouse button is up
-            if event.type == pg.MOUSEBUTTONUP and event.button==1: #clic gauche
+            if event.type == pg.MOUSEBUTTONUP and event.button==1:
                 if 0<=mouse_pos[0]<=WIDTH and 0<=mouse_pos[1]<=HEIGHT:
                     val, get_pos = mouse_to_pos(mouse_pos)
                     if val: clic = False
@@ -472,7 +469,7 @@ def main():
                                 click_move = False
                                 col_f = get_pos[0]
                                 rank_f = get_pos[1]
-                        else:  
+                        else:
                             move_f = True
                             click_move = False
                             col_f = get_pos[0]
@@ -521,7 +518,7 @@ def main():
 
 
         # if a move is played
-        if move_f and move_i:
+        if move_i and move_f:
             # if it's not the same square
             if (col_i,rank_i) != (col_f,rank_f):
                 # if the move is valid and if it's the right player's turn
