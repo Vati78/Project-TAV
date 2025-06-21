@@ -15,8 +15,8 @@ SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
-button_pos = [(WIDTH+SQUARE, 4*SQUARE),(WIDTH+3.5*SQUARE, 4*SQUARE)] #redo button (x,y) and undo button (x,y)
-button_size=1.5*SQUARE
+button_pos = [(int(WIDTH+SQUARE), int(4*SQUARE)),(int(WIDTH+3.5*SQUARE), int(4*SQUARE))] #redo button (x,y) and undo button (x,y)
+button_size = int(1.5*SQUARE)
 
 win = pg.display.set_mode((WIDTH+5*SQUARE, HEIGHT))
 pg.display.set_caption("Chess")
@@ -76,8 +76,8 @@ def draw_pieces():
 
 # drows undo and redo buttons if phone_mode
 def draw_buttons(undo =True, redo=True):
-    if undo: win.blit(pg.transform.scale(pg.image.load("Images/Undo-button.jpg"), (button_size, button_size)), (button_pos[0][0], button_pos[0][1]))
-    if redo: win.blit(pg.transform.scale(pg.image.load("Images/Redo-button.jpg"), (button_size, button_size)), (button_pos[1][0], button_pos[1][1]))
+    if undo: win.blit(pg.transform.scale(pg.image.load("Images/Undo-button.png"), (button_size, button_size)), (button_pos[0][0], button_pos[0][1]))
+    if redo: win.blit(pg.transform.scale(pg.image.load("Images/Redo-button.png"), (button_size, button_size)), (button_pos[1][0], button_pos[1][1]))
 
 # translates mouse position to chess coordinates
 def mouse_to_pos(m_pos):
