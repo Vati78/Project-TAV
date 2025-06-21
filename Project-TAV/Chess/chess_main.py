@@ -9,11 +9,16 @@ os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
 """
 Constants and initialization
 """
-SQUARE = 70 #135
+
+phone = False
+SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
-win = pg.display.set_mode((WIDTH+300, HEIGHT))
+button_pos = [(WIDTH+SQUARE, 4*SQUARE),(WIDTH+3.5*SQUARE, 4*SQUARE)] #redo button (x,y) and undo button (x,y)
+button_size=1.5*SQUARE
+
+win = pg.display.set_mode((WIDTH+5*SQUARE, HEIGHT))
 pg.display.set_caption("Chess")
 win.fill((50, 50, 50))
 
@@ -69,6 +74,11 @@ def draw_pieces():
             if col[1] != " ":
                 win.blit(pg.transform.scale(pg.image.load(f"Pieces/{col[1]}.png"), (SQUARE, SQUARE)), ((col[0])*SQUARE, (rank[0])*SQUARE))
 
+# drows undo and redo buttons if phone_mode
+def draw_buttons(undo =True, redo=True):
+    if undo: win.blit(pg.transform.scale(pg.image.load("Images/Undo-button.jpg"), (button_size, button_size)), (button_pos[0][0], button_pos[0][1]))
+    if redo: win.blit(pg.transform.scale(pg.image.load("Images/Redo-button.jpg"), (button_size, button_size)), (button_pos[1][0], button_pos[1][1]))
+
 # translates mouse position to chess coordinates
 def mouse_to_pos(m_pos):
     m_x, m_y = m_pos
@@ -102,7 +112,7 @@ def get_type(col, rank):
     elif piece == "B":
         return Piece().Bishop()
 
-# gets the color of the piece*
+# gets the color of the piece
 def get_color(col, rank):
     return position[rank][col][0]
 
@@ -425,6 +435,7 @@ def main():
     while running:
         mouse_pos = pg.mouse.get_pos()
         user_input = pg.key.get_pressed()
+        leftarrow, rightarrow = False, False
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -453,6 +464,9 @@ def main():
                     rank_i = get_pos[1]
                 else:
                     move_i = False
+                if not val and phone:
+                    if button_pos[0][0] < mouse_pos[0] < button_pos[0][0] + button_size and button_pos[0][1] < mouse_pos[1] < button_pos[0][1] + button_size: leftarrow = True
+                    if button_pos[1][0] < mouse_pos[0] < button_pos[1][0] + button_size and button_pos[1][1] < mouse_pos[1] < button_pos[1][1] + button_size: rightarrow = True
 
             # if the mouse button is up
             if event.type == pg.MOUSEBUTTONUP and event.button==1:
@@ -480,23 +494,9 @@ def main():
                     move_f = False
                     move_i = False
 
-            if user_input[pg.K_LEFT] and pos_index > 0:
-                position = [rank[:] for rank in liste_position[pos_index-1]]
-                pos_index -= 1
-                move_i = False
-                move_f = False
-                click_move = False
+            if user_input[pg.K_LEFT]: leftarrow = True
 
-                player = "w" if player == "b" else "b"
-
-            if user_input[pg.K_RIGHT] and pos_index < len(liste_position)-1:
-                position = [rank[:] for rank in liste_position[pos_index+1]]
-                pos_index += 1
-                move_i = False
-                move_f = False
-                click_move = False
-
-                player = "w" if player == "b" else "b"
+            if user_input[pg.K_RIGHT]: rightarrow = True
 
             if user_input[pg.K_UP]:
                 position = [rank[:] for rank in liste_position[-1]]
@@ -515,6 +515,24 @@ def main():
                 click_move = False
 
                 player = "w"
+        
+        if leftarrow and pos_index > 0:
+            position = [rank[:] for rank in liste_position[pos_index-1]]
+            pos_index -= 1
+            move_i = False
+            move_f = False
+            click_move = False
+
+            player = "w" if player == "b" else "b"
+            
+        if rightarrow and pos_index < len(liste_position)-1:
+            position = [rank[:] for rank in liste_position[pos_index+1]]
+            pos_index += 1
+            move_i = False
+            move_f = False
+            click_move = False
+
+            player = "w" if player == "b" else "b"
 
 
         # if a move is played
@@ -645,6 +663,7 @@ def main():
         win.fill(GREY)
         draw_board()
         draw_pieces()
+        if phone:draw_buttons()
 
         # draws who is playing
         t="White" if player == "w" else "Black"
