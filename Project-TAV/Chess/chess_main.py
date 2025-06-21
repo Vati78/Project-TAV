@@ -1,6 +1,7 @@
 import pygame as pg
 import time
 import os
+import pickle
 
 pg.init()
 
@@ -23,31 +24,54 @@ WHITE = (238,238,210)
 dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 
+#save
+saved_game=False
+s=True
+if s: 
+    while True:
+        Save="./saves/"+input("sauvegarde: "+str(os.getcwd())+"/saves/")
+        try: f=open(Save,"xb")
+        except:
+            try:
+                f=open(Save,"rb")
+                saved_game=True
+            except: continue
+        f.close()
+        break
+else: Save=""
 
 # variables
-position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+if saved_game:
+    f = open(Save, "rb")
+    [position, k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, player]=pickle.load(f, encoding='latin1')
+    f.close()
+else:
 
-k_move = {"w": False,
-          "b": False}
+    position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+                ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+                [" ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " "],
+                ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+                ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
 
-a_rook_move = {"w":False,
-                "b" : False}
-h_rook_move = {"w":False,
-                "b" : False}
+    k_move = {"w": False,
+            "b": False}
 
-k_pos = {"w": (4, 7),
-         "b": (4, 0)}
+    a_rook_move = {"w":False,
+                    "b" : False}
+    h_rook_move = {"w":False,
+                    "b" : False}
 
-last_move = (None, None, None, None, None)
+    k_pos = {"w": (4, 7),
+            "b": (4, 0)}
 
-liste_position = [[rank[:] for rank in position]]
+    last_move = (None, None, None, None, None)
+
+    liste_position = [[rank[:] for rank in position]]
+
+    player = "w"
 
 """
 Functions
@@ -402,7 +426,7 @@ class Piece:
 Game
 """
 def main():
-    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position
+    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, player
 
     running = True
 
@@ -418,7 +442,7 @@ def main():
     click_move = False
 
     pos_index = 0
-    player = "w"
+    #player = "w"
 
     end=0
 
@@ -635,6 +659,11 @@ def main():
 
             move_f = False
             move_i = False
+
+            if Save!="":
+                f=open(Save, "wb")
+                pickle.dump([position, k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position,player], f)
+                f.close()
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
