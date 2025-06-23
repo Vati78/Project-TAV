@@ -569,7 +569,8 @@ def main():
                             if (last_move[0] == "bP"
                                     and last_move[3] == 1
                                     and last_move[4] == 3
-                                    and rank_i == 3):
+                                    and rank_i == 3
+                                    and col_f == last_move[1] ):
                                 if col_i == last_move[2] + 1:
                                     position[3][col_i - 1] = " "
                                 elif col_i == last_move[2] - 1:
@@ -605,7 +606,8 @@ def main():
                             if (last_move[0] == "wP"
                                   and last_move[3] == 6
                                   and last_move[4] == 4
-                                  and rank_i == 4):
+                                  and rank_i == 4
+                                  and col_f == last_move[1] ):
                                 if col_i == last_move[2] + 1:
                                     position[4][col_i - 1] = " "
                                 elif col_i == last_move[2] - 1:
