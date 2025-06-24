@@ -10,13 +10,13 @@ os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
 Constants and initialization
 """
 
-phone = False
+phone = True
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
-button_pos = [(int(WIDTH+SQUARE), int(4*SQUARE)),(int(WIDTH+3.5*SQUARE), int(4*SQUARE))] #redo button (x,y) and undo button (x,y)
-button_size = int(1.5*SQUARE)
+button_pos = [(int(WIDTH+SQUARE), int(3.5*SQUARE)),(int(WIDTH+3*SQUARE), int(3.5*SQUARE))] #redo button (x,y) and undo button (x,y)
+button_size = int(SQUARE)
 
 win = pg.display.set_mode((WIDTH+5*SQUARE, HEIGHT))
 pg.display.set_caption("Chess")
@@ -670,7 +670,7 @@ def main():
         # draws who is playing
         t="White" if player == "w" else "Black"
         t += " is playing"
-        police = pg.font.SysFont("Arial", 20)
+        police = pg.font.SysFont("Arial", int(SQUARE/3.5))
         texte = police.render(t, True, (255,255,255))
         win.blit(texte, (WIDTH + 30, 10))
 
