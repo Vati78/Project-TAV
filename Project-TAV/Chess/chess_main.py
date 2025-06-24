@@ -24,58 +24,68 @@ WHITE = (238,238,210)
 dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 
-#save
-saved_game=False
-s=True
-if s: 
-    while True:
-        Save="./saves/"+input("sauvegarde: "+str(os.getcwd())+"/saves/")
-        try: f=open(Save,"xb")
-        except:
-            try:
-                f=open(Save,"rb")
-                saved_game=True
-            except: continue
-        f.close()
-        break
-else: Save=""
 
 # variables
-if saved_game:
-    f = open(Save, "rb")
-    [position, k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, player]=pickle.load(f, encoding='latin1')
-    f.close()
-else:
+position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
 
-    position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-                ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-                [" ", " ", " ", " ", " ", " ", " ", " "],
-                [" ", " ", " ", " ", " ", " ", " ", " "],
-                [" ", " ", " ", " ", " ", " ", " ", " "],
-                [" ", " ", " ", " ", " ", " ", " ", " "],
-                ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-                ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+k_move = {"w": False,
+        "b": False}
 
-    k_move = {"w": False,
-            "b": False}
+a_rook_move = {"w":False,
+                "b" : False}
 
-    a_rook_move = {"w":False,
-                    "b" : False}
-    h_rook_move = {"w":False,
-                    "b" : False}
+h_rook_move = {"w":False,
+                "b" : False}
 
-    k_pos = {"w": (4, 7),
-            "b": (4, 0)}
+k_pos = {"w": (4, 7),
+        "b": (4, 0)}
 
-    last_move = (None, None, None, None, None)
+last_move = (None, None, None, None, None)
 
-    liste_position = [[rank[:] for rank in position]]
+liste_position = [[rank[:] for rank in position]]
 
-    player = "w"
+player = "w"
 
 """
 Functions
 """
+#makes a menu for choices
+def choice_menu(choices):
+    choice = None #index of the choice
+    sizes = [(0,0) for i in choices]
+    pos = [(0,0) for i in choices]
+    while True:
+        #inputs
+        mouse_pos = pg.mouse.get_pos()
+        user_input = pg.key.get_pressed()
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+            # if the mouse button is down
+            if event.type == pg.MOUSEBUTTONUP and event.button == 1:pass
+
+        #draws the choices
+        win.fill((0,0,0))
+        for i,t in enumerate(choices):
+            police = pg.font.SysFont("Arial", int(SQUARE/4))
+            texte = police.render(t, True, (255,255,255))
+            win.blit(texte, (SQUARE, (1.5+i*0.6)*SQUARE))
+            if sizes[i] == (0,0):
+                sizes[i] = (texte.get_size()[0]*1.2,texte.get_size()[1]*1.2)
+                pos[i] = ()
+        pg.display.update()
+
+
+
+
 # draws the board
 def draw_board():
     for col in range(8):
@@ -427,6 +437,28 @@ Game
 """
 def main():
     global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, player
+
+    #save
+    saved_game=False
+    s=True
+    #choice_menu(["dcg","azertyuiop","vjfgc"])
+    if s: 
+        while True:
+            Save="./saves/"+input("sauvegarde: "+str(os.getcwd())+"/saves/")
+            try: f=open(Save,"xb")
+            except:
+                try:
+                    f=open(Save,"rb")
+                    saved_game=True
+                except: continue
+            f.close()
+            break
+    else: Save=""
+
+    if saved_game:
+        f = open(Save, "rb")
+        [position, k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, player]=pickle.load(f, encoding='latin1')
+        f.close()
 
     running = True
 
