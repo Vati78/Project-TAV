@@ -10,7 +10,7 @@ os.chdir(os.path.abspath(__file__)[0:-14])
 Constants and initialization
 """
 
-phone = True
+phone = False
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
@@ -57,6 +57,8 @@ check = False
 
 liste_position = [[rank[:] for rank in position]]
 liste_moves = []
+liste_last_moves = [last_move]
+pos_index = 0
 
 """
 Functions
@@ -236,6 +238,7 @@ class Piece:
             color = get_color(col_i, rank_i)
 
             legal_moves = []
+            last_move = liste_last_moves[pos_index]
 
             if color == "w":
                 if rank_i == 6:
@@ -416,7 +419,7 @@ class Piece:
 Game
 """
 def main():
-    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, liste_moves
+    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, liste_moves, liste_last_moves, pos_index
 
     running = True
 
@@ -431,7 +434,6 @@ def main():
     clic = False
     click_move = False
 
-    pos_index = 0
     player = "w"
 
     end=0
@@ -545,6 +547,9 @@ def main():
             if (col_i,rank_i) != (col_f,rank_f):
                 # if the move is valid and if it's the right player's turn
                 if is_valid_move(player, col_i, rank_i, col_f, rank_f) and get_color(col_i, rank_i) == player:
+                    if pos_index < len(liste_position)-1:
+                        del liste_position[pos_index+1:], liste_last_moves[pos_index+1:]
+                    last_move = liste_last_moves[pos_index]
                     piece = position[rank_i][col_i]
                     castle = False
                     capture = True if position[rank_f][col_f][0] != " " and  position[rank_f][col_f][0] != player else False
@@ -653,9 +658,7 @@ def main():
 
                     move(col_i, col_f, rank_i, rank_f)
                     last_move = (piece, col_i, col_f, rank_i, rank_f)
-
-                    if pos_index < len(liste_position)-1:
-                        del liste_position[pos_index+1:]
+                    liste_last_moves.append(last_move)
 
                     # checks if 3-fold repetition
                     if player == "b":
@@ -685,7 +688,6 @@ def main():
                         moves += "+"
 
                     liste_moves.append(moves)
-                    print(moves)
 
             move_f = False
             move_i = False
