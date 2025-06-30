@@ -4,7 +4,7 @@ import os
 
 pg.init()
 
-os.chdir(os.path.abspath(__file__)[0:-14]) #se remet sur le bon chemin
+os.chdir(os.path.abspath(__file__)[0:-14])
 
 """
 Constants and initialization
@@ -24,7 +24,7 @@ dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 
 
-# variables
+# variables and dictionaries
 position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
             [" ", " ", " ", " ", " ", " ", " ", " "],
@@ -33,6 +33,8 @@ position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             [" ", " ", " ", " ", " ", " ", " ", " "],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+
+coor_to_alpha = {0:"a", 1:"b", 2:"c", 3:"d", 4:"e", 5:"f", 6:"g", 7:"h"}
 
 k_move = {"w": False,
           "b": False}
@@ -46,8 +48,10 @@ k_pos = {"w": (4, 7),
          "b": (4, 0)}
 
 last_move = (None, None, None, None, None)
+check = False
 
 liste_position = [[rank[:] for rank in position]]
+liste_moves = []
 
 """
 Functions
@@ -402,7 +406,7 @@ class Piece:
 Game
 """
 def main():
-    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position
+    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, liste_moves
 
     running = True
 
@@ -414,7 +418,7 @@ def main():
 
     move_i = False
     move_f = False
-    clic = False #Si la souris est cliquée pour savoir ou afficher la pièce active
+    clic = False
     click_move = False
 
     pos_index = 0
@@ -524,6 +528,9 @@ def main():
                 # if the move is valid and if it's the right player's turn
                 if is_valid_move(player, col_i, rank_i, col_f, rank_f) and get_color(col_i, rank_i) == player:
                     piece = position[rank_i][col_i]
+                    castle = False
+                    capture = True if position[rank_f][col_f][0] != " " and  position[rank_f][col_f][0] != player else False
+                    en_passant = False
                     # if the king is moved
                     if piece[1] == "K":
                         k_move[player] = True
@@ -532,9 +539,11 @@ def main():
                         # if short castle
                         if col_f == col_i + 2:
                             move(7, 5, rank_i, rank_f)
+                            castle = "O-O"
                         # if long castle
                         elif col_f == col_i - 2:
                             move(0, 3, rank_i, rank_f)
+                            castle = "O-O-O"
 
                     # if a rook is moved
                     elif piece[1] == "R":
@@ -554,8 +563,10 @@ def main():
                                     and rank_i == 3):
                                 if col_i == last_move[2] + 1:
                                     position[3][col_i - 1] = " "
+                                    en_passant = -1
                                 elif col_i == last_move[2] - 1:
                                     position[3][col_i + 1] = " "
+                                    en_passant = -1
 
                             # if promotes
                             if rank_f == 0:
@@ -590,8 +601,10 @@ def main():
                                   and rank_i == 4):
                                 if col_i == last_move[2] + 1:
                                     position[4][col_i - 1] = " "
+                                    en_passant = 1
                                 elif col_i == last_move[2] - 1:
                                     position[4][col_i + 1] = " "
+                                    en_passant = 1
 
                             # if promotes
                             if rank_f == 7:
@@ -632,6 +645,27 @@ def main():
                     player = "w" if player == "b" else "b"
                     liste_position.append([rank[:] for rank in position])
                     pos_index += 1
+
+                    piece = piece[1] if piece[1] != "P" else ""
+                    capture = "x" if capture else ""
+                    if castle:
+                        moves = castle
+                    else:
+                        if en_passant:
+                            moves = f"{coor_to_alpha[col_i]}x{coor_to_alpha[col_f]}{8-rank_f+en_passant}"
+                            en_passant = False
+                        elif capture and piece == "":
+                            moves = f"{coor_to_alpha[col_i]}{capture}{coor_to_alpha[col_f]}{8-rank_f}"
+                        else:
+                            moves = f"{piece}{capture}{coor_to_alpha[col_f]}{8-rank_f}"
+
+                    if checkmate(player):
+                        moves += "#"
+                    elif in_check(player, k_pos[player][0], k_pos[player][1]):
+                        moves += "+"
+
+                    liste_moves.append(moves)
+                    print(moves)
 
             move_f = False
             move_i = False
