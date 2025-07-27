@@ -694,7 +694,7 @@ def main():
 
         if checkmate(player) or stalemate(player):
             print("checkmate or stalemate")
-            end=5
+            end=120
             running=False
 
         # draws the board and the pieces
