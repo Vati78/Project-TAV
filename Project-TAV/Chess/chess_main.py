@@ -9,7 +9,6 @@ os.chdir(os.path.abspath(__file__)[0:-14])
 """
 Constants and initialization
 """
-
 phone = False
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
