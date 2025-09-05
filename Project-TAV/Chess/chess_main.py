@@ -64,58 +64,59 @@ Functions
 """
 # draws the board
 def draw_board():
-    for col in range(8):
-        for rank in range(8):
-            if (col+rank) % 2 == 0:
-                pg.draw.rect(win, WHITE, (col*SQUARE, rank*SQUARE, SQUARE, SQUARE))
-            else:
-                pg.draw.rect(win, GREEN, (col * SQUARE, rank * SQUARE, SQUARE, SQUARE))
+    for col in range(8): # for every column
+        for rank in range(8): # for every rank
+            if (col+rank) % 2 == 0: # if the sum of the indices is even
+                pg.draw.rect(win, WHITE, (col*SQUARE, rank*SQUARE, SQUARE, SQUARE)) # draws a white square
+            else: # else
+                pg.draw.rect(win, GREEN, (col * SQUARE, rank * SQUARE, SQUARE, SQUARE)) # draws a green square
 
 # draws the pieces
 def draw_pieces():
-    global position
-    for rank in enumerate(position):
-        for col in enumerate(rank[1]):
-            if col[1] != " ":
+    global position # imports the position
+    for rank in enumerate(position): # goes through every rank
+        for col in enumerate(rank[1]): # goes through every column
+            if col[1] != " ": # if the square is not empty
+                # draws the piece by importing the right image
                 win.blit(pg.transform.scale(pg.image.load(f"Pieces/{col[1]}.png"), (SQUARE, SQUARE)), ((col[0])*SQUARE, (rank[0])*SQUARE))
 
-# drows undo and redo buttons if phone_mode
+# draws undo and redo buttons if phone_mode
 def draw_buttons(undo =True, redo=True):
     if undo: win.blit(pg.transform.scale(pg.image.load("Images/Undo-button.png"), (button_size, button_size)), (button_pos[0][0], button_pos[0][1]))
     if redo: win.blit(pg.transform.scale(pg.image.load("Images/Redo-button.png"), (button_size, button_size)), (button_pos[1][0], button_pos[1][1]))
 
 # translates mouse position to chess coordinates
 def mouse_to_pos(m_pos):
-    m_x, m_y = m_pos
-    if 0<=m_x<=WIDTH and 0<=m_y<=HEIGHT:
-        return True, (m_x//SQUARE, m_y//SQUARE)
-    else:
-        return False, None
+    m_x, m_y = m_pos # transcripts the pos tuple into x and y coordinates
+    if 0 <= m_x <= WIDTH and 0 <= m_y <= HEIGHT: # if the pixel coordinate is on the chess board
+        return True, (m_x//SQUARE, m_y//SQUARE) # returns True and gives the column and row number (starting at 0)
+    else: # else
+        return False, None # returns False and no coordinates
 
 # checks if there is a piece on a certain square
 def if_piece(col, rank):
-    global position
-    square = position[rank][col]
-    if square != " ":
-        return square
-    else:
-        return False
+    global position # import the position
+    square = position[rank][col] # gets the string corresponding to the right coordinates
+    if square != " ": # if the square is not empty
+        return square # returns the string
+    else: # else
+        return False # returns False
 
 # gets the type of piece on the square
 def get_type(col, rank):
-    piece = position[rank][col][1]
-    if piece == "R":
-        return Piece().Rook()
-    elif piece == "P":
-        return Piece().Pawn()
-    elif piece == "K":
-        return Piece().King()
-    elif piece == "N":
-        return Piece().Knight()
-    elif piece == "Q":
-        return Piece().Queen()
-    elif piece == "B":
-        return Piece().Bishop()
+    piece = position[rank][col][1] # gets the type of piece
+    if piece == "R": # if it's a Rook
+        return Piece().Rook() # returns object type Rook
+    elif piece == "P": # if it's a Pawn
+        return Piece().Pawn() # returns object type Pawn
+    elif piece == "K": # if it's a King
+        return Piece().King() # returns object type King
+    elif piece == "N": # if it's a kNight
+        return Piece().Knight() # returns object type kNight
+    elif piece == "Q": # if it's a queen
+        return Piece().Queen() # returns object type Queen
+    elif piece == "B": # if it's a Bishop
+        return Piece().Bishop() # returns object type Bishop
 
 # gets the color of the piece
 def get_color(col, rank):
@@ -149,49 +150,53 @@ def blit_legal_moves(liste):
 
 # checks if there is a check
 def in_check(player, col_k, rank_k):
-    global position
+    global position # imports the position
 
-    opposite_color = "b" if player == "w" else "w"
+    opposite_color = "b" if player == "w" else "w" # sets the opposite piece color
 
-    for rank in enumerate(position):
-        for col in enumerate(rank[1]):
+    for rank in enumerate(position): # for every rank in the position
+        for col in enumerate(rank[1]): # for every column in the position
+            # if the piece is the opposite color and not a king
             if position[rank[0]][col[0]][0] == opposite_color and position[rank[0]][col[0]][1] != "K":
+                # gets all of its legal moves
                 moves = get_type(col[0], rank[0]).legal_moves(col[0], rank[0])
-                for move in moves:
-                    if move == (col_k, rank_k):
-                        return True
+                for move in moves: # and for every move
+                    if move == (col_k, rank_k): # if the end square is the square the king is currently on
+                        return True # returns True (in check)
+            # else if the piece is the opposite color and is a king
             elif position[rank[0]][col[0]][0] == opposite_color and position[rank[0]][col[0]][1] == "K":
-                if abs(col[0]-col_k)<=1 and abs(rank[0]-rank_k)<=1:
-                    return True
-    return False
+                if abs(col[0]-col_k)<=1 and abs(rank[0]-rank_k)<=1: # if the two pieces touch
+                    return True # returns True (in check)
+    return False # else return False (not in check)
 
 # remove illegal moves if check
 def remove_illegal(player, col_i, rank_i, liste):
-    global position
+    global position # imports the position
 
     legal_moves = []
-    if position[rank_i][col_i][1] == "K":
+    if position[rank_i][col_i][1] == "K": # if the piece is a king
         king = True
-    else:
+    else: # else
         king = False
 
-    for moves in liste:
-        last_piece = position[moves[1]][moves[0]]
+    for moves in liste: # for every move in every possible move of the piece
+        last_piece = position[moves[1]][moves[0]] # gets the piece of the end square
 
-        move(col_i, moves[0], rank_i, moves[1])
+        move(col_i, moves[0], rank_i, moves[1]) # simulates the move
 
-        if king:
-            k_col, k_rank = moves
-        else:
+        if king: # if the played piece is a king
+            k_col, k_rank = moves # "updates" the position of the king
+        else: # else
+            # gets the real position of the king
             k_col = k_pos[player][0]
             k_rank = k_pos[player][1]
 
 
-        if not in_check(player, k_col, k_rank):
-            legal_moves.append(moves)
+        if not in_check(player, k_col, k_rank): # if the simulated move does not come with a check
+            legal_moves.append(moves) # it's definitely legal and adds it to the "real" legal moves
 
-        move(moves[0], col_i, moves[1], rank_i)
-        position[moves[1]][moves[0]] = last_piece
+        move(moves[0], col_i, moves[1], rank_i) # re-initialize the position
+        position[moves[1]][moves[0]] = last_piece # replaces the end square piece
 
     return legal_moves
 
@@ -700,7 +705,7 @@ def main():
         win.fill(GREY)
         draw_board()
         draw_pieces()
-        if phone:draw_buttons()
+        if phone: draw_buttons()
 
         # draws who is playing
         t="White" if player == "w" else "Black"
