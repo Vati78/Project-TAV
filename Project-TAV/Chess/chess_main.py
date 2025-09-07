@@ -9,6 +9,7 @@ os.chdir(os.path.abspath(__file__)[0:-14])
 """
 Constants and initialization
 """
+
 phone = False
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
@@ -443,6 +444,7 @@ def main():
     end=0
 
     while running:
+        #inputs
         mouse_pos = pg.mouse.get_pos()
         user_input = pg.key.get_pressed()
         leftarrow, rightarrow = False, False
@@ -450,20 +452,20 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
-                end=0
+                end=0 #seconds before the window is closed
 
-            # if the mouse button is down
+            # if the mouse button gets down
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                val, get_pos = mouse_to_pos(mouse_pos)
-                if val: clic = True
-                if val and move_i:
-                    if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False
-                    if click_move:
-                        if position[get_pos[1]][get_pos[0]][0] == player:
+                val, get_pos = mouse_to_pos(mouse_pos) #val: if mouse is in the chessboard; get_pos: coordinates of the square
+                if val: clic = True #if the mouse button is down
+                if val and move_i: #if move started
+                    if get_pos[0]==col_i and get_pos[1]==rank_i: move_i=False #same square clicked --> aborting
+                    if click_move: #if it is the second click
+                        if position[get_pos[1]][get_pos[0]][0] == player: #aborting a click move if th player wants to play another piece
                             col_i = get_pos[0]
                             rank_i = get_pos[1]
                             click_move = False
-                        else:
+                        else: #finishing the move
                             move_f = True
                             click_move = False
                             col_f = get_pos[0]
@@ -474,33 +476,34 @@ def main():
                     rank_i = get_pos[1]
                 else:
                     move_i = False
-                if not val and phone:
+                if not val and phone: #arrows for phone
                     if button_pos[0][0] < mouse_pos[0] < button_pos[0][0] + button_size and button_pos[0][1] < mouse_pos[1] < button_pos[0][1] + button_size: leftarrow = True
                     if button_pos[1][0] < mouse_pos[0] < button_pos[1][0] + button_size and button_pos[1][1] < mouse_pos[1] < button_pos[1][1] + button_size: rightarrow = True
 
-            # if the mouse button is up
+            # if the mouse button gets up
             if event.type == pg.MOUSEBUTTONUP and event.button==1:
                 if 0<=mouse_pos[0]<=WIDTH and 0<=mouse_pos[1]<=HEIGHT:
                     val, get_pos = mouse_to_pos(mouse_pos)
                     if val: clic = False
-                    if val and move_i and not move_f:
+                    if val and move_i and not move_f:#if in the move
                         if get_pos[0]==col_i and get_pos[1]==rank_i and position[rank_i][col_i][0]==player:
-                            if not click_move:
+                        #if the mouse stays on the same square:
+                            if not click_move: #passing in click_move
                                 click_move = True
                                 move_f = False
-                            else:
+                            else: #???
                                 move_f = True
                                 click_move = False
                                 col_f = get_pos[0]
                                 rank_f = get_pos[1]
-                        else:
+                        else: #ending the move
                             move_f = True
                             click_move = False
                             col_f = get_pos[0]
                             rank_f = get_pos[1]
                     else:
                         move_f = False
-                else:
+                else: #aborting if mouse not in the screen
                     move_f = False
                     move_i = False
 
@@ -508,39 +511,43 @@ def main():
 
             if user_input[pg.K_RIGHT]: rightarrow = True
 
-            if user_input[pg.K_UP]:
+            if user_input[pg.K_UP]: #last position of the list
                 position = [rank[:] for rank in liste_position[-1]]
                 pos_index = len(liste_position)-1
                 move_i = False
                 move_f = False
                 click_move = False
+                #k_pos
 
                 player = "w" if pos_index%2 == 0 else "b"
 
-            if user_input[pg.K_DOWN]:
+            if user_input[pg.K_DOWN]: #first position
                 position = [rank[:] for rank in liste_position[0]]
                 pos_index = 0
                 move_i = False
                 move_f = False
                 click_move = False
+                #k_pos
 
                 player = "w"
         
-        if leftarrow and pos_index > 0:
+        if leftarrow and pos_index > 0: #position before current displayed position
             position = [rank[:] for rank in liste_position[pos_index-1]]
             pos_index -= 1
             move_i = False
             move_f = False
             click_move = False
+            #k_pos
 
             player = "w" if player == "b" else "b"
             
-        if rightarrow and pos_index < len(liste_position)-1:
+        if rightarrow and pos_index < len(liste_position)-1: #position after current displayed position
             position = [rank[:] for rank in liste_position[pos_index+1]]
             pos_index += 1
             move_i = False
             move_f = False
             click_move = False
+            #k_pos
 
             player = "w" if player == "b" else "b"
 
@@ -551,12 +558,13 @@ def main():
             if (col_i,rank_i) != (col_f,rank_f):
                 # if the move is valid and if it's the right player's turn
                 if is_valid_move(player, col_i, rank_i, col_f, rank_f) and get_color(col_i, rank_i) == player:
-                    if pos_index < len(liste_position)-1:
-                        del liste_position[pos_index+1:], liste_last_moves[pos_index+1:]
+                    if pos_index < len(liste_position)-1: #if aborted moves
+                        del liste_position[pos_index+1:], liste_last_moves[pos_index+1:] #delete end of the positions
                     last_move = liste_last_moves[pos_index]
                     piece = position[rank_i][col_i]
                     castle = False
-                    capture = True if position[rank_f][col_f][0] != " " and  position[rank_f][col_f][0] != player else False
+                    #if a piece is captured
+                    capture = True if (position[rank_f][col_f][0] != " " and  position[rank_f][col_f][0] != player) else False
                     en_passant = False
                     # if the king is moved
                     if piece[1] == "K":
@@ -705,7 +713,7 @@ def main():
         win.fill(GREY)
         draw_board()
         draw_pieces()
-        if phone: draw_buttons()
+        if phone: draw_buttons(pos_index > 0, pos_index < len(liste_position)-1) #If phone, draws undo and redo buttons if available
 
         # draws who is playing
         t="White" if player == "w" else "Black"
