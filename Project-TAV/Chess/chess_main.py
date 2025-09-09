@@ -232,6 +232,17 @@ def stalemate(player):
     else:
         return False
 
+#finds a specific Piece
+def find_piece(piece_to_find, pos=0):
+    global position
+    if pos==0: pos=position
+    for y, rank in enumerate(pos):
+        for x, piece in enumerate(rank):
+            if piece == piece_to_find:
+                return (x,y)
+    else: #if no piece finded
+        return None
+
 """
 Pieces
 """
@@ -517,7 +528,8 @@ def main():
                 move_i = False
                 move_f = False
                 click_move = False
-                #k_pos
+                k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+                print(k_pos)
 
                 player = "w" if pos_index%2 == 0 else "b"
 
@@ -527,7 +539,8 @@ def main():
                 move_i = False
                 move_f = False
                 click_move = False
-                #k_pos
+                k_pos = {"w": (4, 7),"b": (4, 0)}
+                print(k_pos)
 
                 player = "w"
         
@@ -537,7 +550,8 @@ def main():
             move_i = False
             move_f = False
             click_move = False
-            #k_pos
+            k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+            print(k_pos)
 
             player = "w" if player == "b" else "b"
             
@@ -547,7 +561,8 @@ def main():
             move_i = False
             move_f = False
             click_move = False
-            #k_pos
+            k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+            print(k_pos)
 
             player = "w" if player == "b" else "b"
 
