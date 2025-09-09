@@ -529,7 +529,6 @@ def main():
                 move_f = False
                 click_move = False
                 k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
-                print(k_pos)
 
                 player = "w" if pos_index%2 == 0 else "b"
 
@@ -540,7 +539,6 @@ def main():
                 move_f = False
                 click_move = False
                 k_pos = {"w": (4, 7),"b": (4, 0)}
-                print(k_pos)
 
                 player = "w"
         
@@ -551,7 +549,6 @@ def main():
             move_f = False
             click_move = False
             k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
-            print(k_pos)
 
             player = "w" if player == "b" else "b"
             
@@ -562,7 +559,6 @@ def main():
             move_f = False
             click_move = False
             k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
-            print(k_pos)
 
             player = "w" if player == "b" else "b"
 
