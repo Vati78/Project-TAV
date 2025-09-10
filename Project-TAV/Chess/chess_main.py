@@ -41,16 +41,16 @@ position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
 
 coor_to_alpha = {0:"a", 1:"b", 2:"c", 3:"d", 4:"e", 5:"f", 6:"g", 7:"h"}
 
-k_move = {"w": False,
-          "b": False}
+k_move = {"w": [False,None],
+          "b": [False,None]}
 
-a_rook_move = {"w":False,
-                "b" : False}
-h_rook_move = {"w":False,
-                "b" : False}
+a_rook_move = {"w":[False,None],
+                "b" : [False,None]}
+h_rook_move = {"w":[False,None],
+                "b" : [False,None]}
 
-k_pos = {"w": (4, 7),
-         "b": (4, 0)}
+k_pos = {"w": [4, 7],
+         "b": [4, 0]}
 
 last_move = (None, None, None, None, None)
 check = False
@@ -396,8 +396,8 @@ class Piece:
 
 
             # short castle
-            if (not k_move[color]
-                    and not h_rook_move[color]
+            if (not k_move[color][0]
+                    and not h_rook_move[color][0]
                     and not in_check(color, 4, rank_i)
                     and not in_check(color, 5, rank_i)
                     and not in_check(color, 6, rank_i)
@@ -406,8 +406,8 @@ class Piece:
                 legal_moves.append((6, rank_i))
 
             # long castle
-            if (not k_move[color]
-                    and not a_rook_move[color]
+            if (not k_move[color][0]
+                    and not a_rook_move[color][0]
                     and not in_check(color, 2, rank_i)
                     and not in_check(color, 3, rank_i)
                     and not in_check(color, 4, rank_i)
@@ -458,7 +458,7 @@ def main():
         #inputs
         mouse_pos = pg.mouse.get_pos()
         user_input = pg.key.get_pressed()
-        leftarrow, rightarrow = False, False
+        leftarrow, rightarrow, arrow = False, False, False
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -528,7 +528,8 @@ def main():
                 move_i = False
                 move_f = False
                 click_move = False
-                k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+                arrow = True
+                
 
                 player = "w" if pos_index%2 == 0 else "b"
 
@@ -538,7 +539,7 @@ def main():
                 move_i = False
                 move_f = False
                 click_move = False
-                k_pos = {"w": (4, 7),"b": (4, 0)}
+                arrow = True
 
                 player = "w"
         
@@ -548,7 +549,7 @@ def main():
             move_i = False
             move_f = False
             click_move = False
-            k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+            arrow = True
 
             player = "w" if player == "b" else "b"
             
@@ -558,10 +559,24 @@ def main():
             move_i = False
             move_f = False
             click_move = False
-            k_pos = {"w":find_piece("wK"), "b": find_piece("bK")}
+            arrow = True
 
             player = "w" if player == "b" else "b"
 
+        if arrow: #if any arrow is pressed
+            k_pos = {"w":find_piece("wK"), "b": find_piece("bK")} #updating position of the king
+            #updating k_pos, h_rook_move and a_rook_move for each player
+            for p in ["w", "b"]:
+                for i in ['k_move', "h_rook_move", "a_rook_move"]:
+                    #☺print("---")
+                    
+                    if eval(i)[p][1] != None:
+                        if eval(i)[p][1] >= pos_index:
+                            eval(i)[p][0] = False
+                        else:
+                            eval(i)[p][0] = True
+                    #☺print(i,'[',p,'] = ',eval(i)[p])
+            #☺print(pos_index)
 
         # if a move is played
         if move_i and move_f:
@@ -571,6 +586,11 @@ def main():
                 if is_valid_move(player, col_i, rank_i, col_f, rank_f) and get_color(col_i, rank_i) == player:
                     if pos_index < len(liste_position)-1: #if aborted moves
                         del liste_position[pos_index+1:], liste_last_moves[pos_index+1:] #delete end of the positions
+                        for p in ["w", "b"]:
+                            for i in ['k_move', "h_rook_move", "a_rook_move"]:
+                                if eval(i)[p][1] != None:
+                                    if eval(i)[p][1] >= pos_index:
+                                        eval(i)[p] = [False, None]
                     last_move = liste_last_moves[pos_index]
                     piece = position[rank_i][col_i]
                     castle = False
@@ -579,7 +599,10 @@ def main():
                     en_passant = False
                     # if the king is moved
                     if piece[1] == "K":
-                        k_move[player] = True
+                        k_move[player][0] = True
+                        if k_move[player][1] == None: k_move[player][1] = pos_index
+                        elif k_move[player][1] > pos_index: k_move[player][1] = pos_index
+
                         k_pos[player] = (col_f, rank_f)
 
                         # if short castle
@@ -595,8 +618,14 @@ def main():
                     elif piece[1] == "R":
                         if col_i == 0:
                             a_rook_move[player] = True
+                            if a_rook_move[player][1] == None: a_rook_move[player][1] = pos_index
+                            elif a_rook_move[player][1] > pos_index: a_rook_move[player][1] = pos_index
+
                         elif col_i == 7:
                             h_rook_move[player] = True
+                            if h_rook_move[player][1] == None: h_rook_move[player][1] = pos_index
+                            elif h_rook_move[player][1] > pos_index: h_rook_move[player][1] = pos_index
+
 
                     # if a pawn is moved
                     elif piece[1] == "P":
@@ -691,6 +720,7 @@ def main():
                     player = "w" if player == "b" else "b"
                     liste_position.append([rank[:] for rank in position])
                     pos_index += 1
+                    #☺print(pos_index)
 
                     piece = piece[1] if piece[1] != "P" else ""
                     capture = "x" if capture else ""
