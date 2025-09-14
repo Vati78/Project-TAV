@@ -27,6 +27,8 @@ class Ball:
     def __init__(self, x, y, vx, vy, radius, color):
         self.x = x
         self.y = y
+        self.vx_i = vx
+        self.vy_i = vy
         self.vx = vx
         self.vy = vy
         self.radius = radius
@@ -34,8 +36,10 @@ class Ball:
 
     def rebond(self, coeff, loop, touche_exterieur=False):
         bord = -1 if touche_exterieur else 1
-        self.vx = - (self.vx + coeff) * bord * 1.001
-        self.vy =  (self.vy + coeff) * bord
+        signe_x = -1 if self.vx < 0 else 1
+
+        self.vx = - self.vx_i * bord * (1 + loop/1000) * signe_x
+        self.vy =  self.vy * bord + coeff
 
     def draw(self):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
@@ -96,7 +100,7 @@ def interactions(players, balle, n):
                 balle.rebond(players[1].vy, n)
 
     if balle.y - balle.radius <= 0 or balle.y + balle.radius >= HEIGHT:
-        balle.rebond(0, True, n)
+        balle.rebond(0, n, True)
 
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
         return False
@@ -118,12 +122,16 @@ def main():
             if event.type == pg.QUIT:
                 running = False
 
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_DOWN:
-                players[0].move(1)
+        keys = pg.key.get_pressed()
 
-            if event.key == pg.K_UP:
-                players[0].move(-1)
+        if keys[pg.K_DOWN]:
+            players[0].move(1)
+
+        if keys[pg.K_UP]:
+            players[0].move(-1)
+
+        if keys[pg.K_RIGHT]:
+            pass
 
         balle.move()
         players[1].y = balle.y
