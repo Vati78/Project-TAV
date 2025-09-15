@@ -1,8 +1,12 @@
 import pygame as pg
 import math
 import random as rd
+import os
+
 
 pg.init()
+
+os.chdir(os.path.abspath(__file__)[0:-8])
 
 """
 Constants and initialization
