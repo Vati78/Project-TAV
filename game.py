@@ -109,10 +109,12 @@ def interactions(players, balle, n):
 
 
 def main():
-    players = [Plateform(10, HEIGHT//2, 10, 100, HEIGHT, 0, GREEN), Plateform(WIDTH-20, HEIGHT//2+10, 10, 100, HEIGHT, 0, GREEN)]
+    players = [Plateform(10, (HEIGHT-100)//2, 10, 100, HEIGHT, 0, GREEN), Plateform(WIDTH-20, (HEIGHT-100)//2, 10, 100, HEIGHT, 0, GREEN)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 10, 0, 40, RED)
     n = 0
     running = True
+
+    balle.vy = rd.randint(-10, 10)
 
     while running:
         n += 1
@@ -134,7 +136,7 @@ def main():
             pass
 
         balle.move()
-        players[1].y = balle.y
+        players[1].y = balle.y - players[1].ly//2
 
         if running:
             running = interactions(players, balle, n)
