@@ -47,6 +47,8 @@ class Ball:
         self.vx = - self.vx_i * bord * (1 + loop/1000) * signe_x
         self.vy =  self.vy * bord + coeff#*sens
 
+        # ceci est un commentaire
+
     def draw(self):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
 
