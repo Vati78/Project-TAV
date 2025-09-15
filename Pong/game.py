@@ -2,6 +2,7 @@ import pygame as pg
 import math
 import random as rd
 import os
+import time
 
 
 pg.init()
@@ -45,7 +46,7 @@ class Ball:
         sens = -1 if self.vy > 0 and coeff > 0 else 1
 
         self.vx = - self.vx_i * bord * (1 + loop/1000) * signe_x
-        self.vy =  self.vy * bord + coeff#*sens
+        self.vy =  self.vy * bord + coeff*0.1#*sens
 
 
     def draw(self):
@@ -126,6 +127,7 @@ def main():
     running = True
 
     balle.vy = rd.randint(-10, 10)
+    clock = pg.time.Clock()
 
     while running:
         n += 1
@@ -158,8 +160,7 @@ def main():
         for i in enumerate(players): i[1].draw(i[0])
 
         pg.display.update()
-        pg.time.Clock().tick(120)
-
+        clock.tick(120)
 
 main()
 
