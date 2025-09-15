@@ -8,8 +8,8 @@ pg.init()
 Constants and initialization
 """
 
-WIDTH = 960
-HEIGHT = 540
+WIDTH = 1000
+HEIGHT = 500
 
 win = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Ping-Pong")
@@ -21,7 +21,7 @@ dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 RED = (255, 20, 20)
 
-win.fill(GREY)
+win.blit(pg.image.load(f"Images/terrain.png"), (0, 0))
 
 class Ball:
     def __init__(self, x, y, vx, vy, radius, color):
@@ -37,9 +37,11 @@ class Ball:
     def rebond(self, coeff, loop, touche_exterieur=False):
         bord = -1 if touche_exterieur else 1
         signe_x = -1 if self.vx < 0 else 1
+        signe_y = -1 if self.vy < 0 else 1
+        sens = -1 if self.vy > 0 and coeff > 0 else 1
 
         self.vx = - self.vx_i * bord * (1 + loop/1000) * signe_x
-        self.vy =  self.vy * bord + coeff
+        self.vy =  self.vy * bord + coeff#*sens
 
     def draw(self):
         pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
@@ -76,6 +78,9 @@ class Plateform:
 
 def interactions(players, balle, n):
     if balle.vx < 0:
+        #if balle.x <= players[0].x + players[0].lx and math.sqrt(
+         #           (balle.y - players[0].y) ** 2 + (balle.x - players[0].x) ** 2) <= balle.radius:
+          #  balle.rebond(0, n, True)
         if (players[0].y <= balle.y <= players[0].y + players[0].ly
                 and balle.x - balle.radius <= players[0].x + players[0].lx):
             balle.rebond(players[0].vy, n)
@@ -88,7 +93,7 @@ def interactions(players, balle, n):
                     balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
                 balle.rebond(players[0].vy, n)
 
-    if balle.vx > 0:
+    if balle.vx > 0 and balle.x <= players[1].x:
         if (players[1].y <= balle.y <= players[1].y + players[1].ly
                 and balle.x + balle.radius >= players[1].x):
             balle.rebond(players[1].vy, n)
@@ -100,7 +105,7 @@ def interactions(players, balle, n):
                     (balle.y - (players[1].y + players[1].ly)) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
                 balle.rebond(players[1].vy, n)
 
-    if balle.y - balle.radius <= 0 or balle.y + balle.radius >= HEIGHT:
+    if balle.y - balle.radius <= 20 or balle.y + balle.radius >= HEIGHT-20:
         balle.rebond(0, n, True)
 
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
@@ -110,8 +115,8 @@ def interactions(players, balle, n):
 
 
 def main():
-    players = [Plateform(10, (HEIGHT-100)//2, 10, 100, HEIGHT, 0, GREEN), Plateform(WIDTH-20, (HEIGHT-100)//2, 10, 100, HEIGHT, 0, GREEN)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 10, 0, 40, RED)
+    players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN)]
+    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 40, RED)
     n = 0
     running = True
 
@@ -143,12 +148,12 @@ def main():
             running = interactions(players, balle, n)
 
         # display
-        win.fill(GREY)
+        win.blit(pg.image.load(f"Images/terrain.png"), (0, 0))
         balle.draw()
         for i in enumerate(players): i[1].draw(i[0])
 
         pg.display.update()
-        pg.time.Clock().tick(60)
+        pg.time.Clock().tick(120)
 
 
 main()
