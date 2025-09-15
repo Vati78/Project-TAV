@@ -70,8 +70,9 @@ class Plateform:
     def reset(self):
         self.vy = 0
 
-    def draw(self):
-        pg.draw.rect(win, self.color, (self.x, self.y, self.lx, self.ly))
+    def draw(self, index):
+        win.blit(pg.transform.scale(pg.image.load(f"Images/Platforme_{index+1}.png"), (self.lx, self.ly)),
+                 (self.x, self.y))
 
 def interactions(players, balle, n):
     if balle.vx < 0:
@@ -144,7 +145,7 @@ def main():
         # display
         win.fill(GREY)
         balle.draw()
-        for i in players: i.draw()
+        for i in enumerate(players): i[1].draw(i[0])
 
         pg.display.update()
         pg.time.Clock().tick(60)
