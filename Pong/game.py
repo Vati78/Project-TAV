@@ -45,10 +45,12 @@ class Ball:
         #signe_y = -1 if self.vy < 0 else 1
         #sens = -1 if self.vy > 0 and p_vy > 0 else 1
         if coeff != 0:
-            pass
-
-        self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
-        self.vy =  self.vy * bord + p_vy*0.1 #*sens
+            A = coeff/self.radius * math.pi/2
+            self.vx = -math.cos(2*A)*self.vx+sin(2*A)*self.vy
+            self.vy
+        else:
+            self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
+            self.vy =  self.vy * bord + p_vy*0.1 #*sens
 
 
     def draw(self):
