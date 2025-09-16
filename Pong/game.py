@@ -46,8 +46,8 @@ class Ball:
         #sens = -1 if self.vy > 0 and p_vy > 0 else 1
         if coeff != 0:
             A = coeff/self.radius * math.pi/2
-            self.vx = -math.cos(2*A)*self.vx+sin(2*A)*self.vy
-            self.vy
+            self.vx = -math.cos(2*A)*self.vx+math.sin(2*A)*self.vy
+            self.vy = math.sin(2*A)*self.vx + math.cos(2*A)*self.vy
         else:
             self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
             self.vy =  self.vy * bord + p_vy*0.1 #*sens
@@ -96,12 +96,12 @@ def interactions(players, balle, n):
         # if the ball is below the plateform
         elif players[0].y - balle.radius + 1 <= balle.y <= players[0].y and math.sqrt(
                     (balle.y - players[0].y) ** 2 + (balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
-                balle.rebond(players[0].vy, n, players[0].y-balle.y)
+                balle.rebond(players[0].vy, n, players[0].y+players[0].ly-balle.y-balle.radius)
         # if the ball is above the Plateform
         elif players[0].y + players[0].ly <= balle.y <= players[0].y + players[0].ly + balle.radius:
             if math.sqrt((balle.y - (players[0].y + players[0].ly)) ** 2 + (
                     balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
-                balle.rebond(players[0].vy, n, players[0].y-balle.y)
+                balle.rebond(players[0].vy, n, players[0].y-balle.y-balle.radius)
 
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
@@ -111,12 +111,12 @@ def interactions(players, balle, n):
             balle.rebond(players[1].vy, n, 0)
         # if the ball is below the Plateform
         elif players[1].y - balle.radius + 1 <= balle.y <= players[1].y and math.sqrt((balle.y - players[1].y) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
-                balle.rebond(players[1].vy, n, players[0].y-balle.y)
+                balle.rebond(players[1].vy, n, players[0].y+players[0].ly-balle.y-balle.radius)
         # if the ball is above the Plateform
         elif players[1].y + players[1].ly <= balle.y <= players[1].y + players[1].ly + balle.radius:
             if math.sqrt(
                     (balle.y - (players[1].y + players[1].ly)) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
-                balle.rebond(players[1].vy, n, players[0].y-balle.y)
+                balle.rebond(players[1].vy, n, players[0].y-balle.y-balle.radius)
 
     if balle.y - balle.radius <= 20 or balle.y + balle.radius >= HEIGHT-20:
         balle.rebond(0, n, 0, True)
@@ -134,6 +134,7 @@ def main():
     running = True
 
     #balle.vy = rd.randint(-10, 10)
+    balle.vy=0.1
     clock = pg.time.Clock()
 
     while running:
