@@ -74,7 +74,7 @@ class Ball:
 
 
 class Plateform:
-    def __init__(self, x, y, lx, ly, ymax, ymin, color):
+    def __init__(self, x, y, lx, ly, ymax, ymin, color, index):
         self.x = x
         self.y = y
         self.lx = lx
@@ -84,6 +84,8 @@ class Plateform:
         self.ymin = ymin
         self.vmax = 10
         self.color = color
+        self.index = index
+        self.img = pg.transform.scale(pg.image.load(f"Images/Platforme_{self.index+1}.png"), (self.lx, self.ly))
 
     def move(self, vy):
         vy *= self.vmax
@@ -94,9 +96,8 @@ class Plateform:
     def reset(self):
         self.vy = 0
 
-    def draw(self, index):
-        win.blit(pg.transform.scale(pg.image.load(f"Images/Platforme_{index+1}.png"), (self.lx, self.ly)),
-                 (self.x, self.y))
+    def draw(self):
+        win.blit(self.img, (self.x, self.y))
 
 def interactions(players, balle, n):
     if balle.vx < 0:
@@ -140,16 +141,19 @@ def interactions(players, balle, n):
 
 
 def main():
-    players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 10, 0, 35, RED)
+    players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN, 0), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN, 1)]
+    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35, RED)
     n = 0
     running = True
 
-    #balle.vy = rd.randint(-10, 10)
-    balle.vy=0.1
+    balle.vy = rd.randint(-5, 5)
+    #balle.vy=0.1
     clock = pg.time.Clock()
 
+    fond = pg.image.load(f"Images/terrain.png")
+    
     while running:
+
         n += 1
 
         for i in players: i.reset()
@@ -175,9 +179,9 @@ def main():
             running = interactions(players, balle, n)
 
         # display
-        win.blit(pg.image.load(f"Images/terrain.png"), (0, 0))
+        win.blit(fond, (0,0))
         balle.draw()
-        for i in enumerate(players): i[1].draw(i[0])
+        for i in enumerate(players): i[1].draw()
 
         pg.display.update()
         clock.tick(120)
