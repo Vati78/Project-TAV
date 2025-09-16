@@ -184,6 +184,7 @@ def main():
                            Plateform(WIDTH - 110, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 20, GREEN, 1)]
                 balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35, RED)
                 balle.vy = rd.randint(-5, 5)
+                n = 0
 
         # display
         win.blit(fond, (0,0))
