@@ -14,7 +14,7 @@ Constants and initialization
 """
 
 WIDTH = 1000
-HEIGHT = 500
+HEIGHT = 600
 
 win = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Ping-Pong")
@@ -26,7 +26,8 @@ dWHITE = (208,208,180)
 GREY = (50, 50, 50)
 RED = (255, 20, 20)
 
-win.blit(pg.image.load(f"Images/terrain.png"), (0, 0))
+win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
+win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
 class Ball:
     def __init__(self, x, y, vx, vy, radius, color):
@@ -131,7 +132,7 @@ def interactions(players, balle, n):
                     (balle.y - (players[1].y + players[1].ly)) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
                 balle.rebond(players[1].vy, n, players[1].y+players[1].ly-balle.y-balle.radius)
 
-    if balle.y - balle.radius <= 20 or balle.y + balle.radius >= HEIGHT-20:
+    if balle.y - balle.radius <= 120 or balle.y + balle.radius >= HEIGHT-20:
         balle.rebond(0, n, 0, True)
 
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
@@ -141,7 +142,7 @@ def interactions(players, balle, n):
 
 
 def main():
-    players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN, 0), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 20, GREEN, 1)]
+    players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35, RED)
     n = 0
     running = True
@@ -151,6 +152,7 @@ def main():
     clock = pg.time.Clock()
 
     fond = pg.image.load(f"Images/terrain.png")
+    haut = pg.image.load(f"Images/haut.png")
     
     while running:
 
@@ -187,7 +189,8 @@ def main():
                 n = 0
 
         # display
-        win.blit(fond, (0,0))
+        win.blit(fond, (0, 100))
+        win.blit(haut, (0, 0))
         balle.draw()
         for i in enumerate(players): i[1].draw()
 
