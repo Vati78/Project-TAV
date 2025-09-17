@@ -39,6 +39,7 @@ class Ball:
         self.vy = vy
         self.radius = radius
         self.color = color
+        self.image = pg.transform.scale(pg.image.load(f"Images/Balle.png"), (self.radius*2, self.radius*2))
 
     def rebond(self, p_vy, loop, coeff, touche_exterieur=False): #p_vy: vy de la plateforme; touche_exterieur: haut ou bas de l'écran
         bord = -1 if touche_exterieur else 1
@@ -67,7 +68,7 @@ class Ball:
 
 
     def draw(self):
-        pg.draw.circle(win, self.color, (self.x, self.y), self.radius)
+        win.blit(self.image, (self.x, self.y))
 
     def move(self):
         self.x += self.vx
@@ -182,8 +183,8 @@ def main():
                 time.sleep(1)
                 del balle
                 for i in range(1): del players[i]
-                players = [Plateform(100, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 20, GREEN, 0),
-                           Plateform(WIDTH - 110, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 20, GREEN, 1)]
+                players = [Plateform(100, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 0),
+                           Plateform(WIDTH - 110, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 1)]
                 balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35, RED)
                 balle.vy = rd.randint(-5, 5)
                 n = 0
