@@ -30,7 +30,7 @@ win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
 win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
 class Ball:
-    def __init__(self, x, y, vx, vy, radius, color):
+    def __init__(self, x, y, vx, vy, radius):
         self.x = x
         self.y = y
         self.vx_i = vx
@@ -38,8 +38,7 @@ class Ball:
         self.vx = vx
         self.vy = vy
         self.radius = radius
-        self.color = color
-        self.image = pg.transform.scale(pg.image.load(f"Images/Balle.png"), (self.radius*2, self.radius*2))
+        self.image = pg.image.load(f"Images/Balle.png")
 
     def rebond(self, p_vy, loop, coeff, touche_exterieur=False): #p_vy: vy de la plateforme; touche_exterieur: haut ou bas de l'écran
         bord = -1 if touche_exterieur else 1
@@ -68,7 +67,7 @@ class Ball:
 
 
     def draw(self):
-        win.blit(self.image, (self.x, self.y))
+        win.blit(self.image, (self.x-self.radius, self.y-self.radius))
 
     def move(self):
         self.x += self.vx
@@ -144,7 +143,7 @@ def interactions(players, balle, n):
 
 def main():
     players = [Plateform(100, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0), Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35, RED)
+    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35)
     n = 0
     running = True
 
@@ -185,7 +184,7 @@ def main():
                 for i in range(1): del players[i]
                 players = [Plateform(100, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 0),
                            Plateform(WIDTH - 110, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 1)]
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35, RED)
+                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
                 balle.vy = rd.randint(-5, 5)
                 n = 0
 
