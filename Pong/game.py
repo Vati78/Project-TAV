@@ -200,7 +200,7 @@ def interactions(players, balle, n):
 def main():
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
-               Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 0)]
+               Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 15)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35)
 
     #nombre d'itérations et variable de boucle principale
