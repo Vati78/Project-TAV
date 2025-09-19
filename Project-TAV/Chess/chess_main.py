@@ -568,15 +568,12 @@ def main():
             #updating k_pos, h_rook_move and a_rook_move for each player
             for p in ["w", "b"]:
                 for i in ['k_move', "h_rook_move", "a_rook_move"]:
-                    #☺print("---")
                     
                     if eval(i)[p][1] != None:
                         if eval(i)[p][1] >= pos_index:
                             eval(i)[p][0] = False
                         else:
                             eval(i)[p][0] = True
-                    #☺print(i,'[',p,'] = ',eval(i)[p])
-            #☺print(pos_index)
 
         # if a move is played
         if move_i and move_f:
@@ -720,7 +717,6 @@ def main():
                     player = "w" if player == "b" else "b"
                     liste_position.append([rank[:] for rank in position])
                     pos_index += 1
-                    #☺print(pos_index)
 
                     piece = piece[1] if piece[1] != "P" else ""
                     capture = "x" if capture else ""
