@@ -99,7 +99,7 @@ class Plateform:
                 self.y_v = y - self.ly/2
                 self.count += 1
                 if self.diff != "":
-                    if self.count >= self.diff + int(self.diff * (rd.random()- 0,5)/4):
+                    if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/4):
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
             elif ball.vx<0: self.y_v = None
@@ -137,7 +137,7 @@ def interactions(players, balle, n):
                     balle.rebond(players[0].vy, n, "right")
                     print("rebond centre")
             # si le centre de la balle se trouve au dessus de la plateforme
-            elif balle.y <= players[0].y <= balle.y + balle.radius:
+            elif balle.y - math.sqrt(2)*balle.radius/2 <= players[0].y <= balle.y + balle.radius:
                 # si à la prochaine itération la balle touchera la plateforme
                 if balle.x - balle.radius + balle.vx < players[0].x + players[0].lx < balle.x - balle.radius:
                     balle.vx = -abs(players[0].x + players[0].lx - (balle.x - balle.radius))
@@ -145,7 +145,7 @@ def interactions(players, balle, n):
                     balle.rebond(players[0].vy, n, "above")
                     print("rebond haut")
             # si le centre de la balle se trouve en dessous de la plateforme
-            elif balle.y - balle.radius <= players[0].y + players[0].ly <= balle.y:
+            elif balle.y - balle.radius <= players[0].y + players[0].ly <= balle.y + math.sqrt(2)*balle.radius/2:
                 # si à la prochaine itération la balle touchera la plateforme
                 if balle.x - balle.radius + balle.vx < players[0].x + players[0].lx < balle.x - balle.radius:
                     balle.vx = -abs(players[0].x + players[0].lx - (balle.x - balle.radius))
@@ -200,7 +200,7 @@ def interactions(players, balle, n):
 def main():
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
-               Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 10)]
+               Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 0)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35)
 
     #nombre d'itérations et variable de boucle principale
@@ -217,7 +217,7 @@ def main():
     fond = pg.image.load(f"Images/terrain.png")
     haut = pg.image.load(f"Images/haut.png")
     police = pg.font.SysFont("Arial", 45)
-    
+
     #boucle principale
     while running:
         # + 1 itération à la boucle principale
@@ -275,7 +275,7 @@ def main():
         #Affichage du score
         score = f"{players[0].nmb_points} : {players[1].nmb_points}"
         texte = police.render(score, True, (255,255,255))
-        win.blit(texte, (WIDTH/2 - 45, HEIGHT))
+        win.blit(texte, (WIDTH/2 - 9 * (len(str(players[0].nmb_points))+1) - 27, HEIGHT))
 
         #mise à jour de la fenetre pygame
         pg.display.update()
