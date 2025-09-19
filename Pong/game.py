@@ -6,7 +6,6 @@ import time
 
 
 pg.init()
-
 os.chdir(os.path.abspath(__file__)[0:-8])
 
 """
