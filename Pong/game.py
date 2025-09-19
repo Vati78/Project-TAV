@@ -217,7 +217,8 @@ def main():
                 #recréation d'une nouvelle partie
                 players = [Plateform(100, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 0),
                            Plateform(WIDTH - 110, (HEIGHT - 100) // 2, 10, 100, HEIGHT - 20, 120, GREEN, 1)]
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35) 
+                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
+                balle.vy = rd.randint(-5, 5)
                 n = 0
 
         #affichage de tous les éléments
