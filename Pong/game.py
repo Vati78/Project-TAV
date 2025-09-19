@@ -113,6 +113,7 @@ class Plateform:
 
 #détection des différentes interactions entre les objets
 def interactions(players, balle, n):
+    #si la balle se déplace vers la gauche
     if balle.vx < 0:
         if balle.x <= players[0].x + players[0].lx and balle.x - balle.vx <= players[0].x + players[0].lx:
             pass#return False
@@ -129,6 +130,7 @@ def interactions(players, balle, n):
                     balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
                 balle.rebond(players[0].vy, n, players[0].y+players[0].ly-balle.y-balle.radius)
 
+    #si la balle se déplace vers la droite
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
             return False
@@ -144,12 +146,16 @@ def interactions(players, balle, n):
                     (balle.y - (players[1].y + players[1].ly)) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
                 balle.rebond(players[1].vy, n, players[1].y+players[1].ly-balle.y-balle.radius)
 
+    #si la balle touche le haut ou la bas du terrain
     if balle.y - balle.radius <= 120 or balle.y + balle.radius >= HEIGHT-20:
         balle.rebond(0, n, 0, True)
 
+    #si la balle touche la gauche ou la droite du terrain
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
+        #arreter le jeu
         return False
 
+    #continuer le jeu
     return True
 
 #fonction principale
