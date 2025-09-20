@@ -50,6 +50,8 @@ class Ball:
         #sens = -1 if self.vy > 0 and p_vy > 0 else 1
         self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
         self.vy =  self.vy * bord + p_vy*0.1 #*sens
+        if position in ("above","below"):
+            self.vy += p_vy
 
     #affichage de la balle
     def draw(self):
@@ -125,49 +127,29 @@ class Plateform:
 def interactions(players, balle, n):
     #si la balle se déplace vers la gauche
     if balle.vx < 0:
-        #si la balle approche de la plateforme de gauche
-        if balle.x < players[0].x + players[0].lx + balle.radius + 150:
-            #si le centre de la balle se trouve au niveau de la plateforme
-            if players[0].y <= balle.y <= players[0].y + players[0].ly:
-                #si à la prochaine itération la balle touchera la plateforme
-                if balle.x - balle.radius + balle.vx < players[0].x + players[0].lx < balle.x - balle.radius:
-                    balle.vx = -abs(players[0].x + players[0].lx - (balle.x - balle.radius))
-                # si la balle arrive sur la plateforme
-                elif players[0].x + players[0].lx == balle.x - balle.radius:
-                    balle.rebond(players[0].vy, n, "right")
-                    print("rebond centre")
-            # si le centre de la balle se trouve au dessus de la plateforme
-            elif balle.y - math.sqrt(2)*balle.radius/2 <= players[0].y <= balle.y + balle.radius:
-                # si à la prochaine itération la balle touchera la plateforme
-                if balle.x - balle.radius + balle.vx < players[0].x + players[0].lx < balle.x - balle.radius:
-                    balle.vx = -abs(players[0].x + players[0].lx - (balle.x - balle.radius))
-                elif players[0].x + players[0].lx == balle.x - balle.radius:
-                    balle.rebond(players[0].vy, n, "above")
-                    print("rebond haut")
-            # si le centre de la balle se trouve en dessous de la plateforme
-            elif balle.y - balle.radius <= players[0].y + players[0].ly <= balle.y + math.sqrt(2)*balle.radius/2:
-                # si à la prochaine itération la balle touchera la plateforme
-                if balle.x - balle.radius + balle.vx < players[0].x + players[0].lx < balle.x - balle.radius:
-                    balle.vx = -abs(players[0].x + players[0].lx - (balle.x - balle.radius))
-                elif players[0].x + players[0].lx == balle.x - balle.radius:
-                    balle.rebond(players[0].vy, n, "below")
-                    print("rebond bas")
-            '''
-            if balle.x <= players[0].x + players[0].lx and balle.x - balle.vx <= players[0].x + players[0].lx:
-                pass#return False
-            elif (players[0].y <= balle.y <= players[0].y + players[0].ly
-                    and balle.x - balle.radius <= players[0].x + players[0].lx):
-                balle.rebond(players[0].vy, n, 0)
-            # if the ball is above the plateform
-            elif players[0].y - balle.radius + 1 <= balle.y <= players[0].y and math.sqrt(
-                        (balle.y - players[0].y) ** 2 + (balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
-                    balle.rebond(players[0].vy, n, players[0].y-balle.y-balle.radius)
-            # if the ball is below the Plateform
-            elif players[0].y + players[0].ly <= balle.y <= players[0].y + players[0].ly + balle.radius:
-                if math.sqrt((balle.y - (players[0].y + players[0].ly)) ** 2 + (
-                        balle.x - (players[0].x + players[0].lx)) ** 2) <= balle.radius:
-                    balle.rebond(players[0].vy, n, players[0].y+players[0].ly-balle.y-balle.radius)
-'''
+        #si la balle se trouve sur la ligne verticale de la plateforme
+        if players[0].x + players[0].lx == balle.x -balle.radius:
+            #si elle est au niveau de la plateforme
+            if players[0].y - (math.sqrt(2) * balle.radius // 2) < balle.y < players[0].y + players[0].ly + (math.sqrt(2) * balle.radius // 2):
+                balle.rebond(players[0].vy, n, "right")
+
+            
+
+        #si à la prochaine itération la balle dépassera la ligne vertivale de la plateforme
+        elif balle.x -balle.radius + balle.vx < players[0].x + players[0].lx < balle.x -balle.radius:
+            #si à la prochaine itération, la balle tapera au milieu de la raquette
+            if players[0].y + players[0].vy - (math.sqrt(2) * balle.radius // 2) - 5< balle.y + balle.vy < players[0].y + players[0].ly + players[0].vy + (math.sqrt(2) * balle.radius // 2) + 5:
+                balle.vx = players[0].x + players[0].lx - balle.x + balle.radius
+            
+        if balle.vy >= 0:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius + 10:
+                balle.rebond(players[0].vy, n, "above")
+                
+            
+        if balle.vy <= 0:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly < balle.y + balle.radius + 10:
+                balle.rebond(players[0].vy, n, "below")
+   
     #si la balle se déplace vers la droite
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
@@ -262,7 +244,7 @@ def main():
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
                 balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
-                balle.vy = rd.randint(-5, 5)
+                balle.vy = rd.randint(-1,-1)
                 n = 0
 
         #affichage de tous les éléments
@@ -282,5 +264,3 @@ def main():
         clock.tick(120)
 
 main()
-
-
