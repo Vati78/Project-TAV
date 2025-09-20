@@ -46,8 +46,6 @@ class Ball:
         bord = -1 if position in ("above","below","wall") else 1
         signe_x = -1 if (self.vx < 0) else 1
         if position in ("right","left"): signe_x = 1 if position == "left" else -1
-        #signe_y = -1 if self.vy < 0 else 1
-        #sens = -1 if self.vy > 0 and p_vy > 0 else 1
         self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
         self.vy =  self.vy * bord + p_vy*0.1 #*sens
         if position in ("above","below"):
@@ -124,7 +122,115 @@ class Plateform:
         win.blit(self.img, (self.x, self.y))
 
 #détection des différentes interactions entre les objets
-def interactions(players, balle, n):
+def interactions(players, balle, n, simulation=False, coor=None):
+    """
+    if simulation:
+        x = coor[0]
+        y = coor[1]
+    else:
+        x = balle.x
+        y = balle.y
+    print(balle.vx)
+    #Tentative d'amélioration
+    ###RIGHT###
+    if balle.vx < 0:
+        if (players[0].x + players[0].lx == x - balle.radius
+            and players[0].y <= y <= players[0].y + players[0].ly):
+            if simulation: return True
+            print("directement à droite")
+            balle.rebond(players[0].vy, n, "right")
+            return True
+
+
+        elif (players[0].y + players[0].ly//2>= y >= players[0].y - balle.radius*math.sqrt(2)//2
+            and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            if simulation: return True
+            print("à droite mais trigo")
+            balle.rebond(players[0].vy, n, "right")
+            return True
+
+
+        elif (players[0].y  + players[0].ly//2 <= y <= players[0].y + players[0].ly + balle.radius*math.sqrt(2)//2
+              and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
+              and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+            if simulation: return True
+            print("à droite mais trigo")
+            balle.rebond(players[0].vy, n, "right")
+            return True
+
+        ###RIGHT###
+        ###ABOVE###
+        elif (players[0].x <= x <= players[0].x + players[0].lx
+            and players[0].y == y + balle.radius):
+            if simulation: return True
+            print("directement au dessus")
+            balle.rebond(players[0].vy, n, "above")
+            return True
+
+
+        elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
+            and y <= players[0].y - balle.radius * math.sqrt(2)//2
+            and balle.vy > 0
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            if simulation: return True
+            print("au dessus mais trigo")
+            balle.rebond(players[0].vy, n, "above")
+            return True
+
+
+        elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
+            and y <= players[0].y - balle.radius*math.sqrt(2)//2
+            and balle.vy > 0
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            if simulation: return True
+            print("au dessus mais trigo")
+            balle.rebond(players[0].vy, n, "above")
+            return True
+
+        ###ABOVE###
+        ###BELOW###
+        elif (players[0].x <= x <= players[0].x + players[0].lx
+              and players[0].y == y - balle.radius):
+            if simulation: return True
+            print("directement au dessous")
+            balle.rebond(players[0].vy, n, "below")
+            return True
+
+
+        elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
+            and y >= players[0].y - balle.radius*math.sqrt(2)//2
+            and balle.vy < 0
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+            if simulation: return True
+            print("au dessous mais trigo")
+            balle.rebond(players[0].vy, n, "below")
+            return True
+
+
+        elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
+             and y >= players[0].y - balle.radius*math.sqrt(2)//2
+             and balle.vy < 0
+             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+            if simulation: return True
+            print("au dessous mais trigo")
+            balle.rebond(players[0].vy, n, "below")
+            return True
+
+        ###BELOW###
+        ###CALCULATIONS###
+        elif not simulation and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
+            and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy)):
+            for sim_x in range(players[0].x + players[0].lx + balle.radius, round(x + balle.vx) - 1, -1):
+                result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
+                if result:
+                    balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
+                    balle.vx = sim_x - x
+
+        if simulation: return False
+
+
+    """
     #si la balle se déplace vers la gauche
     if balle.vx < 0:
         #si la balle se trouve sur la ligne verticale de la plateforme
@@ -149,7 +255,7 @@ def interactions(players, balle, n):
         if balle.vy <= 0:
             if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly < balle.y + balle.radius + 10:
                 balle.rebond(players[0].vy, n, "below")
-   
+
     #si la balle se déplace vers la droite
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
@@ -224,6 +330,7 @@ def main():
 
         #mouvement de la balle
         balle.move()
+        pg.draw.rect(win, "black", (balle.x, balle.y, 5, 5))
 
         #mouvement du bot
         #players[1].y = balle.y - players[1].ly//2
