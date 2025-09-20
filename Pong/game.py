@@ -100,10 +100,13 @@ class Plateform:
                     elif y + vy + ball.radius >= HEIGHT - 20: vy = -vy
                 self.y_v = y - self.ly/2
                 self.count += 1
+                print(vy)
+                print(y, ' -')
                 if self.diff != "":
-                    if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/4):
+                    if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
+                        print("rd")
             elif ball.vx<0: self.y_v = None
             if self.y_v == None: y_v = ((self.ymin + self. ymax)/2 - self.ly/2)
             else: y_v = self.y_v
@@ -115,9 +118,10 @@ class Plateform:
             self.vy = vy
 
 
-    #remise à 0 de la vitesse verticale
+    #nouvel envoi de balle
     def reset(self):
         self.vy = 0
+        if self.ia: self.y_v = None
 
     #affichage de la PLATEFORME
     def draw(self):
@@ -206,7 +210,7 @@ def main():
         n += 1
 
         #mise à 0 de la vitesse verticale de chaque joueur
-        for i in players: i.reset()
+        for i in players: i.vy = 0
 
         #détection d'un éventuel évenement menant à une fermeture de pygame
         for event in pg.event.get():
@@ -243,6 +247,7 @@ def main():
                 #recréation d'une nouvelle partie
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
+                    players[i].reset()
                 balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
                 balle.vy = rd.randint(-1,-1)
                 n = 0
