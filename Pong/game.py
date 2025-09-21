@@ -28,7 +28,7 @@ win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
 win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
 #création de la classe BALLE
-class Ball:
+class Ball():
     #initialisation des variables relatives à la BALLE
     def __init__(self, x, y, vx, vy, radius):
         self.x = x
@@ -63,7 +63,7 @@ class Ball:
         self.y += self.vy
 
 #création de la classe PLATEFORME
-class Plateform:
+class Plateform():
     #création des variables relatives à la classe PLATEFORME
     def __init__(self, x, y, lx, ly, ymax, ymin, color, index, ia = None, diff = 10):
         self.x = x
@@ -182,19 +182,22 @@ def interactions(players, balle, n):
     #continuer le jeu
     return True
 
+
+
+####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
 def main():
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 15)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35)
+    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
 
     #nombre d'itérations et variable de boucle principale
     n = 0
     running = True
 
     #aspect aléatoire de la vitesse verticale de la balle au début
-    balle.vy = rd.randint(-5, 5)
+  #  balle.vy = rd.randint(-5, 5)
 
     #initialisation de l'horloge
     clock = pg.time.Clock()
@@ -248,8 +251,8 @@ def main():
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
                     players[i].reset()
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
-                balle.vy = rd.randint(2,2)
+                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, rd.randint(20,20)/10, 35)
+                #balle.vy = rd.randint(2,2)
                 n = 0
 
         #affichage de tous les éléments
