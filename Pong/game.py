@@ -100,13 +100,13 @@ class Plateform():
                     elif y + vy + ball.radius >= HEIGHT - 20: vy = -vy
                 self.y_v = y - self.ly/2
                 self.count += 1
-                print(vy)
-                print(y, ' -')
+                #print(vy)
+                #print(y, ' -')
                 if self.diff != "":
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
-                        print("rd")
+                        #print("rd")
             elif ball.vx<0: self.y_v = None
             if self.y_v == None: y_v = ((self.ymin + self. ymax)/2 - self.ly/2)
             else: y_v = self.y_v
@@ -240,7 +240,7 @@ def main():
         if running:
             #pas d'interaction+
             if not interactions(players, balle, n): # n  loop (car loop != 0)
-                time.sleep(1)
+                
                 # attitrage des points
                 if balle.vx < 0:
                     players[1].nmb_points += 1
@@ -251,9 +251,9 @@ def main():
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
                     players[i].reset()
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, rd.randint(20,20)/10, 35)
-                #balle.vy = rd.randint(2,2)
+                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
                 n = 0
+                time.sleep(1)
 
         #affichage de tous les éléments
         win.fill((0,0,0))
