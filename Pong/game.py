@@ -146,12 +146,12 @@ def interactions(players, balle, n):
                 balle.vx = players[0].x + players[0].lx - balle.x + balle.radius
             
         if balle.vy >= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius + 10:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius:
                 balle.rebond(players[0].vy, n, "above")
                 
             
         if balle.vy <= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly < balle.y + balle.radius + 10:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly > balle.y - balle.radius:
                 balle.rebond(players[0].vy, n, "below")
    
     #si la balle se déplace vers la droite
@@ -249,7 +249,7 @@ def main():
                     players[i].y = (HEIGHT-100)//2
                     players[i].reset()
                 balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
-                balle.vy = rd.randint(-1,-1)
+                balle.vy = rd.randint(2,2)
                 n = 0
 
         #affichage de tous les éléments
