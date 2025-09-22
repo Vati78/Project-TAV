@@ -28,7 +28,7 @@ win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
 win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
 #création de la classe BALLE
-class Ball:
+class Ball():
     #initialisation des variables relatives à la BALLE
     def __init__(self, x, y, vx, vy, radius):
         self.x = x
@@ -61,7 +61,7 @@ class Ball:
         self.y += self.vy
 
 #création de la classe PLATEFORME
-class Plateform:
+class Plateform():
     #création des variables relatives à la classe PLATEFORME
     def __init__(self, x, y, lx, ly, ymax, ymin, color, index, ia = None, diff = 10):
         self.x = x
@@ -98,13 +98,13 @@ class Plateform:
                     elif y + vy + ball.radius >= HEIGHT - 20: vy = -vy
                 self.y_v = y - self.ly/2
                 self.count += 1
-                print(vy)
-                print(y, ' -')
+                #print(vy)
+                #print(y, ' -')
                 if self.diff != "":
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
-                        print("rd")
+                        #print("rd")
             elif ball.vx<0: self.y_v = None
             if self.y_v == None: y_v = ((self.ymin + self. ymax)/2 - self.ly/2)
             else: y_v = self.y_v
@@ -252,12 +252,12 @@ def interactions(players, balle, n, simulation=False, coor=None):
                 balle.vx = players[0].x + players[0].lx - balle.x + balle.radius
             
         if balle.vy >= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius + 10:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius:
                 balle.rebond(players[0].vy, n, "above")
                 
             
         if balle.vy <= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly < balle.y + balle.radius + 10:
+            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly > balle.y - balle.radius:
                 balle.rebond(players[0].vy, n, "below")
 
     #si la balle se déplace vers la droite
@@ -288,19 +288,22 @@ def interactions(players, balle, n, simulation=False, coor=None):
     #continuer le jeu
     return True
 
+
+
+####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
 def main():
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 15)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, 0, 35)
+    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
 
     #nombre d'itérations et variable de boucle principale
     n = 0
     running = True
 
     #aspect aléatoire de la vitesse verticale de la balle au début
-    balle.vy = rd.randint(-5, 5)
+  #  balle.vy = rd.randint(-5, 5)
 
     #initialisation de l'horloge
     clock = pg.time.Clock()
@@ -344,7 +347,7 @@ def main():
         if running:
             #pas d'interaction+
             if not interactions(players, balle, n): # n  loop (car loop != 0)
-                time.sleep(1)
+                
                 # attitrage des points
                 if balle.vx < 0:
                     players[1].nmb_points += 1
@@ -355,9 +358,9 @@ def main():
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
                     players[i].reset()
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, 0, 35)
-                balle.vy = rd.randint(-1,-1)
+                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
                 n = 0
+                time.sleep(1)
 
         #affichage de tous les éléments
         win.fill((0,0,0))
