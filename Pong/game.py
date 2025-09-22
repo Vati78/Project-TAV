@@ -143,7 +143,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("directement à droite")
             balle.rebond(players[0].vy, n, "right")
-            return True
 
 
         elif (players[0].y + players[0].ly//2>= y >= players[0].y - balle.radius*math.sqrt(2)//2
@@ -152,7 +151,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("à droite mais trigo")
             balle.rebond(players[0].vy, n, "right")
-            return True
 
 
         elif (players[0].y  + players[0].ly//2 <= y <= players[0].y + players[0].ly + balle.radius*math.sqrt(2)//2
@@ -161,7 +159,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("à droite mais trigo")
             balle.rebond(players[0].vy, n, "right")
-            return True
 
         ###RIGHT###
         ###ABOVE###
@@ -170,7 +167,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("directement au dessus")
             balle.rebond(players[0].vy, n, "above")
-            return True
 
 
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
@@ -180,7 +176,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("au dessus mais trigo")
             balle.rebond(players[0].vy, n, "above")
-            return True
 
 
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
@@ -190,7 +185,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("au dessus mais trigo")
             balle.rebond(players[0].vy, n, "above")
-            return True
 
         ###ABOVE###
         ###BELOW###
@@ -199,7 +193,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("directement au dessous")
             balle.rebond(players[0].vy, n, "below")
-            return True
 
 
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
@@ -209,7 +202,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("au dessous mais trigo")
             balle.rebond(players[0].vy, n, "below")
-            return True
 
 
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
@@ -219,7 +211,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             if simulation: return True
             print("au dessous mais trigo")
             balle.rebond(players[0].vy, n, "below")
-            return True
 
         ###BELOW###
         ###CALCULATIONS###
@@ -230,9 +221,9 @@ def interactions(players, balle, n, simulation=False, coor=None):
                 if result:
                     balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
                     balle.vx = sim_x - x
+                    break
 
         if simulation: return False
-
 
     """
     #si la balle se déplace vers la gauche
@@ -259,7 +250,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         if balle.vy <= 0:
             if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly > balle.y - balle.radius:
                 balle.rebond(players[0].vy, n, "below")
-
+                
     #si la balle se déplace vers la droite
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
