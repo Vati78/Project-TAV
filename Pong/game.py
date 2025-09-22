@@ -127,7 +127,6 @@ class Plateform():
 
 #détection des différentes interactions entre les objets
 def interactions(players, balle, n, simulation=False, coor=None):
-    """
     if simulation:
         x = coor[0]
         y = coor[1]
@@ -221,6 +220,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
                 if result:
                     balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
                     balle.vx = sim_x - x
+                    print(" -- -- ",balle.vx, balle.vy)
                     break
 
         if simulation: return False
@@ -250,7 +250,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         if balle.vy <= 0:
             if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly > balle.y - balle.radius:
                 balle.rebond(players[0].vy, n, "below")
-                
+   """
     #si la balle se déplace vers la droite
     if balle.vx > 0:
         if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
