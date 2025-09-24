@@ -55,6 +55,7 @@ class Ball():
     def draw(self):
         win.blit(self.image, (self.x-self.radius, self.y-self.radius))
 
+
     #déplacement de la balle
     def move(self):
         self.x += self.vx
@@ -133,11 +134,10 @@ def interactions(players, balle, n, simulation=False, coor=None):
     else:
         x = balle.x
         y = balle.y
-    print(balle.vx)
     #Tentative d'amélioration
     ###RIGHT###
     if balle.vx < 0:
-        if (players[0].x + players[0].lx == x - balle.radius
+        if (players[0].x + players[0].lx >= x - balle.radius
             and players[0].y <= y <= players[0].y + players[0].ly):
             if simulation: return True
             print("directement à droite")
@@ -146,7 +146,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
 
         elif (players[0].y + players[0].ly//2>= y >= players[0].y - balle.radius*math.sqrt(2)//2
             and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
             print("à droite mais trigo")
             balle.rebond(players[0].vy, n, "right")
@@ -154,7 +154,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
 
         elif (players[0].y  + players[0].ly//2 <= y <= players[0].y + players[0].ly + balle.radius*math.sqrt(2)//2
               and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-              and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+              and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
             print("à droite mais trigo")
             balle.rebond(players[0].vy, n, "right")
@@ -162,7 +162,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         ###RIGHT###
         ###ABOVE###
         elif (players[0].x <= x <= players[0].x + players[0].lx
-            and players[0].y == y + balle.radius):
+            and players[0].y <= y + balle.radius):
             if simulation: return True
             print("directement au dessus")
             balle.rebond(players[0].vy, n, "above")
@@ -171,7 +171,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and y <= players[0].y - balle.radius * math.sqrt(2)//2
             and balle.vy > 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
             print("au dessus mais trigo")
             balle.rebond(players[0].vy, n, "above")
@@ -180,7 +180,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
             and y <= players[0].y - balle.radius*math.sqrt(2)//2
             and balle.vy > 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) == balle.radius):
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
             print("au dessus mais trigo")
             balle.rebond(players[0].vy, n, "above")
@@ -188,7 +188,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         ###ABOVE###
         ###BELOW###
         elif (players[0].x <= x <= players[0].x + players[0].lx
-              and players[0].y == y - balle.radius):
+              and players[0].y <= y - balle.radius):
             if simulation: return True
             print("directement au dessous")
             balle.rebond(players[0].vy, n, "below")
@@ -197,7 +197,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and y >= players[0].y - balle.radius*math.sqrt(2)//2
             and balle.vy < 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
             print("au dessous mais trigo")
             balle.rebond(players[0].vy, n, "below")
@@ -206,7 +206,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
              and y >= players[0].y - balle.radius*math.sqrt(2)//2
              and balle.vy < 0
-             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) == balle.radius):
+             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
             print("au dessous mais trigo")
             balle.rebond(players[0].vy, n, "below")
@@ -215,13 +215,16 @@ def interactions(players, balle, n, simulation=False, coor=None):
         ###CALCULATIONS###
         elif not simulation and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
             and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy)):
-            for sim_x in range(players[0].x + players[0].lx + balle.radius, round(x + balle.vx) - 1, -1):
+            print("début boucle", x, players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1)
+            for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
                 result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
                 if result:
+                    print(balle.vy)
                     balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
                     balle.vx = sim_x - x
-                    print(" -- -- ",balle.vx, balle.vy)
+                    print(" -- -- ",sim_x, balle.vx, balle.vy)
                     break
+            print(" -- --  Pas trouvé !")
 
         if simulation: return False
 
