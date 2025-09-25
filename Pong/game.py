@@ -6,6 +6,8 @@ os.chdir(os.path.abspath(__file__)[0:-8])
 """
 Constants and initialization
 """
+phone = False
+
 #dimensions de la fenetre PYGAME
 WIDTH = 1000
 HEIGHT = 600
@@ -348,14 +350,22 @@ def main():
             if event.type == pg.QUIT:
                 running = False
 
-        #collecte de tous les éléments
-        keys = pg.key.get_pressed()
+        if phone:
+             mouse_pos = pg.mouse.get_pos()
+             if mouse_pos[1] > players[0].y + players[0].ly//2 + players[0].vmax:
+                 players[0].move(1)
+             elif mouse_pos[1] < players[0].y +  players[0].ly//2 - players[0].vmax:
+                 players[0].move(-1)
+                 
+        else:
+            #collecte de tous les éléments
+            keys = pg.key.get_pressed()
 
-        #mouvements du jour 0
-        if keys[pg.K_DOWN]:
-            players[0].move(1)
-        if keys[pg.K_UP]:
-            players[0].move(-1)
+            #mouvements du jour 0
+            if keys[pg.K_DOWN]:
+                players[0].move(1)
+            if keys[pg.K_UP]:
+                players[0].move(-1)
 
         #mouvement de la balle
         balle.move()
