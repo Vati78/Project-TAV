@@ -233,7 +233,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
             y_b = players[0].y
             print(f"### {n} ###")
             ni = abs(players[0].x + players[0].lx + balle.radius -(int(x + balle.vx) - 1)) #number of iterations
-            for sim_x in range(min(players[0].x + players[0].lx + balle.radius, int(x)), int(x + balle.vx) - 1, -1):
+            for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
                 #players[0].y = int(y_b - players[0].vy / (sim_x - ni))
                 result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
                 if result:
