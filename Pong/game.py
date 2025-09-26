@@ -140,7 +140,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         y = balle.y
     #Tentative d'amélioration
     ###RIGHT###
-    if balle.vx < 0:
+    if balle.vx < 0 and last_r != 0:
         if (players[0].x + players[0].lx >= x - balle.radius
             and players[0].y <= y <= players[0].y + players[0].ly):
             if simulation: return True
@@ -171,7 +171,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         ###RIGHT###
         ###ABOVE###
         elif (players[0].x <= x <= players[0].x + players[0].lx
-            and players[0].y <= y + balle.radius):
+            and players[0].y >= y + balle.radius):
             if simulation: return True
             print("directement au dessus")
             balle.rebond(players[0].vy, n, "above")
@@ -203,7 +203,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         ###ABOVE###
         ###BELOW###
         elif (players[0].x <= x <= players[0].x + players[0].lx
-              and players[0].y <= y - balle.radius):
+              and players[0].y + players[0].ly >= y - balle.radius):
             if simulation: return True
             print("directement au dessous")
             balle.rebond(players[0].vy, n, "below")
@@ -315,6 +315,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
 ####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
 def main():
+    global last_r
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 15)]
@@ -369,7 +370,7 @@ def main():
         if running:
             #pas d'interaction+
             if not interactions(players, balle, n): # n  loop (car loop != 0)
-                
+                last_r = None
                 # attitrage des points
                 if balle.vx < 0:
                     players[1].nmb_points += 1
