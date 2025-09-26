@@ -29,7 +29,9 @@ RED = (255, 20, 20)
 win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
 win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
-last_r = None
+last_r = None #0: dernier rebond à gauche; 1: dernier rebond à droite
+
+variantes = False
 
 #création de la classe BALLE
 class Ball():
@@ -150,25 +152,21 @@ def interactions(players, balle, n, simulation=False, coor=None):
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
 
-
         elif (players[0].y + players[0].ly//2>= y >= players[0].y - balle.radius*math.sqrt(2)//2
             and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("à droite mais trigo")
+            print("à droite (du haut)")
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
-
-
 
         elif (players[0].y  + players[0].ly//2 <= y <= players[0].y + players[0].ly + balle.radius*math.sqrt(2)//2
               and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
               and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
-            print("à droite mais trigo")
+            print("à droite (du bas)")
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
-
 
         ###RIGHT###
         ###ABOVE###
@@ -179,28 +177,23 @@ def interactions(players, balle, n, simulation=False, coor=None):
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
 
-
-
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and y <= players[0].y - balle.radius * math.sqrt(2)//2
             and balle.vy > 0
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("au dessus mais trigo")
+            print("au dessus (à droite)")
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
-
-
 
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
             and y <= players[0].y - balle.radius*math.sqrt(2)//2
             and balle.vy > 0
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("au dessus mais trigo")
+            print("au dessus (à gauche)")
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
-
 
         ###ABOVE###
         ###BELOW###
@@ -211,8 +204,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
 
-
-
         elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and y >= players[0].y - balle.radius*math.sqrt(2)//2
             and balle.vy < 0
@@ -222,8 +213,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
 
-
-
         elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
              and y >= players[0].y - balle.radius*math.sqrt(2)//2
              and balle.vy < 0
@@ -232,7 +221,6 @@ def interactions(players, balle, n, simulation=False, coor=None):
             print("au dessous mais trigo")
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
-
 
         ###BELOW###
         ###CALCULATIONS###
