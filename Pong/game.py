@@ -142,13 +142,14 @@ def interactions(players, balle, n, simulation=False, coor=None):
     else:
         x = balle.x
         y = balle.y
+
     #Tentative d'amélioration
     ###RIGHT###
     if balle.vx < 0 and last_r != 0:
         if (players[0].x + players[0].lx >= x - balle.radius
             and players[0].y <= y <= players[0].y + players[0].ly):
             if simulation: return True
-            print("directement à droite")
+            print("directement à droite", n)
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
 
@@ -156,7 +157,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
             and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("à droite (du haut)")
+            print("à droite (du haut)", n)
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
 
@@ -164,7 +165,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
               and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
               and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
-            print("à droite (du bas)")
+            print("à droite (du bas)", n)
             balle.rebond(players[0].vy, n, "right")
             last_r = 0
 
@@ -173,7 +174,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (players[0].x <= x <= players[0].x + players[0].lx
             and players[0].y >= y + balle.radius):
             if simulation: return True
-            print("directement au dessus")
+            print("directement au dessus", n)
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
 
@@ -182,7 +183,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
             and balle.vy > 0
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("au dessus (à droite)")
+            print("au dessus (à droite)", n)
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
 
@@ -191,7 +192,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
             and balle.vy > 0
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
             if simulation: return True
-            print("au dessus (à gauche)")
+            print("au dessus (à gauche)", n)
             balle.rebond(players[0].vy, n, "above")
             last_r = 0
 
@@ -200,7 +201,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
         elif (players[0].x <= x <= players[0].x + players[0].lx
               and players[0].y + players[0].ly >= y - balle.radius):
             if simulation: return True
-            print("directement au dessous")
+            print("directement au dessous", n)
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
 
@@ -209,7 +210,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
             and balle.vy < 0
             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
-            print("au dessous mais trigo")
+            print("au dessous mais trigo", n)
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
 
@@ -218,7 +219,7 @@ def interactions(players, balle, n, simulation=False, coor=None):
              and balle.vy < 0
              and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
             if simulation: return True
-            print("au dessous mais trigo")
+            print("au dessous mais trigo", n)
             balle.rebond(players[0].vy, n, "below")
             last_r = 0
 
@@ -229,7 +230,11 @@ def interactions(players, balle, n, simulation=False, coor=None):
             and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
             and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy))):
             print("début boucle", x, players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1)
-            for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
+            y_b = players[0].y
+            print(f"### {n} ###")
+            ni = abs(players[0].x + players[0].lx + balle.radius -(int(x + balle.vx) - 1)) #number of iterations
+            for sim_x in range(min(players[0].x + players[0].lx + balle.radius, int(x)), int(x + balle.vx) - 1, -1):
+                #players[0].y = int(y_b - players[0].vy / (sim_x - ni))
                 result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
                 if result:
                     print(balle.vy)
@@ -237,7 +242,8 @@ def interactions(players, balle, n, simulation=False, coor=None):
                     balle.vx = sim_x - x
                     print(" -- -- ",sim_x, balle.vx, balle.vy)
                     break
-            print(" -- --  Pas trouvé !")
+            else: print(" -- --  Pas trouvé !")
+            players[0].y = y_b
 
         if simulation: return False
 
@@ -326,13 +332,11 @@ def main():
     haut = pg.image.load(f"Images/haut.png")
     police = pg.font.SysFont("Arial", 45)
 
+    pause = False
+    pause_e = True
+
     #boucle principale
     while running:
-        # + 1 itération à la boucle principale
-        n += 1
-
-        #mise à 0 de la vitesse verticale de chaque joueur
-        for i in players: i.vy = 0
 
         #détection d'un éventuel évenement menant à une fermeture de pygame
         for event in pg.event.get():
@@ -345,16 +349,30 @@ def main():
                  players[0].move(1)
              elif mouse_pos[1] < players[0].y +  players[0].ly//2 - players[0].vmax:
                  players[0].move(-1)
-                 
+
         else:
             #collecte de tous les éléments
             keys = pg.key.get_pressed()
 
             #mouvements du jour 0
-            if keys[pg.K_DOWN]:
-                players[0].move(1)
-            if keys[pg.K_UP]:
-                players[0].move(-1)
+            if not pause:
+                if keys[pg.K_DOWN]:
+                    players[0].move(1)
+                if keys[pg.K_UP]:
+                    players[0].move(-1)
+            if keys[pg.K_RIGHT]:
+                if pause_e:
+                    pause = not pause
+                    pause_e = False
+            else: pause_e = True
+        if pause:
+            continue
+
+        # + 1 itération à la boucle principale
+        n += 1
+
+        #mise à 0 de la vitesse verticale de chaque joueur
+        for i in players: i.vy = 0
 
         #mouvement de la balle
         balle.move()
