@@ -45,6 +45,7 @@ class Ball():
         self.vy = vy
         self.radius = radius
         self.image = pg.image.load(f"Images/Balle.png")
+        self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
 
     #détection d'un rebond 
     def rebond(self, p_vy, loop, position):
@@ -61,11 +62,15 @@ class Ball():
     def draw(self):
         win.blit(self.image, (self.x-self.radius, self.y-self.radius))
 
-
+    #déplacement pour la fonction interaction
+    def freeze(self):
+        self.stop = True
     #déplacement de la balle
     def move(self):
-        self.x += self.vx
-        self.y += self.vy
+        if not self.stop:
+            self.x += self.vx
+            self.y += self.vy
+        else: self.stop = False
 
 #création de la classe PLATEFORME
 class Plateform():
@@ -83,6 +88,7 @@ class Plateform():
         self.index = index
         self.img = pg.transform.scale(pg.image.load(f"Images/Platforme_{self.index+1}.png"), (self.lx, self.ly))
         self.nmb_points = 0
+        self.stop = False #si il doit ne pas bouger à l'iteration, cf freeze()
 
         self.ia = ia if ia != None else (index == 1)
         if self.ia:
@@ -117,12 +123,15 @@ class Plateform():
             else: y_v = self.y_v
             vy=0
             if abs(y_v - self.y) >= self.vmax: vy = 1 if y_v - self.y > 0 else -1
-        vy *= self.vmax
-        if self.ymin < self.y + vy < self.y + vy + self.ly < self.ymax:
-            self.y += vy
-            self.vy = vy
+        if not self.stop:
+            vy *= self.vmax
+            if self.ymin < self.y + vy < self.y + vy + self.ly < self.ymax:
+                self.y += vy
+                self.vy = vy
+        else: self.stop = False
 
-
+    def freeze(self):
+        self.stop = True
     #nouvel envoi de balle
     def reset(self):
         self.vy = 0
@@ -225,6 +234,45 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
     if p != -1:
         c = contact(players[p], balle, n)
         if c: balle.rebond(players[p].vy, n, c)
+        else:
+            s = False
+            py = int(players[p].y)
+            bx , by = int(balle.x), int(balle.y)
+            if max(players[p].vy, balle.vy, balle.vx) == balle.vx:
+                for simx in range(int(balle.vx)):
+                    players[p].y = int(py + (simx * players[p].vy / balle.vx))
+                    balle.y = int(by + (simx * balle.vy / balle.vx))
+                    balle.x = int(bx + simx)
+                    c = contact(players[p], balle, n)
+                    if c:
+                        balle.freeze()
+                        players[p].freeze()
+                        s = True
+            elif max(players[p].vy, balle.vy, balle.vx) == balle.vy:
+                for simy in range(int(balle.vy)):
+                    players[p].y = int(py + (simy * players[p].vy / balle.vy))
+                    balle.y = int(by + simy)
+                    balle.x = int(bx + (simy * balle.vx / balle.vy))
+                    c = contact(players[p], balle, n)
+                    if c:
+                        balle.freeze()
+                        players[p].freeze()
+                        s = True
+            elif max(players[p].vy, balle.vy, balle.vx) == players[p].vy:
+                for simx in range(int(players[p].vy)):
+                    players[p].y = int(py + simx)
+                    balle.y = int(by + (simx * balle.vy / players[p].vy))
+                    balle.x = int(bx + (simx * balle.vx / players[p].vy))
+                    c = contact(players[p], balle, n)
+                    if c:
+                        balle.freeze()
+                        players[p].freeze()
+                        s = True
+            if not s:
+                players[p].y = py
+                balle.x = bx
+                balle.y = by
+
 
 # """  ###BELOW###
 #         ###CALCULATIONS###
