@@ -1,7 +1,7 @@
 import pygame as pg, math, os, time, random as rd
 
 pg.init()
-os.chdir(os.path.abspath(__file__)[0:-8])
+os.chdir(os.path.dirname(__file__))
 
 """
 Constants and initialization
@@ -133,167 +133,123 @@ class Plateform():
         win.blit(self.img, (self.x, self.y))
 
 #détection des différentes interactions entre les objets
-def interactions(players, balle, n, simulation=False, coor=None):
+
+def contact(player,balle,n):
+    if  player.x + player.lx//2 < balle.x < player.x + player.lx + balle.radius:
+        ###RIGHT###
+        if (player.x + player.lx >= balle.x - balle.radius
+            and player.y <= balle.y <= player.y + player.ly):
+            print("directement à droite", n)
+            return "right"
+
+        elif (player.y + player.ly//2>= balle.y >= player.y - balle.radius*math.sqrt(2)//2
+            and balle.x >= player.x + player.lx + balle.radius*math.sqrt(2)//2
+            and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
+            print("à droite (du haut)", n)
+            return "right"
+
+        elif (player.y  + player.ly//2 <= balle.y <= player.y + player.ly + balle.radius*math.sqrt(2)//2
+              and balle.x >= player.x + player.lx + balle.radius*math.sqrt(2)//2
+              and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
+            print("à droite (du bas)", n)
+            return "right"
+
+    ###RIGHT###
+    ###LEFT###
+    elif (player.x >= balle.x + balle.radius
+        and player.y <= balle.y <= player.y + player.ly):
+        print("directement à gauche", n)
+        return "left"
+
+    elif (player.y + player.ly//2 >= balle.y >= player.y - balle.radius*math.sqrt(2)//2
+        and balle.x + balle.radius*math.sqrt(2)//2 <= player.x
+        and math.sqrt((balle.x - player.x)**2 + (balle.y - player.y)**2) <= balle.radius):
+        print("à gauche (du haut)", n)
+        return "left"
+
+    elif (player.y  + player.ly//2 <= balle.y <= player.y + player.ly + balle.radius*math.sqrt(2)//2
+          and balle.x + balle.radius*math.sqrt(2)//2 >= player.x
+          and math.sqrt((balle.x - player.x)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
+        print("à gauche (du bas)", n)
+        return "left"
+
+    ###LEFT###
+    ###ABOVE###
+    elif (player.x <= balle.x <= player.x + player.lx
+        and player.y >= balle.y + balle.radius):
+        print("directement au dessus", n)
+        return "above"
+
+    elif (balle.x <= player.x + player.lx + balle.radius*math.sqrt(2)//2
+        and balle.y <= player.y - balle.radius * math.sqrt(2)//2
+        and balle.vy > 0
+        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
+        print("au dessus (à droite)", n)
+        return "above"
+
+    elif (balle.x >= player.x - balle.radius*math.sqrt(2)//2
+        and balle.y <= player.y - balle.radius*math.sqrt(2)//2
+        and balle.vy > 0
+        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
+        print("au dessus (à gauche)", n)
+        return "above"
+
+    ###ABOVE###
+    ###BELOW###
+    elif (player.x <= balle.x <= player.x + player.lx
+          and player.y + player.ly >= balle.y - balle.radius):
+        print("directement au dessous", n)
+        return "below"
+
+    elif (balle.x <= player.x + player.lx + balle.radius*math.sqrt(2)//2
+        and balle.y >= player.y - balle.radius*math.sqrt(2)//2
+        and balle.vy < 0
+        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
+        print("au dessous mais trigo", n)
+        return "below"
+
+    elif (balle.x >= player.x - balle.radius*math.sqrt(2)//2
+         and balle.y >= player.y - balle.radius*math.sqrt(2)//2
+         and balle.vy < 0
+         and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
+        print("au dessous mais trigo", n)
+        return "below"
+
+
+def interactions(players, balle, n):#, simulation=False, coor=None):
     global last_r
 
-    if simulation:
-        x = coor[0]
-        y = coor[1]
-    else:
-        x = balle.x
-        y = balle.y
+    p =- 1
+    if balle.x < players[0].x + players[0].lx + balle.radius + balle.vx + 10: p = 0
+    elif balle.x > players[1].x - balle.radius - balle.vx - 10: p = 1
+    if p != -1:
+        c = contact(players[p], balle, n)
+        if c: balle.rebond(players[p].vy, n, c)
 
-    #Tentative d'amélioration
-    ###RIGHT###
-    if balle.vx < 0 and last_r != 0:
-        if (players[0].x + players[0].lx >= x - balle.radius
-            and players[0].y <= y <= players[0].y + players[0].ly):
-            if simulation: return True
-            print("directement à droite", n)
-            balle.rebond(players[0].vy, n, "right")
-            last_r = 0
-
-        elif (players[0].y + players[0].ly//2>= y >= players[0].y - balle.radius*math.sqrt(2)//2
-            and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
-            if simulation: return True
-            print("à droite (du haut)", n)
-            balle.rebond(players[0].vy, n, "right")
-            last_r = 0
-
-        elif (players[0].y  + players[0].ly//2 <= y <= players[0].y + players[0].ly + balle.radius*math.sqrt(2)//2
-              and x >= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-              and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
-            if simulation: return True
-            print("à droite (du bas)", n)
-            balle.rebond(players[0].vy, n, "right")
-            last_r = 0
-
-        ###RIGHT###
-        ###ABOVE###
-        elif (players[0].x <= x <= players[0].x + players[0].lx
-            and players[0].y >= y + balle.radius):
-            if simulation: return True
-            print("directement au dessus", n)
-            balle.rebond(players[0].vy, n, "above")
-            last_r = 0
-
-        elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-            and y <= players[0].y - balle.radius * math.sqrt(2)//2
-            and balle.vy > 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
-            if simulation: return True
-            print("au dessus (à droite)", n)
-            balle.rebond(players[0].vy, n, "above")
-            last_r = 0
-
-        elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
-            and y <= players[0].y - balle.radius*math.sqrt(2)//2
-            and balle.vy > 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y)**2) <= balle.radius):
-            if simulation: return True
-            print("au dessus (à gauche)", n)
-            balle.rebond(players[0].vy, n, "above")
-            last_r = 0
-
-        ###ABOVE###
-        ###BELOW###
-        elif (players[0].x <= x <= players[0].x + players[0].lx
-              and players[0].y + players[0].ly >= y - balle.radius):
-            if simulation: return True
-            print("directement au dessous", n)
-            balle.rebond(players[0].vy, n, "below")
-            last_r = 0
-
-        elif (x <= players[0].x + players[0].lx + balle.radius*math.sqrt(2)//2
-            and y >= players[0].y - balle.radius*math.sqrt(2)//2
-            and balle.vy < 0
-            and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
-            if simulation: return True
-            print("au dessous mais trigo", n)
-            balle.rebond(players[0].vy, n, "below")
-            last_r = 0
-
-        elif (x >= players[0].x - balle.radius*math.sqrt(2)//2
-             and y >= players[0].y - balle.radius*math.sqrt(2)//2
-             and balle.vy < 0
-             and math.sqrt((x - players[0].x - players[0].lx)**2 + (y - players[0].y - players[0].ly)**2) <= balle.radius):
-            if simulation: return True
-            print("au dessous mais trigo", n)
-            balle.rebond(players[0].vy, n, "below")
-            last_r = 0
-
-        ###BELOW###
-        ###CALCULATIONS###
-        elif (not simulation
-            and last_r != 0
-            and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
-            and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy))):
-            print("début boucle", x, players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1)
-            y_b = players[0].y
-            print(f"### {n} ###")
-            ni = abs(players[0].x + players[0].lx + balle.radius -(int(x + balle.vx) - 1)) #number of iterations
-            for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
-                #players[0].y = int(y_b - players[0].vy / (sim_x - ni))
-                result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
-                if result:
-                    print(balle.vy)
-                    balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
-                    balle.vx = sim_x - x
-                    print(" -- -- ",sim_x, balle.vx, balle.vy)
-                    break
-            else: print(" -- --  Pas trouvé !")
-            players[0].y = y_b
-
-        if simulation: return False
-
-    """
-    #si la balle se déplace vers la gauche
-    if balle.vx < 0:
-        #si la balle se trouve sur la ligne verticale de la plateforme
-        if players[0].x + players[0].lx == balle.x -balle.radius:
-            #si elle est au niveau de la plateforme
-            if players[0].y - (math.sqrt(2) * balle.radius // 2) < balle.y < players[0].y + players[0].ly + (math.sqrt(2) * balle.radius // 2):
-                balle.rebond(players[0].vy, n, "right")
-
-            
-
-        #si à la prochaine itération la balle dépassera la ligne vertivale de la plateforme
-        elif balle.x -balle.radius + balle.vx < players[0].x + players[0].lx < balle.x -balle.radius:
-            #si à la prochaine itération, la balle tapera au milieu de la raquette
-            if players[0].y + players[0].vy - (math.sqrt(2) * balle.radius // 2) - 5< balle.y + balle.vy < players[0].y + players[0].ly + players[0].vy + (math.sqrt(2) * balle.radius // 2) + 5:
-                balle.vx = players[0].x + players[0].lx - balle.x + balle.radius
-            
-        if balle.vy >= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y < players[0].y < balle.y + balle.radius:
-                balle.rebond(players[0].vy, n, "above")
-                
-            
-        if balle.vy <= 0:
-            if balle.x - balle.radius <= players[0].x <= balle.x + balle.radius and balle.y > players[0].y + players[0].ly > balle.y - balle.radius:
-                balle.rebond(players[0].vy, n, "below")
-   """
-    #si la balle se déplace vers la droite
-    if balle.vx > 0:
-        if balle.x >= players[1].x and balle.x - balle.vx >= players[1].x:
-            return False
-        elif (players[1].y <= balle.y <= players[1].y + players[1].ly
-                and balle.x + balle.radius >= players[1].x):
-            balle.rebond(players[1].vy, n, 0)
-            last_r = 1
-        # if the ball is above the Plateform
-        elif players[1].y - balle.radius + 1 <= balle.y <= players[1].y and math.sqrt((balle.y - players[1].y) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
-                balle.rebond(players[1].vy, n, players[1].y-balle.y-balle.radius)
-                last_r = 1
-
-        # if the ball is below the Plateform
-        elif players[1].y + players[1].ly <= balle.y <= players[1].y + players[1].ly + balle.radius:
-            if math.sqrt(
-                    (balle.y - (players[1].y + players[1].ly)) ** 2 + (balle.x - players[1].x) ** 2) <= balle.radius:
-                balle.rebond(players[1].vy, n, players[1].y+players[1].ly-balle.y-balle.radius)
-                last_r = 1
-
-
+# """  ###BELOW###
+#         ###CALCULATIONS###
+#         if (not simulation
+#             and last_r != 0
+#             and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
+#             and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy))):
+#             print("début boucle", x, players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1)
+#             y_b = players[0].y
+#             print(f"### {n} ###")
+#             ni = abs(players[0].x + players[0].lx + balle.radius -(int(x + balle.vx) - 1)) #number of iterations
+#             for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
+#                 #players[0].y = int(y_b - players[0].vy / (sim_x - ni))
+#                 result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
+#                 if result:
+#                     print(balle.vy)
+#                     balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
+#                     balle.vx = sim_x - x
+#                     print(" -- -- ",sim_x, balle.vx, balle.vy)
+#                     break
+#             else: print(" -- --  Pas trouvé !")
+#             players[0].y = y_b
+#
+#         if simulation: return False
+# """
     #si la balle touche le haut ou la bas du terrain
     if balle.y - balle.radius <= 120 or balle.y + balle.radius >= HEIGHT-20:
         balle.rebond(0, n, "wall")
