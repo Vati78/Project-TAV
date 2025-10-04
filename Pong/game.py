@@ -238,31 +238,31 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
             s = False
             py = int(players[p].y)
             bx , by = int(balle.x), int(balle.y)
-            if max(players[p].vy, balle.vy, balle.vx) == balle.vx:
-                for simx in range(int(balle.vx)):
-                    players[p].y = int(py + (simx * players[p].vy / balle.vx))
-                    balle.y = int(by + (simx * balle.vy / balle.vx))
-                    balle.x = int(bx + simx)
+            if max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vx):
+                for simx in range(int(abs(balle.vx))):
+                    players[p].y = int(py + (simx * players[p].vy / abs(balle.vx)))
+                    balle.y = int(by + (simx * balle.vy / abs(balle.vx)))
+                    balle.x = int(bx + (simx * balle.vx / abs(balle.vx)))
                     c = contact(players[p], balle, n)
                     if c:
                         balle.freeze()
                         players[p].freeze()
                         s = True
-            elif max(players[p].vy, balle.vy, balle.vx) == balle.vy:
-                for simy in range(int(balle.vy)):
-                    players[p].y = int(py + (simy * players[p].vy / balle.vy))
-                    balle.y = int(by + simy)
-                    balle.x = int(bx + (simy * balle.vx / balle.vy))
+            elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vy):
+                for simy in range(int(abs(balle.vy))):
+                    players[p].y = int(py + (simx * players[p].vy / abs(balle.vy)))
+                    balle.y = int(by + (simx * balle.vy / abs(balle.vy)))
+                    balle.x = int(bx + (simx * balle.vx / abs(balle.vy)))
                     c = contact(players[p], balle, n)
                     if c:
                         balle.freeze()
                         players[p].freeze()
                         s = True
-            elif max(players[p].vy, balle.vy, balle.vx) == players[p].vy:
-                for simx in range(int(players[p].vy)):
-                    players[p].y = int(py + simx)
-                    balle.y = int(by + (simx * balle.vy / players[p].vy))
-                    balle.x = int(bx + (simx * balle.vx / players[p].vy))
+            elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(players[p].vy):
+                for simx in range(int(abs(players[p].vy))):
+                    players[p].y = int(py + (simx * players[p].vy / abs(players[p].vy)))
+                    balle.y = int(by + (simx * balle.vy / abs(players[p].vy)))
+                    balle.x = int(bx + (simx * balle.vx / abs(players[p].vy)))
                     c = contact(players[p], balle, n)
                     if c:
                         balle.freeze()
