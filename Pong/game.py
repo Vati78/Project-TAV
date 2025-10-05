@@ -249,7 +249,7 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
                         players[p].freeze()
                         s = True
             elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vy):
-                for simy in range(int(abs(balle.vy))):
+                for simx in range(int(abs(balle.vy))):
                     players[p].y = int(py + (simx * players[p].vy / abs(balle.vy)))
                     balle.y = int(by + (simx * balle.vy / abs(balle.vy)))
                     balle.x = int(bx + (simx * balle.vx / abs(balle.vy)))
