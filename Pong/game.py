@@ -48,15 +48,18 @@ class Ball():
         self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
 
     #détection d'un rebond 
-    def rebond(self, p_vy, loop, position):
+    def rebond(self, p, loop, position):
         #p_vy: vy de la plateforme; position: relative to the plateform; touche_exterieur: haut ou bas de l'écran
         bord = -1 if position in ("above","below","wall") else 1
         signe_x = -1 if (self.vx < 0) else 1
         if position in ("right","left"): signe_x = 1 if position == "left" else -1
         self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
-        self.vy =  self.vy * bord + p_vy*0.1 #*sens
-        if position in ("above","below"):
-            self.vy += p_vy
+        self.vy =  self.vy * bord + p.vy * 0.1 #*sens
+        if position == "above":
+            if self.y + self.radius > p.y: self.y = p.y - self.radius 
+        elif position == "below":
+            if self.y - self.radius < p.y + p.ly: self.y = p.y + self.radius
+        print("rebond", position, self.vx, self.vy)
 
     #affichage de la balle
     def draw(self):
@@ -233,45 +236,70 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
     elif balle.x > players[1].x - balle.radius - balle.vx - 10: p = 1
     if p != -1:
         c = contact(players[p], balle, n)
-        if c: balle.rebond(players[p].vy, n, c)
+        if c: balle.rebond(players[p], n, c)
         else:
             s = False
             py = int(players[p].y)
             bx , by = int(balle.x), int(balle.y)
-            if max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vx):
-                for simx in range(int(abs(balle.vx))):
-                    players[p].y = int(py + (simx * players[p].vy / abs(balle.vx)))
-                    balle.y = int(by + (simx * balle.vy / abs(balle.vx)))
-                    balle.x = int(bx + (simx * balle.vx / abs(balle.vx)))
-                    c = contact(players[p], balle, n)
-                    if c:
-                        balle.freeze()
-                        players[p].freeze()
-                        s = True
-            elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vy):
-                for simx in range(int(abs(balle.vy))):
-                    players[p].y = int(py + (simx * players[p].vy / abs(balle.vy)))
-                    balle.y = int(by + (simx * balle.vy / abs(balle.vy)))
-                    balle.x = int(bx + (simx * balle.vx / abs(balle.vy)))
-                    c = contact(players[p], balle, n)
-                    if c:
-                        balle.freeze()
-                        players[p].freeze()
-                        s = True
-            elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(players[p].vy):
-                for simx in range(int(abs(players[p].vy))):
-                    players[p].y = int(py + (simx * players[p].vy / abs(players[p].vy)))
-                    balle.y = int(by + (simx * balle.vy / abs(players[p].vy)))
-                    balle.x = int(bx + (simx * balle.vx / abs(players[p].vy)))
-                    c = contact(players[p], balle, n)
-                    if c:
-                        balle.freeze()
-                        players[p].freeze()
-                        s = True
+            print(f">>>Simulation {n}>>>")
+            steps = int(max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)))
+            for simx in range(steps):
+                players[p].y = int(py + (simx * players[p].vy / steps))
+                balle.y = int(by + (simx * balle.vy / steps))
+                balle.x = int(bx + (simx * balle.vx / steps))
+                c = contact(players[p], balle, (n,1, steps))
+                print((players[p].y, balle.y, balle.x), end ="; ")
+                if c:
+                    print("")
+                    balle.freeze()
+                    players[p].freeze()
+                    s = True
+                    break
+
+            # if max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vx):
+            #     for simx in range(int(abs(balle.vx))):
+            #         players[p].y = int(py + (simx * players[p].vy / abs(balle.vx)))
+            #         balle.y = int(by + (simx * balle.vy / abs(balle.vx)))
+            #         balle.x = int(bx + (simx * balle.vx / abs(balle.vx)))
+            #         c = contact(players[p], balle, (n,1,simx))
+            #         print((players[p].y, balle.y, balle.x), end ="; ")
+            #         if c:
+            #             print("")
+            #             balle.freeze()
+            #             players[p].freeze()
+            #             s = True
+            #             break
+            # elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vy):
+            #     for simx in range(int(abs(balle.vy))):
+            #         players[p].y = int(py + (simx * players[p].vy / abs(balle.vy)))
+            #         balle.y = int(by + (simx * balle.vy / abs(balle.vy)))
+            #         balle.x = int(bx + (simx * balle.vx / abs(balle.vy)))
+            #         c = contact(players[p], balle, (n,2,simx))
+            #         print((players[p].y, balle.y, balle.x), end ="; ")
+            #         if c:
+            #             print("")
+            #             balle.freeze()
+            #             players[p].freeze()
+            #             s = True
+            #             break
+            # elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(players[p].vy):
+            #     for simx in range(int(abs(players[p].vy))):
+            #         players[p].y = int(py + (simx * players[p].vy / abs(players[p].vy)))
+            #         balle.y = int(by + (simx * balle.vy / abs(players[p].vy)))
+            #         balle.x = int(bx + (simx * balle.vx / abs(players[p].vy)))
+            #         c = contact(players[p], balle, (n,3,simx))
+            #         print((players[p].y, balle.y, balle.x), end ="; ")
+            #         if c:
+            #             print("")
+            #             balle.freeze()
+            #             players[p].freeze()
+            #             s = True
+            #             break
             if not s:
                 players[p].y = py
                 balle.x = bx
                 balle.y = by
+            print("<<<End<<<")
 
 
 # """  ###BELOW###
@@ -300,7 +328,7 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
 # """
     #si la balle touche le haut ou la bas du terrain
     if balle.y - balle.radius <= 120 or balle.y + balle.radius >= HEIGHT-20:
-        balle.rebond(0, n, "wall")
+        balle.rebond(players[p], n, "wall")
 
     #si la balle touche la gauche ou la droite du terrain
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
