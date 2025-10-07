@@ -6,6 +6,7 @@ os.chdir(os.path.dirname(__file__))
 """
 Constants and initialization
 """
+
 phone = False
 
 #dimensions de la fenetre PYGAME
