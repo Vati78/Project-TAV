@@ -48,6 +48,8 @@ a_rook_move = {"w":[False,None],
                 "b" : [False,None]}
 h_rook_move = {"w":[False,None],
                 "b" : [False,None]}
+castled = {"w":[False,None],
+          "b":[False,None]}
 
 k_pos = {"w": [4, 7],
          "b": [4, 0]}
@@ -202,7 +204,7 @@ def remove_illegal(player, col_i, rank_i, liste):
     return legal_moves
 
 # checks if checkmate
-def checkmate(player):
+def checkmate(player, pos=None):
     global position
 
     if in_check(player, k_pos[player][0], k_pos[player][1]):
@@ -242,6 +244,66 @@ def find_piece(piece_to_find, pos=0):
                 return (x,y)
     else: #if no piece finded
         return None
+
+def estimation_pos(pos):
+    # Distance cavalier - centre
+    # Pions isolés
+    nmb_pieces = {"wR":0,
+                  "bR":0,
+                  "wQ":0,
+                  "bQ":0,
+                  "wN":0,
+                  "bN":0,
+                  "wP":0,
+                  "bP":0,
+                  "wB":0,
+                  "bB":0}
+    nmbPiecesNonDeveloppees = {"w":0,
+                               "b":0}
+
+    for rank in pos:
+        for col in rank:
+            if col != " ":
+                if "K" not in col:
+                    nmb_pieces[col] += 1
+
+                if col[1] in ("B", "N"):
+                    nmbPiecesNonDeveloppees[col[0]] += 1
+
+    castling_right = [None, None]
+    castling_right[0] = True if ((k_move["w"][0] is False) and ((a_rook_move["w"][0] is False) or (h_rook_move["w"][0] is False))) else False
+    castling_right[1] = True if ((k_move["b"][0] is False) and ((a_rook_move["b"][0] is False) or (h_rook_move["b"][0] is False))) else False
+
+    # if the king moved and didn't castle before
+    king_move = [0, 0]
+    if (k_move["w"][0] is True) and (castled["w"][0] is False): king_move[0] = -90
+    if (k_move["b"][0] is True) and (castled["b"][0] is False): king_move[0] = 90
+
+    # if the king has the right to castle
+    castle_r = [0, 0]
+    if castling_right[0] is True: castle_r[0] = 25
+    if castling_right[1] is True: castle_r[1] = -25
+
+    # if the king castled
+    castle = [0, 0]
+    if castled["w"][0] is True: castle[0] = 150
+    if castled["b"][0] is True: castle[1] = -150
+
+
+    estimation = (100*(nmb_pieces["wP"]-nmb_pieces["bP"])+
+           320*(nmb_pieces["wN"]-nmb_pieces["bN"])+
+           330*(nmb_pieces["wB"]-nmb_pieces["bB"])+
+           500*(nmb_pieces["wR"]-nmb_pieces["bR"])+
+           920*(nmb_pieces["wQ"]-nmb_pieces["bQ"])+
+           king_move[0] + king_move[1]+
+           castle_r[0] + castle_r[1]+
+           castle[0] + castle[1]+
+           25*(nmbPiecesNonDeveloppees["w"]-nmbPiecesNonDeveloppees["b"]))
+
+    print(estimation)
+
+    return estimation
+
 
 """
 Pieces
@@ -435,7 +497,7 @@ class Piece:
 Game
 """
 def main():
-    global k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, liste_moves, liste_last_moves, pos_index
+    global castle, k_move, a_rook_move, h_rook_move, k_pos, last_move, liste_position, position, liste_moves, liste_last_moves, pos_index
 
     running = True
 
@@ -567,9 +629,8 @@ def main():
             k_pos = {"w":find_piece("wK"), "b": find_piece("bK")} #updating position of the king
             #updating k_pos, h_rook_move and a_rook_move for each player
             for p in ["w", "b"]:
-                for i in ['k_move', "h_rook_move", "a_rook_move"]:
-                    
-                    if eval(i)[p][1] != None:
+                for i in ['k_move', "h_rook_move", "a_rook_move", "castled"]:
+                    if eval(i)[p][1] is not None:
                         if eval(i)[p][1] >= pos_index:
                             eval(i)[p][0] = False
                         else:
@@ -584,7 +645,7 @@ def main():
                     if pos_index < len(liste_position)-1: #if aborted moves
                         del liste_position[pos_index+1:], liste_last_moves[pos_index+1:] #delete end of the positions
                         for p in ["w", "b"]:
-                            for i in ['k_move', "h_rook_move", "a_rook_move"]:
+                            for i in ['k_move', "h_rook_move", "a_rook_move", "castled"]:
                                 if eval(i)[p][1] != None:
                                     if eval(i)[p][1] >= pos_index:
                                         eval(i)[p] = [False, None]
@@ -597,7 +658,7 @@ def main():
                     # if the king is moved
                     if piece[1] == "K":
                         k_move[player][0] = True
-                        if k_move[player][1] == None: k_move[player][1] = pos_index
+                        if k_move[player][1] is None: k_move[player][1] = pos_index
                         elif k_move[player][1] > pos_index: k_move[player][1] = pos_index
 
                         k_pos[player] = (col_f, rank_f)
@@ -606,21 +667,23 @@ def main():
                         if col_f == col_i + 2:
                             move(7, 5, rank_i, rank_f)
                             castle = "O-O"
+                            castled[player] = [True, pos_index]
                         # if long castle
                         elif col_f == col_i - 2:
                             move(0, 3, rank_i, rank_f)
                             castle = "O-O-O"
+                            castled[player] = [True, pos_index]
 
                     # if a rook is moved
                     elif piece[1] == "R":
                         if col_i == 0:
                             a_rook_move[player] = True
-                            if a_rook_move[player][1] == None: a_rook_move[player][1] = pos_index
+                            if a_rook_move[player][1] is None: a_rook_move[player][1] = pos_index
                             elif a_rook_move[player][1] > pos_index: a_rook_move[player][1] = pos_index
 
                         elif col_i == 7:
                             h_rook_move[player] = True
-                            if h_rook_move[player][1] == None: h_rook_move[player][1] = pos_index
+                            if h_rook_move[player][1] is None: h_rook_move[player][1] = pos_index
                             elif h_rook_move[player][1] > pos_index: h_rook_move[player][1] = pos_index
 
 
@@ -800,4 +863,5 @@ def main():
 
 
 if __name__ == "__main__":
+    estimation_pos(position)
     main()
