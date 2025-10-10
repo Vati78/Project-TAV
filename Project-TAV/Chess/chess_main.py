@@ -568,7 +568,7 @@ def main():
             #updating k_pos, h_rook_move and a_rook_move for each player
             for p in ["w", "b"]:
                 for i in ['k_move', "h_rook_move", "a_rook_move"]:
-                    
+
                     if eval(i)[p][1] != None:
                         if eval(i)[p][1] >= pos_index:
                             eval(i)[p][0] = False

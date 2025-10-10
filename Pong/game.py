@@ -55,18 +55,36 @@ class Ball():
         global debug
         #p_vy: vy de la plateforme; position: relative to the plateform; touche_exterieur: haut ou bas de l'écran
         position = position.lower()
-        bord = -1 if position in ("above","below","wall") else 1
+        #bord = -1 if position in ("above","below","wall") else 1
+        if position in ("above", "walldown"): diry = -1
+        elif position in ("below", "wallup"): diry = 1
+        elif self.vy > 0: diry = 1
+        else: diry = -1
         signe_x = -1 if (self.vx < 0) else 1
-        if position in ("right","left"): signe_x = 1 if position == "left" else -1
-        self.vx = - self.vx_i * bord * (1 + loop/2000) * signe_x
-        self.vy =  self.vy * bord + p.vy * 0.1 #*sens
+        if position in ("right","left"): signe_x = -1 if position == "left" else 1
+        vy = 0 if "wall" in position else 0.2 * p.vy
+       # print("#",p.vy, vy)
+        self.vx =  self.vx_i * (1 + loop/2000) * signe_x
+        self.vy =  abs(self.vy) * diry + vy #*sens
+        m = False
         if position == "above":
-            if self.y + self.radius > p.y: self.y = p.y - self.radius 
+            if self.y + self.radius > p.y:
+                self.y = p.y - self.radius
+                m = True
         elif position == "below":
-            if self.y - self.radius < p.y + p.ly: self.y = p.y + self.radius
-        if debug:
-            print("", end="")
-        print("rebond", position, self.vx, self.vy)
+            if self.y - self.radius < p.y + p.ly:
+                self.y = p.y + p.ly + self.radius
+                m = True
+        # si la balle touche le haut ou la bas du terrain
+        if self.y - self.radius <= 120 and m:
+            self.y = 120 + self.radius
+            if self.x > p.x + p.lx // 2: self.x = p.x + p.lx + self.radius
+            else: self.x = p.x - self.radius
+        if self.y + self.radius >= HEIGHT - 20 and m:
+            self.y = HEIGHT - 20 - self.radius
+            if self.x > p.x + p.lx // 2: self.x = p.x + p.lx + self.radius
+            else: self.x = p.x - self.radius
+        #print("rebond", position, self.vx, self.vy)
 
     #affichage de la balle
     def draw(self):
@@ -129,7 +147,7 @@ class Plateform():
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
                         #print("rd")
             elif ball.vx<0: self.y_v = None
-            if self.y_v == None: y_v = ((self.ymin + self. ymax)/2 - self.ly/2)
+            if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
             else: y_v = self.y_v
             vy=0
             if abs(y_v - self.y) >= self.vmax: vy = 1 if y_v - self.y > 0 else -1
@@ -142,6 +160,8 @@ class Plateform():
 
     def freeze(self):
         self.stop = True
+        if self.y < self.ymin: self.y = self.ymin
+        if self.y + self.ly > self.ymax: self.y = self.ymax - self.ly
     #nouvel envoi de balle
     def reset(self):
         self.vy = 0
@@ -172,7 +192,7 @@ def contact(p, balle, n) -> str:
     dist_sq = dx * dx + dy * dy
 
     # Pas de collision
-    if dist_sq > balle.radius * balle.radius:
+    if dist_sq > balle.radius ** 2:
         return ""
 
     # Détermination du côté de contact
@@ -195,94 +215,32 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
             s = False
             py = int(players[p].y)
             bx , by = int(balle.x), int(balle.y)
-            print(f">>>Simulation {n}>>>")
+          #  print(f">>>Simulation {n}>>>")
             steps = int(max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)))
             for simx in range(steps):
                 players[p].y = int(py + (simx * players[p].vy / steps))
                 balle.y = int(by + (simx * balle.vy / steps))
                 balle.x = int(bx + (simx * balle.vx / steps))
                 c = contact(players[p], balle, (n,1, steps))
-                print((players[p].y, balle.y, balle.x), end ="; ")
+             #   print((players[p].y, balle.y, balle.x), end ="; ")
                 if c:
-                    print("")
+                   # print("")
                     balle.freeze()
                     players[p].freeze()
                     s = True
                     break
-
-            # if max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vx):
-            #     for simx in range(int(abs(balle.vx))):
-            #         players[p].y = int(py + (simx * players[p].vy / abs(balle.vx)))
-            #         balle.y = int(by + (simx * balle.vy / abs(balle.vx)))
-            #         balle.x = int(bx + (simx * balle.vx / abs(balle.vx)))
-            #         c = contact(players[p], balle, (n,1,simx))
-            #         print((players[p].y, balle.y, balle.x), end ="; ")
-            #         if c:
-            #             print("")
-            #             balle.freeze()
-            #             players[p].freeze()
-            #             s = True
-            #             break
-            # elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(balle.vy):
-            #     for simx in range(int(abs(balle.vy))):
-            #         players[p].y = int(py + (simx * players[p].vy / abs(balle.vy)))
-            #         balle.y = int(by + (simx * balle.vy / abs(balle.vy)))
-            #         balle.x = int(bx + (simx * balle.vx / abs(balle.vy)))
-            #         c = contact(players[p], balle, (n,2,simx))
-            #         print((players[p].y, balle.y, balle.x), end ="; ")
-            #         if c:
-            #             print("")
-            #             balle.freeze()
-            #             players[p].freeze()
-            #             s = True
-            #             break
-            # elif max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)) == abs(players[p].vy):
-            #     for simx in range(int(abs(players[p].vy))):
-            #         players[p].y = int(py + (simx * players[p].vy / abs(players[p].vy)))
-            #         balle.y = int(by + (simx * balle.vy / abs(players[p].vy)))
-            #         balle.x = int(bx + (simx * balle.vx / abs(players[p].vy)))
-            #         c = contact(players[p], balle, (n,3,simx))
-            #         print((players[p].y, balle.y, balle.x), end ="; ")
-            #         if c:
-            #             print("")
-            #             balle.freeze()
-            #             players[p].freeze()
-            #             s = True
-            #             break
             if not s:
                 players[p].y = py
                 balle.x = bx
                 balle.y = by
-            print("<<<End<<<")
+          #  print("<<<End<<<")
 
 
-# """  ###BELOW###
-#         ###CALCULATIONS###
-#         if (not simulation
-#             and last_r != 0
-#             and (x + balle.vx <= players[0].x + players[0].lx + balle.radius
-#             and  players[0].y - balle.radius - abs(players[0].vy) <= balle.y + balle.vy <= players[0].y + players[0].ly + balle.radius + abs(players[0].vy))):
-#             print("début boucle", x, players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1)
-#             y_b = players[0].y
-#             print(f"### {n} ###")
-#             ni = abs(players[0].x + players[0].lx + balle.radius -(int(x + balle.vx) - 1)) #number of iterations
-#             for sim_x in range(players[0].x + players[0].lx + balle.radius, int(x + balle.vx) - 1, -1):
-#                 #players[0].y = int(y_b - players[0].vy / (sim_x - ni))
-#                 result = interactions(players, balle, n, simulation=True, coor=(sim_x, sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx))
-#                 if result:
-#                     print(balle.vy)
-#                     balle.vy = sim_x*balle.vy//balle.vx + y-x*balle.vy//balle.vx - y
-#                     balle.vx = sim_x - x
-#                     print(" -- -- ",sim_x, balle.vx, balle.vy)
-#                     break
-#             else: print(" -- --  Pas trouvé !")
-#             players[0].y = y_b
-#
-#         if simulation: return False
-# """
     #si la balle touche le haut ou la bas du terrain
-    if balle.y - balle.radius <= 120 or balle.y + balle.radius >= HEIGHT-20:
-        balle.rebond(players[p], n, "wall")
+    if balle.y - balle.radius <= 120:
+        balle.rebond(players[p], n, "wallup")
+    if balle.y + balle.radius >= HEIGHT-20:
+        balle.rebond(players[p], n, "walldown")
 
     #si la balle touche la gauche ou la droite du terrain
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
@@ -307,9 +265,6 @@ def main():
     n = 0
     running = True
 
-    #aspect aléatoire de la vitesse verticale de la balle au début
-  #  balle.vy = rd.randint(-5, 5)
-
     #initialisation de l'horloge
     clock = pg.time.Clock()
 
@@ -328,6 +283,9 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+
+        #mise à 0 de la vitesse verticale de chaque joueur
+#        for i in players: i.vy = 0
 
         if phone:
              mouse_pos = pg.mouse.get_pos()
@@ -358,9 +316,6 @@ def main():
 
         # + 1 itération à la boucle principale
         n += 1
-
-        #mise à 0 de la vitesse verticale de chaque joueur
-        for i in players: i.vy = 0
 
         #mouvement de la balle
         balle.move()
