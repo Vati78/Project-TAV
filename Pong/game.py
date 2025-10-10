@@ -9,6 +9,8 @@ Constants and initialization
 
 phone = False
 
+debug = 0
+
 #dimensions de la fenetre PYGAME
 WIDTH = 1000
 HEIGHT = 600
@@ -50,7 +52,9 @@ class Ball():
 
     #détection d'un rebond 
     def rebond(self, p, loop, position):
+        global debug
         #p_vy: vy de la plateforme; position: relative to the plateform; touche_exterieur: haut ou bas de l'écran
+        position = position.lower()
         bord = -1 if position in ("above","below","wall") else 1
         signe_x = -1 if (self.vx < 0) else 1
         if position in ("right","left"): signe_x = 1 if position == "left" else -1
@@ -60,6 +64,8 @@ class Ball():
             if self.y + self.radius > p.y: self.y = p.y - self.radius 
         elif position == "below":
             if self.y - self.radius < p.y + p.ly: self.y = p.y + self.radius
+        if debug:
+            print("", end="")
         print("rebond", position, self.vx, self.vy)
 
     #affichage de la balle
@@ -147,86 +153,33 @@ class Plateform():
 
 #détection des différentes interactions entre les objets
 
-def contact(player,balle,n):
-    if  player.x + player.lx//2 < balle.x < player.x + player.lx + balle.radius:
-        ###RIGHT###
-        if (player.x + player.lx >= balle.x - balle.radius
-            and player.y <= balle.y <= player.y + player.ly):
-            print("directement à droite", n)
-            return "right"
+def clamp(value: float, min_val: float, max_val: float) -> float:
+    """Contraint une valeur dans un intervalle."""
+    return max(min_val, min(value, max_val))
 
-        elif (player.y + player.ly//2>= balle.y >= player.y - balle.radius*math.sqrt(2)//2
-            and balle.x >= player.x + player.lx + balle.radius*math.sqrt(2)//2
-            and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
-            print("à droite (du haut)", n)
-            return "right"
+def contact(p, balle, n) -> str:
+    """
+    Détermine le type de contact ('ABOVE', 'LEFT', 'RIGHT', 'BELOW', ou '')
+    entre une balle (cercle) et une plateforme rectangulaire.
+    """
+    # Point du rectangle le plus proche du centre du cercle
+    closest_x = clamp(balle.x, p.x, p.x + p.lx)
+    closest_y = clamp(balle.y, p.y, p.y + p.ly)
 
-        elif (player.y  + player.ly//2 <= balle.y <= player.y + player.ly + balle.radius*math.sqrt(2)//2
-              and balle.x >= player.x + player.lx + balle.radius*math.sqrt(2)//2
-              and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
-            print("à droite (du bas)", n)
-            return "right"
+    # Différences
+    dx = balle.x - closest_x
+    dy = balle.y - closest_y
+    dist_sq = dx * dx + dy * dy
 
-    ###RIGHT###
-    ###LEFT###
-    elif (player.x >= balle.x + balle.radius
-        and player.y <= balle.y <= player.y + player.ly):
-        print("directement à gauche", n)
-        return "left"
+    # Pas de collision
+    if dist_sq > balle.radius * balle.radius:
+        return ""
 
-    elif (player.y + player.ly//2 >= balle.y >= player.y - balle.radius*math.sqrt(2)//2
-        and balle.x + balle.radius*math.sqrt(2)//2 <= player.x
-        and math.sqrt((balle.x - player.x)**2 + (balle.y - player.y)**2) <= balle.radius):
-        print("à gauche (du haut)", n)
-        return "left"
-
-    elif (player.y  + player.ly//2 <= balle.y <= player.y + player.ly + balle.radius*math.sqrt(2)//2
-          and balle.x + balle.radius*math.sqrt(2)//2 >= player.x
-          and math.sqrt((balle.x - player.x)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
-        print("à gauche (du bas)", n)
-        return "left"
-
-    ###LEFT###
-    ###ABOVE###
-    elif (player.x <= balle.x <= player.x + player.lx
-        and player.y >= balle.y + balle.radius):
-        print("directement au dessus", n)
-        return "above"
-
-    elif (balle.x <= player.x + player.lx + balle.radius*math.sqrt(2)//2
-        and balle.y <= player.y - balle.radius * math.sqrt(2)//2
-        and balle.vy > 0
-        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
-        print("au dessus (à droite)", n)
-        return "above"
-
-    elif (balle.x >= player.x - balle.radius*math.sqrt(2)//2
-        and balle.y <= player.y - balle.radius*math.sqrt(2)//2
-        and balle.vy > 0
-        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y)**2) <= balle.radius):
-        print("au dessus (à gauche)", n)
-        return "above"
-
-    ###ABOVE###
-    ###BELOW###
-    elif (player.x <= balle.x <= player.x + player.lx
-          and player.y + player.ly >= balle.y - balle.radius):
-        print("directement au dessous", n)
-        return "below"
-
-    elif (balle.x <= player.x + player.lx + balle.radius*math.sqrt(2)//2
-        and balle.y >= player.y - balle.radius*math.sqrt(2)//2
-        and balle.vy < 0
-        and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
-        print("au dessous mais trigo", n)
-        return "below"
-
-    elif (balle.x >= player.x - balle.radius*math.sqrt(2)//2
-         and balle.y >= player.y - balle.radius*math.sqrt(2)//2
-         and balle.vy < 0
-         and math.sqrt((balle.x - player.x - player.lx)**2 + (balle.y - player.y - player.ly)**2) <= balle.radius):
-        print("au dessous mais trigo", n)
-        return "below"
+    # Détermination du côté de contact
+    if abs(dy) > abs(dx):
+        return "above" if dy < 0 else "below"
+    else:
+        return "left" if dx < 0 else "right"
 
 
 def interactions(players, balle, n):#, simulation=False, coor=None):
@@ -344,7 +297,7 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
 ####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
 def main():
-    global last_r
+    global last_r, debug
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, True, 15)]
@@ -393,6 +346,8 @@ def main():
                     players[0].move(1)
                 if keys[pg.K_UP]:
                     players[0].move(-1)
+                if keys[pg.K_LEFT]: debug = 1
+                else: debug = 0
             if keys[pg.K_RIGHT]:
                 if pause_e:
                     pause = not pause
