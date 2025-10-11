@@ -39,6 +39,15 @@ position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
 
+#position = [["wK", " ", " ", " ", " ", " ", " ", " "],
+            #[" ", " ", "bQ", " ", " ", " ", " ", " "],
+            #[" ", " ", " ", " ", " ", " ", " ", " "],
+            #[" ", " ", " ", " ", " ", " ", " ", " "],
+            #[" ", " ", " ", " ", " ", " ", " ", " "],
+            #[" ", " ", " ", " ", " ", " ", " ", " "],
+            #["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+            #["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"]]
+
 coor_to_alpha = {0:"a", 1:"b", 2:"c", 3:"d", 4:"e", 5:"f", 6:"g", 7:"h"}
 
 k_move = {"w": [False,None],
@@ -53,6 +62,9 @@ castled = {"w":[False,None],
 
 k_pos = {"w": [4, 7],
          "b": [4, 0]}
+
+#k_pos = {"w": [0, 0],
+ #        "b": [4, 7]}
 
 last_move = (None, None, None, None, None)
 check = False
@@ -151,7 +163,7 @@ def blit_legal_moves(liste):
         else:
             pg.draw.circle(win, (168,168,168), (col * SQUARE + SQUARE // 2, rank * SQUARE + SQUARE // 2), 10)
 
-# checks if there is a check
+# checks if the player is in check
 def in_check(player, col_k, rank_k):
     global position # imports the position
 
@@ -203,7 +215,7 @@ def remove_illegal(player, col_i, rank_i, liste):
 
     return legal_moves
 
-# checks if checkmate
+# checks if the player is checkmated
 def checkmate(player, pos=None):
     global position
 
@@ -267,10 +279,10 @@ def estimation_pos(pos):
                 if "K" not in col:
                     nmb_pieces[col] += 1
 
-                if rank[0] == 7 and col[1] in ("B", "N"):
-                    nmbPiecesNonDeveloppees["w"] += 1
-                elif rank[0] == 0 and col[1] in ("B", "N"):
-                    nmbPiecesNonDeveloppees["b"] += 1
+                if rank[0] == 7 and col[1] in ("B", "N") and col[0] == "w":
+                    nmbPiecesNonDeveloppees[col[0]] += 1
+                elif rank[0] == 0 and col[1] in ("B", "N") and col[0] == "b":
+                    nmbPiecesNonDeveloppees[col[0]] += 1
 
     castling_right = [None, None]
     castling_right[0] = True if ((k_move["w"][0] is False) and ((a_rook_move["w"][0] is False) or (h_rook_move["w"][0] is False))) else False
@@ -291,8 +303,14 @@ def estimation_pos(pos):
     if castled["w"][0] is True: castle[0] = 150
     if castled["b"][0] is True: castle[1] = -150
 
-
-    estimation = (100*(nmb_pieces["wP"]-nmb_pieces["bP"])+
+    if checkmate("b", pos):
+        estimation = 1000000000
+    elif checkmate("w", pos):
+        estimation = -1000000000
+    elif stalemate("w") or stalemate("b"):
+        estimation = 0
+    else:
+        estimation = (100*(nmb_pieces["wP"]-nmb_pieces["bP"])+
            320*(nmb_pieces["wN"]-nmb_pieces["bN"])+
            330*(nmb_pieces["wB"]-nmb_pieces["bB"])+
            500*(nmb_pieces["wR"]-nmb_pieces["bR"])+
@@ -445,6 +463,7 @@ class Piece:
     class King:
         def legal_moves(self, col_i, rank_i):
             color = get_color(col_i, rank_i)
+            rook_col = 7 if color == "w" else 0
 
             dir = [(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)]
 
@@ -466,7 +485,8 @@ class Piece:
                     and not in_check(color, 5, rank_i)
                     and not in_check(color, 6, rank_i)
                     and not if_piece(5, rank_i)
-                    and not if_piece(6, rank_i)):
+                    and not if_piece(6, rank_i)
+                    and position[rook_col][7] == f"{color}R"):
                 legal_moves.append((6, rank_i))
 
             # long castle
@@ -476,7 +496,8 @@ class Piece:
                     and not in_check(color, 3, rank_i)
                     and not in_check(color, 4, rank_i)
                     and not if_piece(3, rank_i)
-                    and not if_piece(2, rank_i)):
+                    and not if_piece(2, rank_i)
+                    and position[rook_col][0] == f"{color}R"):
                 legal_moves.append((2, rank_i))
 
             return legal_moves
