@@ -261,14 +261,16 @@ def estimation_pos(pos):
     nmbPiecesNonDeveloppees = {"w":0,
                                "b":0}
 
-    for rank in pos:
-        for col in rank:
+    for rank in enumerate(pos):
+        for col in rank[1]:
             if col != " ":
                 if "K" not in col:
                     nmb_pieces[col] += 1
 
-                if col[1] in ("B", "N"):
-                    nmbPiecesNonDeveloppees[col[0]] += 1
+                if rank[0] == 7 and col[1] in ("B", "N"):
+                    nmbPiecesNonDeveloppees["w"] += 1
+                elif rank[0] == 0 and col[1] in ("B", "N"):
+                    nmbPiecesNonDeveloppees["b"] += 1
 
     castling_right = [None, None]
     castling_right[0] = True if ((k_move["w"][0] is False) and ((a_rook_move["w"][0] is False) or (h_rook_move["w"][0] is False))) else False
@@ -298,7 +300,7 @@ def estimation_pos(pos):
            king_move[0] + king_move[1]+
            castle_r[0] + castle_r[1]+
            castle[0] + castle[1]+
-           25*(nmbPiecesNonDeveloppees["w"]-nmbPiecesNonDeveloppees["b"]))
+           -25*(nmbPiecesNonDeveloppees["w"]-nmbPiecesNonDeveloppees["b"]))
 
     print(estimation)
 
