@@ -1,6 +1,7 @@
 import pygame as pg
 import time
 import os
+import random
 
 pg.init()
 
@@ -38,16 +39,16 @@ position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             [" ", " ", " ", " ", " ", " ", " ", " "],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
-#"""
-position = [["wK", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", "bQ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
-            [" ", " ", " ", " ", " ", " ", " ", " "],
+"""
+position = [["bR", "bN", "bB", "bQ", "bK", " ", " ", "bR"],
             ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"]]
-#"""
+            [" ", " ", " ", "bB", " ", "bN", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+"""
 
 coor_to_alpha = {0:"a", 1:"b", 2:"c", 3:"d", 4:"e", 5:"f", 6:"g", 7:"h"}
 
@@ -64,10 +65,10 @@ castled = {"w":[False,None],
 k_pos = {"w": [4, 7],
          "b": [4, 0]}
 
-#"""
+"""
 k_pos = {"w": [0, 0],
          "b": [4, 7]}
-#"""
+"""
 
 last_move = (None, None, None, None, None)
 check = False
@@ -219,7 +220,7 @@ def remove_illegal(player, col_i, rank_i, liste):
     return legal_moves
 
 # checks if the player is checkmated
-def checkmate(player, pos=None):
+def checkmate(player):
     global position
 
     if in_check(player, k_pos[player][0], k_pos[player][1]):
@@ -236,7 +237,6 @@ def checkmate(player, pos=None):
 # checks if stalemate
 def stalemate(player):
     global position
-
     if not in_check(player, k_pos[player][0], k_pos[player][1]):
         for rank in enumerate(position):
             for col in enumerate(rank[1]):
@@ -256,11 +256,11 @@ def find_piece(piece_to_find, pos=0):
     for y, rank in enumerate(pos):
         for x, piece in enumerate(rank):
             if piece == piece_to_find:
-                return (x,y)
-    else: #if no piece finded
+                return x, y
+    else: #if no piece found
         return None
 
-def estimation_pos(pos):
+def estimation_pos():
     # Distance cavalier - centre
     # Pions isolés
     nmb_pieces = {"wR":0,
@@ -276,7 +276,7 @@ def estimation_pos(pos):
     nmbPiecesNonDeveloppees = {"w":0,
                                "b":0}
 
-    for rank in enumerate(pos):
+    for rank in enumerate(position):
         for col in rank[1]:
             if col != " ":
                 if "K" not in col:
@@ -304,11 +304,11 @@ def estimation_pos(pos):
     # if the king castled
     castle = [0, 0]
     if castled["w"][0] is True: castle[0] = 150
-    if castled["b"][0] is True: castle[1] = -150
+    if castled["b"][1] is True: castle[1] = -150
 
-    if checkmate("b", pos):
+    if checkmate("b"):
         estimation = 1000000000
-    elif checkmate("w", pos):
+    elif checkmate("w"):
         estimation = -1000000000
     elif stalemate("w") or stalemate("b"):
         estimation = 0
@@ -322,10 +322,57 @@ def estimation_pos(pos):
            castle_r[0] + castle_r[1]+
            castle[0] + castle[1]+
            -25*(nmbPiecesNonDeveloppees["w"]-nmbPiecesNonDeveloppees["b"]))
-
-    print(estimation)
-
     return estimation
+
+def minimax(player, profondeur=1):
+    global position
+
+    opposite_color = "w" if player == "b" else "b"
+
+    if profondeur > 2:
+        return
+    else:
+        #print(position)
+        liste_coups = []
+        for rank in enumerate(position):
+            for col in enumerate(rank[1]):
+                if col[1][0] == player:
+                    move_f = remove_illegal(player, col[0], rank[0], get_type(col[0], rank[0]).legal_moves(col[0], rank[0]))
+
+                    if len(move_f) > 0:
+                        for moves in move_f:
+                            liste_coups.append((col[0], moves[0], rank[0], moves[1]))
+
+        estimations = []
+        for coup in liste_coups:
+            act_position = [rank[:] for rank in position]
+            move(coup[0], coup[1], coup[2], coup[3])
+
+            if profondeur < 2:
+                layer = profondeur + 1
+                estimations.append(minimax(opposite_color, profondeur=layer))
+            else:
+                estimations.append(estimation_pos())
+
+            position = [rank[:] for rank in act_position]
+
+        if profondeur == 1:
+            position = [rank[:] for rank in liste_position[pos_index]]
+            liste_bon_coups = []
+            for coup in enumerate(liste_coups):
+                lim = max(estimations) if player == "w" else min(estimations)
+                if estimations[coup[0]] == lim:
+                    liste_bon_coups.append(coup[1])
+            random.shuffle(liste_bon_coups)
+            return liste_bon_coups[0]
+
+        else:
+            if player == "w":
+                if profondeur%2 == 0: return max(estimations)
+                else: return min(estimations)
+            else:
+                if profondeur%2 == 0: return min(estimations)
+                else: return max(estimations)
 
 
 """
@@ -679,10 +726,14 @@ def main():
                     piece = position[rank_i][col_i]
                     castle = False
                     #if a piece is captured
-                    capture = True if (position[rank_f][col_f][0] != " " and  position[rank_f][col_f][0] != player) else False
+                    capture = True if (position[rank_f][col_f][0] != " " and position[rank_f][col_f][0] != player) else False
                     en_passant = False
                     # if the king is moved
-                    if piece[1] == "K":
+
+                    if player == "b":
+                        col_i, col_f, rank_i, rank_f = minimax(player)
+
+                    if piece[1] == "K":# and player == "w":
                         k_move[player][0] = True
                         if k_move[player][1] is None: k_move[player][1] = pos_index
                         elif k_move[player][1] > pos_index: k_move[player][1] = pos_index
@@ -703,15 +754,14 @@ def main():
                     # if a rook is moved
                     elif piece[1] == "R":
                         if col_i == 0:
-                            a_rook_move[player] = True
+                            a_rook_move[player][0] = True
                             if a_rook_move[player][1] is None: a_rook_move[player][1] = pos_index
                             elif a_rook_move[player][1] > pos_index: a_rook_move[player][1] = pos_index
 
                         elif col_i == 7:
-                            h_rook_move[player] = True
+                            h_rook_move[player][0] = True
                             if h_rook_move[player][1] is None: h_rook_move[player][1] = pos_index
                             elif h_rook_move[player][1] > pos_index: h_rook_move[player][1] = pos_index
-
 
                     # if a pawn is moved
                     elif piece[1] == "P":
@@ -794,9 +844,13 @@ def main():
                                                 position[6][col_i] = list_pieces[7-sq[1]]
                                                 promote = False
 
+
                     move(col_i, col_f, rank_i, rank_f)
+
+
                     last_move = (piece, col_i, col_f, rank_i, rank_f)
                     liste_last_moves.append(last_move)
+                    estimation_pos()
 
                     # checks if 3-fold repetition
                     if player == "b":
@@ -889,5 +943,6 @@ def main():
 
 
 if __name__ == "__main__":
-    estimation_pos(position)
+    checkmate("w")
+    stalemate("w")
     main()
