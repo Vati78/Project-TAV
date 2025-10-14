@@ -709,6 +709,9 @@ def main():
                         else:
                             eval(i)[p][0] = True
 
+        if player=="b":
+            col_i, col_f, rank_i, rank_f = minimax(player)
+            move_i, move_f = True, True
         # if a move is played
         if move_i and move_f:
             # if it's not the same square
@@ -730,8 +733,8 @@ def main():
                     en_passant = False
                     # if the king is moved
 
-                    if player == "b":
-                        col_i, col_f, rank_i, rank_f = minimax(player)
+                    #if player == "b":
+                        #col_i, col_f, rank_i, rank_f = minimax(player)
 
                     if piece[1] == "K":# and player == "w":
                         k_move[player][0] = True
