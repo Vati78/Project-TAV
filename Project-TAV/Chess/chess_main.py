@@ -65,6 +65,8 @@ castled = {"w":[False,None],
 k_pos = {"w": [4, 7],
          "b": [4, 0]}
 
+max_profondeur = 8
+
 """
 k_pos = {"w": [0, 0],
          "b": [4, 7]}
@@ -329,7 +331,7 @@ def minimax(player, profondeur=1):
 
     opposite_color = "w" if player == "b" else "b"
 
-    if profondeur > 2:
+    if profondeur > 2: #précaution
         return
     else:
         #print(position)
@@ -343,9 +345,10 @@ def minimax(player, profondeur=1):
                         for moves in move_f:
                             liste_coups.append((col[0], moves[0], rank[0], moves[1]))
 
+        if not liste_coups: return 100000000 if player=="b" else -100000000 #if checkmate
         estimations = []
+        act_position = [rank[:] for rank in position] #to reset the list position (changed to simulate moves)
         for coup in liste_coups:
-            act_position = [rank[:] for rank in position]
             move(coup[0], coup[1], coup[2], coup[3])
 
             if profondeur < 2:
@@ -367,6 +370,8 @@ def minimax(player, profondeur=1):
             return liste_bon_coups[0]
 
         else:
+            if profondeur == 2 and position != act_position:
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",act_position,position,sep = "-------")
             if player == "w":
                 if profondeur%2 == 0: return max(estimations)
                 else: return min(estimations)
@@ -946,6 +951,4 @@ def main():
 
 
 if __name__ == "__main__":
-    checkmate("w")
-    stalemate("w")
     main()
