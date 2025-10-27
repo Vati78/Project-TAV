@@ -12,6 +12,7 @@ Constants and initialization
 """
 
 phone = False
+bot = "b"
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
@@ -684,24 +685,26 @@ def main():
                 player = "w"
         
         if leftarrow and pos_index > 0: #position before current displayed position
-            position = [rank[:] for rank in liste_position[pos_index-1]]
-            pos_index -= 1
+            a = 2 if bot else 1
+            position = [rank[:] for rank in liste_position[pos_index-a]]
+            pos_index -= a
             move_i = False
             move_f = False
             click_move = False
             arrow = True
 
-            player = "w" if player == "b" else "b"
+            if bot is False: player = "w" if player == "b" else "b"
             
         if rightarrow and pos_index < len(liste_position)-1: #position after current displayed position
-            position = [rank[:] for rank in liste_position[pos_index+1]]
-            pos_index += 1
+            a = 2 if bot else 1
+            position = [rank[:] for rank in liste_position[pos_index+a]]
+            pos_index += a
             move_i = False
             move_f = False
             click_move = False
             arrow = True
 
-            player = "w" if player == "b" else "b"
+            if bot is False:player = "w" if player == "b" else "b"
 
         if arrow: #if any arrow is pressed
             k_pos = {"w":find_piece("wK"), "b": find_piece("bK")} #updating position of the king
@@ -714,7 +717,7 @@ def main():
                         else:
                             eval(i)[p][0] = True
 
-        if player=="b":
+        if player==bot:
             col_i, col_f, rank_i, rank_f = minimax(player)
             move_i, move_f = True, True
         # if a move is played
