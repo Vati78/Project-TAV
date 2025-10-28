@@ -593,7 +593,7 @@ def main():
 
     player = "w"
 
-    end=0
+    end=False
 
     while running:
         #inputs
@@ -716,12 +716,13 @@ def main():
                             eval(i)[p][0] = False
                         else:
                             eval(i)[p][0] = True
+            end = checkmate(player) or stalemate(player)
 
-        if player==bot:
+        if end is False and True:#player == bot:
             col_i, col_f, rank_i, rank_f = minimax(player)
             move_i, move_f = True, True
         # if a move is played
-        if move_i and move_f:
+        if move_i and move_f and end is False:
             # if it's not the same square
             if (col_i,rank_i) != (col_f,rank_f):
                 # if the move is valid and if it's the right player's turn
@@ -896,9 +897,10 @@ def main():
             move_i = False
 
         if checkmate(player) or stalemate(player):
-            print("checkmate or stalemate")
-            end=120
-            running=False
+            #print("checkmate or stalemate")
+            #end=120
+            #running=False
+            end = True
 
         # draws the board and the pieces
         win.fill(GREY)
@@ -908,13 +910,13 @@ def main():
 
         # draws who is playing
         t="White" if player == "w" else "Black"
-        t += " is playing"
+        t += " is playing" + (" -- checkmate or stalemate" if end else "")
         police = pg.font.SysFont("Arial", int(SQUARE/3.5))
         texte = police.render(t, True, (255,255,255))
         win.blit(texte, (WIDTH + 30, 10))
 
         #if the player drags a piece
-        if move_i:
+        if move_i and end is False:
             # empty the square where the piece comes from
             if (col_i + rank_i) % 2 == 0:
                 if (clic and move_i) or move_f: # if the mouse is down: draws a normal square
@@ -948,6 +950,10 @@ def main():
     win.fill(GREY)
     draw_board()
     draw_pieces()
+    t = "checkmate or stalemate"
+    police = pg.font.SysFont("Arial", int(SQUARE/3.5))
+    texte = police.render(t, True, (255,255,255))
+    win.blit(texte, (WIDTH + 30, 10))
     pg.display.update()
     time.sleep(end)
     pg.quit()
