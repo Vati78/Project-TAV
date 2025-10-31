@@ -11,8 +11,8 @@ os.chdir(os.path.abspath(__file__)[0:-14])
 Constants and initialization
 """
 
-phone = False
-bot = "b"
+phone = not False
+bot = "w"
 SQUARE = 135 if phone else 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
@@ -718,7 +718,7 @@ def main():
                             eval(i)[p][0] = True
             end = checkmate(player) or stalemate(player)
 
-        if end is False and True:#player == bot:
+        if end is False and player in bot:
             col_i, col_f, rank_i, rank_f = minimax(player)
             move_i, move_f = True, True
         # if a move is played
