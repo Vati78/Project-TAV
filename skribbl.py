@@ -24,7 +24,6 @@ else:
     CANVAS_WIDTH = int(w * (CANVAS_HEIGHT/h))
 
 PIXEL_SPACING = 2
-BRUSH_SIZE = 5
 DRAW_SPEED = 0
 # ==================================================
 
@@ -58,14 +57,6 @@ COLORS = {
     "d_pink": [(135, 53, 84), (825, 900)],
     "d_beige": [(204, 119, 77), (850, 900)],
     "d_brown": [(99, 48, 13), (875, 900)]
-}
-
-# Position du sélecteur de taille de pinceau (si nécessaire)
-BRUSH_POSITIONS = {
-    1: (540, 875),  # Petit
-    2: (540, 900),  # Moyen
-    3: (540, 925),  # Gros
-    4: (540, 950)  # Énorme
 }
 
 
@@ -118,12 +109,6 @@ def draw_optimized(pos, color_groups, colors):
     pos_x, pos_y = pos
     current_color = None
 
-    if BRUSH_SIZE in BRUSH_POSITIONS:
-        pag.click(*BRUSH_POSITIONS[BRUSH_SIZE])
-
-    total_pixels = sum(len(p) for p in color_groups.values())
-    drawn = 0
-
     for color_name, pixels in color_groups.items():
         if not pixels:
             continue
@@ -138,11 +123,6 @@ def draw_optimized(pos, color_groups, colors):
             screen_x = pos_x + x * PIXEL_SPACING
             screen_y = pos_y + y * PIXEL_SPACING
             pag.click(screen_x, screen_y)
-
-            drawn += 1
-            if drawn % 50 == 0:
-                print(f"Progression: {drawn}/{total_pixels} pixels ({drawn * 100 // total_pixels}%)")
-
 
 def main_mode():
     """Mode principal de dessin"""
