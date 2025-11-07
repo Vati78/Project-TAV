@@ -172,7 +172,7 @@ class Plateform():
 
 #détection des différentes interactions entre les objets
 
-def clamp(value: float, min_val: float, max_val: float) -> float:
+def clamp(value, min_val, max_val):
     """Contraint une valeur dans un intervalle."""
     return max(min_val, min(value, max_val))
 
