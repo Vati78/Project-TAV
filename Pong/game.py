@@ -126,18 +126,24 @@ class Plateform():
 
     #déplacement de la PLATEFORME
     def move(self, vy, ball=None):
-        if self.ia and ball != None:
-            if ball.vx > 0 and self.y_v == None:
-                x = ball.x + ball.radius
-                y = ball.y
-                vy = ball.vy
-                while x < self.x:
-                    x += ball.vx
-                    y += vy
-                    if y + vy - ball.radius <= 120: vy = -vy
-                    elif y + vy + ball.radius >= HEIGHT - 20: vy = -vy
-                self.y_v = y - self.ly/2
+        global items, players
+        if self.ia and ball is not None:
+            if ball.vx > 0 and self.y_v is None:
+                list_act =[]
+                for i in ("x","y","vx","vy"):
+                    for j in (players[0],players[1],ball):
+                        list_act.append(eval(str(j)+"."+i))
+                while ball.x  + ball.radius < self.x:
+                    ball.move()
+                    for i in items: i.move()
+                    if not interactions(players, ball, 0, items): break
+
+                self.y_v = ball.y - self.ly/2
                 self.count += 1
+                for i in ("x","y","vx","vy"):
+                    for j in (players[0],players[1],ball):
+                        eval(str(j)+"."+i) = list_act[0]
+
                 #print(vy)
                 #print(y, ' -')
                 if self.diff != "":
@@ -170,13 +176,36 @@ class Plateform():
     def draw(self):
         win.blit(self.img, (self.x, self.y))
 
+class Portal():
+    def __init__(self, x, y, lx = 80, ly = 80, hP=None):
+        self.x = x
+        self.y = y
+        self.lx = lx
+        self.ly = ly
+        self.hP = hP
+        if self.hP is not None:
+            if self.hP.hP is None: self.hP.hP = self
+        self.timeTP = time.time()
+        self.laps = 0.5
+        self.img = pg.transform.scale(pg.image.load("Images/Portal_b.png"), (self.lx, self.ly))
+
+    def draw(self):
+        pg.draw.rect(win, (0,100,100), pg.Rect(self.x, self.y, self.lx, self.ly))
+        win.blit(self.img, (self.x, self.y))
+    def move(self):pass
+    def interagit(self, c, ball):
+        if self.timeTP + self.laps < time.time() or self.hP.timeTP + self.laps < time.time():
+            self.timeTP = time.time()
+            self.hP.timeTP = time.time()
+            return ball.x - self.x + self.hP.x, ball.y - self.y + self.hP.y
+
 #détection des différentes interactions entre les objets
 
 def clamp(value, min_val, max_val):
     """Contraint une valeur dans un intervalle."""
     return max(min_val, min(value, max_val))
 
-def contact(p, balle, n) -> str:
+def contact(p, balle, n):
     """
     Détermine le type de contact ('ABOVE', 'LEFT', 'RIGHT', 'BELOW', ou '')
     entre une balle (cercle) et une plateforme rectangulaire.
@@ -201,7 +230,7 @@ def contact(p, balle, n) -> str:
         return "left" if dx < 0 else "right"
 
 
-def interactions(players, balle, n):#, simulation=False, coor=None):
+def interactions(players, balle, n, items):#, simulation=False, coor=None):
     global last_r
 
     p =- 1
@@ -235,7 +264,7 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
           #  print("<<<End<<<")
 
 
-    #si la balle touche le haut ou la bas du terrain
+    #si la balle touche le haut ou le bas du terrain
     if balle.y - balle.radius <= 120:
         balle.rebond(players[p], n, "wallup")
     if balle.y + balle.radius >= HEIGHT-20:
@@ -245,6 +274,12 @@ def interactions(players, balle, n):#, simulation=False, coor=None):
     if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
         #arreter le jeu
         return False
+    #si la balle touche des items:
+    for i in items:
+        c = contact(i, balle, n)
+        if c:
+            a = i.interagit(c, balle)
+            if a is not None: balle.x, balle.y = a
 
     #continuer le jeu
     return True
@@ -259,6 +294,8 @@ def main():
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, nbplayers in (0,1), 15)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
+    items = [Portal(300, 200)]
+    items.append(Portal(600,400,hP=items[0]))
 
     #nombre d'itérations et variable de boucle principale
     n = 0
@@ -321,15 +358,18 @@ def main():
 
         #mouvement de la balle
         balle.move()
-        pg.draw.rect(win, "black", (balle.x, balle.y, 5, 5))
+        #pg.draw.rect(win, "black", (balle.x, balle.y, 5, 5))
 
         #mouvement du bot
         if nbplayers != 2: players[1].move(0, balle)
 
+        #gestion des items
+        for i in items: i.move()
+
         #terminer le jeu si aucune interaction quand la balle sort du terrain
         if running:
-            #pas d'interaction+
-            if not interactions(players, balle, n): # n  loop (car loop != 0)
+            #si balle sort du terrain
+            if not interactions(players, balle, n, items): # n  loop (car loop != 0)
                 last_r = None
                 # attitrage des points
                 if balle.vx < 0:
@@ -337,7 +377,7 @@ def main():
                 else:
                     players[0].nmb_points += 1
                 del balle
-                #recréation d'une nouvelle partie
+                #recréation d'un nouvel échange
                 for i in (0, 1):
                     players[i].y = (HEIGHT-100)//2
                     players[i].reset()
@@ -349,6 +389,7 @@ def main():
         win.fill((0,0,0))
         win.blit(fond, (0, 100))
         win.blit(haut, (0, 0))
+        for i in items: i.draw()
         balle.draw()
         for i in enumerate(players): i[1].draw()
 
