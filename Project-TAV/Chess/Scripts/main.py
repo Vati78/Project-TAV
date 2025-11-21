@@ -11,7 +11,7 @@ import board
 import pieces
 import game
 import mouse_keys as mk
-
+os.chdir(os.path.dirname(__file__))
 pg.init()
 win = pg.display.set_mode((const.WIDTH + 5*const.SQUARE, const.HEIGHT))
 pg.display.set_caption("Chess")
