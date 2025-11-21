@@ -1,4 +1,4 @@
-import pygame as pg, math, os, time, random as rd
+import pygame as pg, math, os, time, random as rd, copy
 
 pg.init()
 os.chdir(os.path.dirname(__file__))
@@ -34,9 +34,22 @@ win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 last_r = None #0: dernier rebond à gauche; 1: dernier rebond à droite
 
 variantes = False
+class item():
+    def __deepcopy__(self, memo):
+        # Créer une nouvelle instance sans copier les éléments Pygame
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+
+        for k, v in self.__dict__.items():
+            if isinstance(v, pg.Surface):  # Exclure les Surface
+                setattr(result, k, v)  # Garder la référence originale
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
 
 #création de la classe BALLE
-class Ball():
+class Ball(item):
     #initialisation des variables relatives à la BALLE
     def __init__(self, x, y, vx, vy, radius):
         self.x = x
@@ -100,7 +113,7 @@ class Ball():
         else: self.stop = False
 
 #création de la classe PLATEFORME
-class Plateform():
+class Plateform(item):
     #création des variables relatives à la classe PLATEFORME
     def __init__(self, x, y, lx, ly, ymax, ymin, color, index, ia = None, diff = 10):
         self.x = x
@@ -108,6 +121,7 @@ class Plateform():
         self.lx = lx
         self.ly = ly
         self.vy = 0
+        self.vx = 0
         self.ymax = ymax
         self.ymin = ymin
         self.vmax = 10
@@ -129,20 +143,19 @@ class Plateform():
         global items, players
         if self.ia and ball is not None:
             if ball.vx > 0 and self.y_v is None:
-                list_act =[]
-                for i in ("x","y","vx","vy"):
-                    for j in (players[0],players[1],ball):
-                        list_act.append(eval(str(j)+"."+i))
-                while ball.x  + ball.radius < self.x:
-                    ball.move()
-                    for i in items: i.move()
-                    if not interactions(players, ball, 0, items): break
+                s_players = copy.deepcopy(players)#Plateform(0,0,0,0,0,0,0,0) for i in range(2)]
+                s_ball = copy.deepcopy(ball)#Ball(0,0,0,0,0)
+                s_items = copy.deepcopy(items) #[eval(type(i).__name__)(0,0) for i in items]
+                #print(s_ball, s_players, s_items)
 
-                self.y_v = ball.y - self.ly/2
+                while s_ball.x  + s_ball.radius < self.x:
+                    s_ball.move()
+                    for i in s_items: i.move()
+                    if not interactions(s_players, s_ball, 0, s_items): break
+
+                self.y_v = s_ball.y - self.ly/2
                 self.count += 1
-                for i in ("x","y","vx","vy"):
-                    for j in (players[0],players[1],ball):
-                        eval(str(j)+"."+i) = list_act[0]
+                for i in s_players + [s_ball] + s_items: del i
 
                 #print(vy)
                 #print(y, ' -')
@@ -176,30 +189,6 @@ class Plateform():
     def draw(self):
         win.blit(self.img, (self.x, self.y))
 
-class Portal():
-    def __init__(self, x, y, lx = 80, ly = 80, hP=None):
-        self.x = x
-        self.y = y
-        self.lx = lx
-        self.ly = ly
-        self.hP = hP
-        if self.hP is not None:
-            if self.hP.hP is None: self.hP.hP = self
-        self.timeTP = time.time()
-        self.laps = 0.5
-        self.img = pg.transform.scale(pg.image.load("Images/Portal_b.png"), (self.lx, self.ly))
-
-    def draw(self):
-        pg.draw.rect(win, (0,100,100), pg.Rect(self.x, self.y, self.lx, self.ly))
-        win.blit(self.img, (self.x, self.y))
-    def move(self):pass
-    def interagit(self, c, ball):
-        if self.timeTP + self.laps < time.time() or self.hP.timeTP + self.laps < time.time():
-            self.timeTP = time.time()
-            self.hP.timeTP = time.time()
-            return ball.x - self.x + self.hP.x, ball.y - self.y + self.hP.y
-
-#détection des différentes interactions entre les objets
 
 def clamp(value, min_val, max_val):
     """Contraint une valeur dans un intervalle."""
@@ -234,6 +223,7 @@ def interactions(players, balle, n, items):#, simulation=False, coor=None):
     global last_r
 
     p =- 1
+   # print("a", players, balle)
     if balle.x < players[0].x + players[0].lx + balle.radius + balle.vx + 10: p = 0
     elif balle.x > players[1].x - balle.radius - balle.vx - 10: p = 1
     if p != -1:
@@ -289,13 +279,13 @@ def interactions(players, balle, n, items):#, simulation=False, coor=None):
 ####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
 def main():
-    global last_r, debug
+    global last_r, debug, players, items
     #création des objets
     players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
                Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, nbplayers in (0,1), 15)]
     balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
-    items = [Portal(300, 200)]
-    items.append(Portal(600,400,hP=items[0]))
+
+    items = []
 
     #nombre d'itérations et variable de boucle principale
     n = 0
