@@ -25,7 +25,7 @@ def main():
         mouse_pos = pg.mouse.get_pos()
         user_input = pg.key.get_pressed()
 
-
+        game.left_click_up = None
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -44,7 +44,8 @@ def main():
 
             if user_input[pg.K_UP]:
                 pass
-
+            
+            
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                 game.left_click_up = None
                 coor =  mk.mouse_to_coor(mouse_pos)
@@ -61,9 +62,11 @@ def main():
         game.make_move()
 
 
-
+        win.fill((50, 50, 50))
         board.draw_board()
         board.draw_pieces()
+        game.blit_legal_moves_if_possible()
+        board.write_player_turn()
 
         pg.display.update()
 

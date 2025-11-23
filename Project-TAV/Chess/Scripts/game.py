@@ -30,16 +30,20 @@ candidate_move = [None, None, None, None]
 
 def input_to_candidate_move():
     global left_click_up, left_click_down, candidate_move
-
     if left_click_up is not None:
         if left_click_down == left_click_up: # if clicked
             if (candidate_move[0], candidate_move[1]) == (None, None):
                 # blit legal moves
                 candidate_move[0], candidate_move[1] = left_click_down[0], left_click_down[1]
-
-            elif ((candidate_move[2], candidate_move[3]) == (None, None)
-                  and (left_click_down[0], left_click_down[1]) != (candidate_move[0], candidate_move[1])):
-                candidate_move[2], candidate_move[3] = left_click_down[0], left_click_down[1]
+            elif (candidate_move[2], candidate_move[3]) == (None, None):
+                if (left_click_down[0], left_click_down[1]) == (candidate_move[0], candidate_move[1]):
+                    candidate_move = [None, None, None, None]
+                    left_click_down, left_click_up = None, None
+                elif board.color_and_occupied_square(left_click_up[0], left_click_up[1]) == player_turn:
+                    candidate_move = [left_click_up[0], left_click_up[1], None, None]
+                    left_click_up = None
+                else:
+                    candidate_move[2], candidate_move[3] = left_click_down[0], left_click_down[1]
 
         else:
             candidate_move = [left_click_down[0], left_click_down[1], left_click_up[0], left_click_up[1]]
@@ -82,7 +86,9 @@ def in_check(player):
                     return True
     return False
 
-
+def blit_legal_moves_if_possible():
+    if (candidate_move[2], candidate_move[3]) == (None, None) and candidate_move[0] is not None and candidate_move[1] is not None:
+        board.blit_legal_moves(candidate_move[0], candidate_move[1])
 
 
 

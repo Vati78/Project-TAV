@@ -61,4 +61,10 @@ def blit_legal_moves(rank, col):
         else:
             pg.draw.circle(main.win, (168, 168, 168), (col * const.SQUARE + const.SQUARE // 2, rank * const.SQUARE + const.SQUARE // 2), 10)
 
+def write_player_turn():
+    t="White" if game.player_turn == "w" else "Black"
+    t += " is playing"
+    police = pg.font.SysFont("Arial", int(const.SQUARE/3))
+    texte = police.render(t, True, (255,255,255))
+    main.win.blit(texte, (const.WIDTH + 30, 10))
 
