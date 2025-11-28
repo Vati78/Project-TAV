@@ -22,29 +22,28 @@ class Player:
         self.castle = False
 
     def return_move(self, candidate_move):
-        if all(item is not None for item in candidate_move) and board.color_and_occupied_square(candidate_move[0], candidate_move[1]) == game.player_turn:
-            rank_i, col_i, rank_f, col_f = candidate_move[0], candidate_move[1], candidate_move[2], candidate_move[3]
-            specific = None
+        print("move was made")
+        rank_i, col_i, rank_f, col_f = candidate_move[0], candidate_move[1], candidate_move[2], candidate_move[3]
+        specific = None
 
-            game.left_click_down = None
-            game.left_click_up = None
-            game.candidate_move = [None, None, None, None]
+        game.left_click_down = None
+        game.left_click_up = None
+        game.candidate_move = [None, None, None, None]
 
-            if (rank_f, col_f) in board.get_type(rank_i, col_i).legal_moves(rank_i, col_i):
-                actual_position = [row[:] for row in game.position]
+        if (rank_f, col_f) in board.get_type(rank_i, col_i).legal_moves(rank_i, col_i):
+            actual_position = [row[:] for row in main.chess_game.position]
 
-                if isinstance(board.get_type(rank_i, col_i), pieces.Piece.King):
-                    self.king_pos = (rank_f, col_f)
+            if isinstance(board.get_type(rank_i, col_i), pieces.Piece.King):
+                self.king_pos = (rank_f, col_f)
 
-                game.play_move(rank_i, col_i, rank_f, col_f, specific)
-                if not game.in_check(self.color):
-                    print("no check ...")
-                else:
-                    game.position = actual_position
-                    return False
+            main.chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
+            if not main.chess_game.in_check(self.color):
+                print("no check ...")
+            else:
+                game.position = actual_position
+                return False
 
-                return True
-        return False
+            return True
 
 class Bot:
     def __init__(self, color):

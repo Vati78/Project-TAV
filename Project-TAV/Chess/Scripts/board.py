@@ -21,21 +21,21 @@ def draw_board():
 
 # draws the pieces
 def draw_pieces():
-    for rank in enumerate(game.position): # goes through every rank
+    for rank in enumerate(main.chess_game.position): # goes through every rank
         for col in enumerate(rank[1]): # goes through every column
             if col[1] != " ": # if the square is not empty
                 main.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces/{col[1]}.png"), (const.SQUARE, const.SQUARE)), ((col[0])*const.SQUARE, (rank[0])*const.SQUARE))
 
 # checks if a specific square is occupied by a piece, if so : returns the color
 def color_and_occupied_square(rank, col):
-    if game.position[rank][col] == " ":
+    if main.chess_game.position[rank][col] == " ":
         return False
     else:
-        return game.position[rank][col][0]
+        return main.chess_game.position[rank][col][0]
 
 # returns the type of piece /!\ Make sure there is a piece !!!
 def get_type(rank, col):
-    piece = game.position[rank][col]
+    piece = main.chess_game.position[rank][col]
 
     if piece[1] == "P":
         return pieces.Piece.Pawn(piece[0])
@@ -53,8 +53,6 @@ def get_type(rank, col):
 # blits all legal moves
 def blit_legal_moves(rank, col):
     for move in get_type(rank, col).legal_moves(rank, col):
-        col_x = move[0]
-        rank_x = move[1]
         if color_and_occupied_square(col, rank):
             pg.draw.circle(main.win, (168, 168, 168), (col * const.SQUARE + const.SQUARE // 2, rank * const.SQUARE + const.SQUARE // 2),
                            const.SQUARE // 2 - 2, 3)
@@ -62,7 +60,7 @@ def blit_legal_moves(rank, col):
             pg.draw.circle(main.win, (168, 168, 168), (col * const.SQUARE + const.SQUARE // 2, rank * const.SQUARE + const.SQUARE // 2), 10)
 
 def write_player_turn():
-    t="White" if game.player_turn == "w" else "Black"
+    t="White" if main.chess_game.player_turn == "w" else "Black"
     t += " is playing"
     police = pg.font.SysFont("Arial", int(const.SQUARE/3))
     texte = police.render(t, True, (255,255,255))

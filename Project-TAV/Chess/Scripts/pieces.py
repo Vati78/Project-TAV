@@ -2,6 +2,7 @@
 Toutes les fonctions en rapport avec le mouvement des pièces.
 """
 
+import main
 import board
 
 class Piece:
