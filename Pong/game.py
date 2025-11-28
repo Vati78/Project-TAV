@@ -3,191 +3,11 @@ import pygame as pg, math, os, time, random as rd, copy
 pg.init()
 os.chdir(os.path.dirname(__file__))
 
+
 """
 Constants and initialization
 """
 
-phone = False
-
-nbplayers = 1
-#dimensions de la fenetre PYGAME
-WIDTH = 1000
-HEIGHT = 600
-POINTS = 50
-
-#création de la fenetre PYGAME
-win = pg.display.set_mode((WIDTH, HEIGHT+POINTS))
-pg.display.set_caption("Ping-Pong")
-
-#creation de certaines couleurs
-GREEN = (118,150,86)
-dGREEN = (88,120,56)
-WHITE = (238,238,210)
-dWHITE = (208,208,180)
-GREY = (50, 50, 50)
-RED = (255, 20, 20)
-
-#affichage des images de
-win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
-win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
-
-last_r = None #0: dernier rebond à gauche; 1: dernier rebond à droite
-
-variantes = False
-class item():
-    def __deepcopy__(self, memo):
-        # Créer une nouvelle instance sans copier les éléments Pygame
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-
-        for k, v in self.__dict__.items():
-            if isinstance(v, pg.Surface):  # Exclure les Surface
-                setattr(result, k, v)  # Garder la référence originale
-            else:
-                setattr(result, k, copy.deepcopy(v, memo))
-        return result
-
-#création de la classe BALLE
-class Ball(item):
-    #initialisation des variables relatives à la BALLE
-    def __init__(self, x, y, vx, vy, radius):
-        self.x = x
-        self.y = y
-        self.vx_i = abs(vx)
-        self.vy_i = vy
-        self.vx = vx
-        self.vy = vy
-        self.radius = radius
-        self.image = pg.image.load(f"Images/Balle.png")
-        self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
-
-    #détection d'un rebond 
-    def rebond(self, p, loop, position):
-        global debug
-        #p_vy: vy de la plateforme; position: relative to the plateform; touche_exterieur: haut ou bas de l'écran
-        position = position.lower()
-        #bord = -1 if position in ("above","below","wall") else 1
-        if position in ("above", "walldown"): diry = -1
-        elif position in ("below", "wallup"): diry = 1
-        elif self.vy > 0: diry = 1
-        else: diry = -1
-        signe_x = -1 if (self.vx < 0) else 1
-        if position in ("right","left"): signe_x = -1 if position == "left" else 1
-        vy = 0 if "wall" in position else 0.2 * p.vy
-       # print("#",p.vy, vy)
-        self.vx =  self.vx_i * (1 + loop/2000) * signe_x
-        self.vy =  abs(self.vy) * diry + vy #*sens
-        m = False
-        if position == "above":
-            if self.y + self.radius > p.y:
-                self.y = p.y - self.radius
-                m = True
-        elif position == "below":
-            if self.y - self.radius < p.y + p.ly:
-                self.y = p.y + p.ly + self.radius
-                m = True
-        # si la balle touche le haut ou la bas du terrain
-        if self.y - self.radius <= 120 and m:
-            self.y = 120 + self.radius
-            if self.x > p.x + p.lx // 2: self.x = p.x + p.lx + self.radius
-            else: self.x = p.x - self.radius
-        if self.y + self.radius >= HEIGHT - 20 and m:
-            self.y = HEIGHT - 20 - self.radius
-            if self.x > p.x + p.lx // 2: self.x = p.x + p.lx + self.radius
-            else: self.x = p.x - self.radius
-        #print("rebond", position, self.vx, self.vy)
-
-    #affichage de la balle
-    def draw(self):
-        win.blit(self.image, (self.x-self.radius, self.y-self.radius))
-
-    #déplacement pour la fonction interaction
-    def freeze(self):
-        self.stop = True
-    #déplacement de la balle
-    def move(self):
-        if not self.stop:
-            self.x += self.vx
-            self.y += self.vy
-        else: self.stop = False
-
-#création de la classe PLATEFORME
-class Plateform(item):
-    #création des variables relatives à la classe PLATEFORME
-    def __init__(self, x, y, lx, ly, ymax, ymin, color, index, ia = None, diff = 10):
-        self.x = x
-        self.y = y
-        self.lx = lx
-        self.ly = ly
-        self.vy = 0
-        self.vx = 0
-        self.ymax = ymax
-        self.ymin = ymin
-        self.vmax = 10
-        self.color = color
-        self.index = index
-        self.img = pg.transform.scale(pg.image.load(f"Images/Platforme_{self.index+1}.png"), (self.lx, self.ly))
-        self.nmb_points = 0
-        self.stop = False #si il doit ne pas bouger à l'iteration, cf freeze()
-
-        self.ia = ia if ia != None else (index == 1)
-        if self.ia:
-            self.y_v = None
-            self.vmax /= 2
-            self.diff = diff
-            self.count = 0
-
-    #déplacement de la PLATEFORME
-    def move(self, vy, ball=None):
-        global items, players
-        if self.ia and ball is not None:
-            if ball.vx > 0 and self.y_v is None:
-                s_players = copy.deepcopy(players)#Plateform(0,0,0,0,0,0,0,0) for i in range(2)]
-                s_ball = copy.deepcopy(ball)#Ball(0,0,0,0,0)
-                s_items = copy.deepcopy(items) #[eval(type(i).__name__)(0,0) for i in items]
-                #print(s_ball, s_players, s_items)
-
-                while s_ball.x  + s_ball.radius < self.x:
-                    s_ball.move()
-                    for i in s_items: i.move()
-                    if not interactions(s_players, s_ball, 0, s_items): break
-
-                self.y_v = s_ball.y - self.ly/2
-                self.count += 1
-                for i in s_players + [s_ball] + s_items: del i
-
-                #print(vy)
-                #print(y, ' -')
-                if self.diff != "":
-                    if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
-                        self.count = 0
-                        self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
-                        #print("rd")
-            elif ball.vx<0: self.y_v = None
-            if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
-            else: y_v = self.y_v
-            vy=0
-            if abs(y_v - self.y) >= self.vmax: vy = 1 if y_v - self.y > 0 else -1
-        if not self.stop:
-            vy *= self.vmax
-            if self.ymin < self.y + vy < self.y + vy + self.ly < self.ymax:
-                self.y += vy
-                self.vy = vy
-        else: self.stop = False
-
-    def freeze(self):
-        self.stop = True
-        if self.y < self.ymin: self.y = self.ymin
-        if self.y + self.ly > self.ymax: self.y = self.ymax - self.ly
-    #nouvel envoi de balle
-    def reset(self):
-        self.vy = 0
-        if self.ia: self.y_v = None
-
-    #affichage de la PLATEFORME
-    def draw(self):
-        win.blit(self.img, (self.x, self.y))
 
 
 def clamp(value, min_val, max_val):
@@ -219,177 +39,208 @@ def contact(p, balle, n):
         return "left" if dx < 0 else "right"
 
 
-def interactions(players, balle, n, items):#, simulation=False, coor=None):
-    global last_r
-
-    p =- 1
-   # print("a", players, balle)
-    if balle.x < players[0].x + players[0].lx + balle.radius + balle.vx + 10: p = 0
-    elif balle.x > players[1].x - balle.radius - balle.vx - 10: p = 1
-    if p != -1:
-        c = contact(players[p], balle, n)
-        if c: balle.rebond(players[p], n, c)
-        else:
-            s = False
-            py = int(players[p].y)
-            bx , by = int(balle.x), int(balle.y)
-          #  print(f">>>Simulation {n}>>>")
-            steps = int(max(abs(players[p].vy), abs(balle.vy), abs(balle.vx)))
-            for simx in range(steps):
-                players[p].y = int(py + (simx * players[p].vy / steps))
-                balle.y = int(by + (simx * balle.vy / steps))
-                balle.x = int(bx + (simx * balle.vx / steps))
-                c = contact(players[p], balle, (n,1, steps))
-             #   print((players[p].y, balle.y, balle.x), end ="; ")
-                if c:
-                   # print("")
-                    balle.freeze()
-                    players[p].freeze()
-                    s = True
-                    break
-            if not s:
-                players[p].y = py
-                balle.x = bx
-                balle.y = by
-          #  print("<<<End<<<")
-
-
-    #si la balle touche le haut ou le bas du terrain
-    if balle.y - balle.radius <= 120:
-        balle.rebond(players[p], n, "wallup")
-    if balle.y + balle.radius >= HEIGHT-20:
-        balle.rebond(players[p], n, "walldown")
-
-    #si la balle touche la gauche ou la droite du terrain
-    if balle.x - balle.radius < 0 or balle.x + balle.radius > WIDTH:
-        #arreter le jeu
-        return False
-    #si la balle touche des items:
-    for i in items:
-        c = contact(i, balle, n)
-        if c:
-            a = i.interagit(c, balle)
-            if a is not None: balle.x, balle.y = a
-
-    #continuer le jeu
-    return True
-
-
-
 ####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
-def main():
-    global last_r, debug, players, items
-    #création des objets
-    players = [Plateform(100,     (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 0),
-               Plateform(WIDTH-110, (HEIGHT-100)//2, 10, 100, HEIGHT-20, 120, GREEN, 1, nbplayers in (0,1), 15)]
-    balle = Ball(WIDTH//2, HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
+class Game:
+    def __init__(self):
+        self.phone = False
 
-    items = []
+        self.nbplayers = 1
+        self.n = 0
+        # dimensions de la fenetre PYGAME
+        self.WIDTH = 1000
+        self.HEIGHT = 600
+        self.POINTS = 50
 
-    #nombre d'itérations et variable de boucle principale
-    n = 0
-    running = True
+        # création de la fenetre PYGAME
+        self.win = pg.display.set_mode((self.WIDTH, self.HEIGHT + self.POINTS))
+        pg.display.set_caption("Ping-Pong")
 
-    #initialisation de l'horloge
-    clock = pg.time.Clock()
+        # creation de certaines couleurs
+        self.GREEN = (118, 150, 86)
+        self.dGREEN = (88, 120, 56)
+        self.WHITE = (238, 238, 210)
+        self.dWHITE = (208, 208, 180)
+        self.GREY = (50, 50, 50)
+        self.RED = (255, 20, 20)
 
-    #chargement des images de fond
-    fond = pg.image.load(f"Images/terrain.png")
-    haut = pg.image.load(f"Images/haut.png")
-    police = pg.font.SysFont("Arial", 45)
+        # affichage des images de
+        self.win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
+        self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
-    pause = False
-    pause_e = True
+    def run(self):
+        self.main()
+    def main(self):
+        import baseClass, variants
+        #création des objets
+        self.players = [baseClass.Plateform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
+                   baseClass.Plateform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), 15)]
+        self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
 
-    #boucle principale
-    while running:
+        self.items = []
 
-        #détection d'un éventuel évenement menant à une fermeture de pygame
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
+        #nombre d'itérations et variable de boucle principale
+        n = 0
+        running = True
 
-        #mise à 0 de la vitesse verticale de chaque joueur
-#        for i in players: i.vy = 0
+        #initialisation de l'horloge
+        clock = pg.time.Clock()
 
-        if phone:
-             mouse_pos = pg.mouse.get_pos()
-             if mouse_pos[1] > players[0].y + players[0].ly//2 + players[0].vmax:
-                 players[0].move(1)
-             elif mouse_pos[1] < players[0].y +  players[0].ly//2 - players[0].vmax:
-                 players[0].move(-1)
+        #chargement des images de fond
+        fond = pg.image.load(f"Images/terrain.png")
+        haut = pg.image.load(f"Images/haut.png")
+        police = pg.font.SysFont("Arial", 45)
 
-        else:
-            #collecte de tous les éléments
-            keys = pg.key.get_pressed()
+        pause = False
+        pause_e = True
 
-            #mouvements du jour 0
-            if not pause and nbplayers != 0:
-                if keys[pg.K_DOWN]:
-                    players[nbplayers-1].move(1)
-                if keys[pg.K_UP]:
-                    players[nbplayers-1].move(-1)
-                if nbplayers == 2:
-                    if keys[pg.K_s]:
-                        players[0].move(1)
-                    if keys[pg.K_z]:
-                        players[0].move(-1)
-            if keys[pg.K_RIGHT] or keys[pg.K_p]:
-                if pause_e:
-                    pause = not pause
-                    pause_e = False
-            else: pause_e = True
-        if pause:
-            continue
+        #boucle principale
+        while running:
 
-        # + 1 itération à la boucle principale
-        n += 1
+            #détection d'un éventuel évenement menant à une fermeture de pygame
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
 
-        #mouvement de la balle
-        balle.move()
-        #pg.draw.rect(win, "black", (balle.x, balle.y, 5, 5))
+            #mise à 0 de la vitesse verticale de chaque joueur
+    #        for i in self.players: i.vy = 0
 
-        #mouvement du bot
-        if nbplayers != 2: players[1].move(0, balle)
+            if self.phone:
+                 mouse_pos = pg.mouse.get_pos()
+                 if mouse_pos[1] > self.players[0].y + self.players[0].ly//2 + self.players[0].vmax:
+                     self.players[0].move(1)
+                 elif mouse_pos[1] < self.players[0].y +  self.players[0].ly//2 - self.players[0].vmax:
+                     self.players[0].move(-1)
 
-        #gestion des items
-        for i in items: i.move()
+            else:
+                #collecte de tous les éléments
+                keys = pg.key.get_pressed()
 
-        #terminer le jeu si aucune interaction quand la balle sort du terrain
-        if running:
-            #si balle sort du terrain
-            if not interactions(players, balle, n, items): # n  loop (car loop != 0)
-                last_r = None
-                # attitrage des points
-                if balle.vx < 0:
-                    players[1].nmb_points += 1
-                else:
-                    players[0].nmb_points += 1
-                del balle
-                #recréation d'un nouvel échange
-                for i in (0, 1):
-                    players[i].y = (HEIGHT-100)//2
-                    players[i].reset()
-                balle = Ball(WIDTH // 2, HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
-                n = 0
-                time.sleep(1)
+                #mouvements du jour 0
+                if not pause and self.nbplayers != 0:
+                    if keys[pg.K_DOWN]:
+                        self.players[self.nbplayers-1].move(1)
+                    if keys[pg.K_UP]:
+                        self.players[self.nbplayers-1].move(-1)
+                    if self.nbplayers == 2:
+                        if keys[pg.K_s]:
+                            self.players[0].move(1)
+                        if keys[pg.K_z]:
+                            self.players[0].move(-1)
+                if keys[pg.K_RIGHT] or keys[pg.K_p]:
+                    if pause_e:
+                        pause = not pause
+                        pause_e = False
+                else: pause_e = True
+            if pause:
+                continue
 
-        #affichage de tous les éléments
-        win.fill((0,0,0))
-        win.blit(fond, (0, 100))
-        win.blit(haut, (0, 0))
-        for i in items: i.draw()
-        balle.draw()
-        for i in enumerate(players): i[1].draw()
+            # + 1 itération à la boucle principale
+            self.n += 1
 
-        #Affichage du score
-        score = f"{players[0].nmb_points} : {players[1].nmb_points}"
-        texte = police.render(score, True, (255,255,255))
-        win.blit(texte, (WIDTH/2 - 9 * (len(str(players[0].nmb_points))+1) - 27, HEIGHT))
+            #mouvement de la balle
+            self.balle.move()
+            #pg.draw.rect(win, "black", (self.balle.x, self.balle.y, 5, 5))
 
-        #mise à jour de la fenetre pygame
-        pg.display.update()
-        clock.tick(120)
+            #mouvement du bot
+            if self.nbplayers != 2: self.players[1].move(0, self)
 
-main()
+            #gestion des items
+            for i in self.items: i.move()
+
+            #terminer le jeu si aucune interaction quand la balle sort du terrain
+            if running:
+                #si balle sort du terrain
+                if not self.interactions(self): # n  loop (car loop != 0)
+                    last_r = None
+                    # attitrage des points
+                    if self.balle.vx < 0:
+                        self.players[1].nmb_points += 1
+                    else:
+                        self.players[0].nmb_points += 1
+                    del self.balle
+                    #recréation d'un nouvel échange
+                    for i in (0, 1):
+                        self.players[i].y = (self.HEIGHT-100)//2
+                        self.players[i].reset()
+                    self.balle = self.Ball(self.WIDTH // 2, self.HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
+                    n = 0
+                    time.sleep(1)
+
+            #affichage de tous les éléments
+            self.win.fill((0,0,0))
+            self.win.blit(fond, (0, 100))
+            self.win.blit(haut, (0, 0))
+            for i in self.items: i.draw()
+            self.balle.draw(self)
+            for i in enumerate(self.players): i[1].draw(self)
+
+            #Affichage du score
+            score = f"{self.players[0].nmb_points} : {self.players[1].nmb_points}"
+            texte = police.render(score, True, (255,255,255))
+            self.win.blit(texte, (self.WIDTH/2 - 9 * (len(str(self.players[0].nmb_points))+1) - 27, self.HEIGHT))
+
+            #mise à jour de la fenetre pygame
+            pg.display.update()
+            clock.tick(120)
+
+    def interactions(self, n=0):  # , simulation=False, coor=None):
+        global last_r
+        if n==0: n=self.n
+        p = - 1
+        # print("a", players, self.balle)
+        if self.balle.x < self.players[0].x + self.players[0].lx + self.balle.radius + self.balle.vx + 10:
+            p = 0
+        elif self.balle.x > self.players[1].x - self.balle.radius - self.balle.vx - 10:
+            p = 1
+        if p != -1:
+            c = contact(self.players[p], self.balle, n)
+            if c:
+                self.balle.rebond(self.players[p], n, c, self)
+            else:
+                s = False
+                py = int(self.players[p].y)
+                bx, by = int(self.balle.x), int(self.balle.y)
+                #  print(f">>>Simulation {n}>>>")
+                steps = int(max(abs(self.players[p].vy), abs(self.balle.vy), abs(self.balle.vx)))
+                for simx in range(steps):
+                    self.players[p].y = int(py + (simx * self.players[p].vy / steps))
+                    self.balle.y = int(by + (simx * self.balle.vy / steps))
+                    self.balle.x = int(bx + (simx * self.balle.vx / steps))
+                    c = contact(self.players[p], self.balle, (n, 1, steps))
+                    #   print((self.players[p].y, self.balle.y, self.balle.x), end ="; ")
+                    if c:
+                        # print("")
+                        self.balle.freeze()
+                        self.players[p].freeze()
+                        s = True
+                        break
+                if not s:
+                    self.players[p].y = py
+                    self.balle.x = bx
+                    self.balle.y = by
+            #  print("<<<End<<<")
+
+        # si la self.balle touche le haut ou le bas du terrain
+        if self.balle.y - self.balle.radius <= 120:
+            self.balle.rebond(self.players[p], n, "wallup", self)
+        if self.balle.y + self.balle.radius >= self.HEIGHT - 20:
+            self.balle.rebond(self.players[p], n, "walldown", self)
+
+        # si la self.balle touche la gauche ou la droite du terrain
+        if self.balle.x - self.balle.radius < 0 or self.balle.x + self.balle.radius > self.WIDTH:
+            # arreter le jeu
+            return False
+        # si la self.balle touche des items:
+        for i in self.items:
+            c = contact(i, self.balle, n)
+            if c:
+                a = i.interagit(c, self.balle)
+                if a is not None: self.balle.x, self.balle.y = a
+
+        # continuer le jeu
+        return True
+
+
+game = Game()
+game.run()
