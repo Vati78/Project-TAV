@@ -16,8 +16,13 @@ def clamp(value, min_val, max_val):
 
 def contact(p, balle, n):
     """
-    Détermine le type de contact ('ABOVE', 'LEFT', 'RIGHT', 'BELOW', ou '')
-    entre une balle (cercle) et une plateforme rectangulaire.
+    Détermine le type de contact ('ABOVE', 'LEFT', 'RIGHT', 'BELOW', ou '') entre une balle (cercle) et une plateforme rectangulaire.
+
+    :param p: The 2 Plateform objects
+    :param balle: The Ball object
+    :param n: Iteration
+    :return: Direction of the contact
+    :rtype: Literal['', 'above', 'below', 'left', 'right']
     """
     # Point du rectangle le plus proche du centre du cercle
     closest_x = clamp(balle.x, p.x, p.x + p.lx)
@@ -39,8 +44,7 @@ def contact(p, balle, n):
         return "left" if dx < 0 else "right"
 
 
-####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
-#fonction principale
+#objet jeu principale
 class Game(baseClass.item):
     def __init__(self):
         self.phone = False
@@ -69,8 +73,18 @@ class Game(baseClass.item):
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
     def run(self):
+        """
+        runs the main main function
+        
+        :param self: Game object
+        """
         self.main()
     def main(self):
+        """
+        main function of the game
+        
+        :param self: Game object
+        """
         import variants #, baseClass
         #création des objets
         self.players = [baseClass.Plateform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
@@ -82,7 +96,7 @@ class Game(baseClass.item):
         self.items = [a.p1,a.p2]
 
         #nombre d'itérations et variable de boucle principale
-        n = 0
+        self.n = 0
         running = True
 
         #initialisation de l'horloge
@@ -186,9 +200,15 @@ class Game(baseClass.item):
             pg.display.update()
             clock.tick(120)
 
-    def interactions(self, n=0):  # , simulation=False, coor=None):
+    def interactions(self):  # , simulation=False, coor=None):
+        """
+        Interactions
+        
+        :param self: Game object
+        :return: If the game goes on (True) or stops (False) because the ball is out of the borders
+        :rtype: bool
+        """
         global last_r
-        if n==0: n=self.n
         p = - 1
         # print("a", players, self.balle)
         if self.balle.x < self.players[0].x + self.players[0].lx + self.balle.radius + self.balle.vx + 10:
@@ -196,19 +216,19 @@ class Game(baseClass.item):
         elif self.balle.x > self.players[1].x - self.balle.radius - self.balle.vx - 10:
             p = 1
         if p != -1:
-            c = contact(self.players[p], self.balle, n)
+            c = contact(self.players[p], self.balle, self.n)
             if c:
-                self.balle.rebond(self.players[p], n, c, self)
+                self.balle.rebond(self.players[p], self.n, c, self)
             else:
                 py = int(self.players[p].y)
                 bx, by = int(self.balle.x), int(self.balle.y)
-                #  print(f">>>Simulation {n}>>>")
+                #  print(f">>>Simulation {self.n}>>>")
                 steps = int(max(abs(self.players[p].vy), abs(self.balle.vy), abs(self.balle.vx)))
                 for simx in range(steps):
                     self.players[p].y = int(py + (simx * self.players[p].vy / steps))
                     self.balle.y = int(by + (simx * self.balle.vy / steps))
                     self.balle.x = int(bx + (simx * self.balle.vx / steps))
-                    c = contact(self.players[p], self.balle, (n, 1, steps))
+                    c = contact(self.players[p], self.balle, (self.n, 1, steps))
                     #   print((self.players[p].y, self.balle.y, self.balle.x), end ="; ")
                     if c:
                         # print("")
@@ -223,9 +243,9 @@ class Game(baseClass.item):
 
         # si la self.balle touche le haut ou le bas du terrain
         if self.balle.y - self.balle.radius <= 120:
-            self.balle.rebond(self.players[p], n, "wallup", self)
+            self.balle.rebond(self.players[p], self.n, "wallup", self)
         if self.balle.y + self.balle.radius >= self.HEIGHT - 20:
-            self.balle.rebond(self.players[p], n, "walldown", self)
+            self.balle.rebond(self.players[p], self.n, "walldown", self)
 
         # si la self.balle touche la gauche ou la droite du terrain
         if self.balle.x - self.balle.radius < 0 or self.balle.x + self.balle.radius > self.WIDTH:
@@ -233,7 +253,7 @@ class Game(baseClass.item):
             return False
         # si la self.balle touche des items:
         for i in self.items:
-            c = contact(i, self.balle, n)
+            c = contact(i, self.balle, self.n)
             if c:
                 a = i.interagit(c, self)
 

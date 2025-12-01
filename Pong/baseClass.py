@@ -67,6 +67,7 @@ class Ball(item):
     def rebond(self, p, loop, position, game):
         """
         rebond de la balle
+
         :param p: objet Plateforme
         :param loop: nombre d'échages (rebonds sur un joueur) pour la vitesse
         :param position: LEFT, RIGHT, ABOVE ou BELOW (lutin par rapport a la balle)
@@ -132,8 +133,10 @@ class Ball(item):
     def draw(self, game):
         game.win.blit(self.image, (self.x-self.radius, self.y-self.radius))
 
-    #déplacement pour la fonction interaction
     def freeze(self):
+        """
+        Freezes the object in the next iteration (for interaction function)
+        """
         self.stop = True
 
     #déplacement de la balle
@@ -172,8 +175,14 @@ class Plateform(item):
             self.last_x_calculated = 0
             self.calculation_interval = 200
 
-    #déplacement de la PLATEFORME
     def move(self, vy, game = None):
+        """
+        Move of the Platform
+        
+        :param self: Plateform object
+        :param vy: imposed vertical speed if human player
+        :param game: Game object (needed if bot player)
+        """
         if self.ia and game is not None:
             if game.balle.vx > 0 and (self.y_v is None or game.balle.x - self.last_x_calculated > self.calculation_interval):
                 a = True
@@ -212,6 +221,9 @@ class Plateform(item):
         else: self.stop = False
 
     def freeze(self):
+        """
+        Freezes the object in the next iteration (for interaction function)
+        """
         self.stop = True
         if self.y < self.ymin: self.y = self.ymin
         if self.y + self.ly > self.ymax: self.y = self.ymax - self.ly
