@@ -21,14 +21,17 @@ class Player:
         self.l_castling_right = True
         self.castle = False
 
-    def return_move(self, candidate_move):
-        print("move was made")
-        rank_i, col_i, rank_f, col_f = candidate_move[0], candidate_move[1], candidate_move[2], candidate_move[3]
-        specific = None
+    def move(self):
+        print(main.chess_game.candidate_move)
+        rank_i = main.chess_game.candidate_move[0]
+        col_i = main.chess_game.candidate_move[1]
+        rank_f = main.chess_game.candidate_move[2]
+        col_f = main.chess_game.candidate_move[3]
 
-        game.left_click_down = None
-        game.left_click_up = None
-        game.candidate_move = [None, None, None, None]
+        specific = None
+        #print(rank_i)
+        #main.chess_game.candidate_move = [None, None, None, None]
+        #print(rank_i)
 
         if (rank_f, col_f) in board.get_type(rank_i, col_i).legal_moves(rank_i, col_i):
             actual_position = [row[:] for row in main.chess_game.position]

@@ -49,6 +49,8 @@ def get_type(rank, col):
         return pieces.Piece.King(piece[0])
     elif piece[1] == "Q":
         return pieces.Piece.Queen(piece[0])
+    else:
+        return False
 
 # blits all legal moves
 def blit_legal_moves(rank, col):

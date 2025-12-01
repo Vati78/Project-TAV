@@ -21,6 +21,7 @@ chess_game = game.Game()
 
 def main():
     running = True
+    input_change = False
 
     while running:
 
@@ -58,11 +59,15 @@ def main():
                 coor = mk.mouse_to_coor(mouse_pos)
                 if coor and chess_game.left_click_down is not None:
                     chess_game.left_click_up = coor
+                    input_change = True
 
-        if chess_game.human:
+        if chess_game.human and input_change:
+            input_change = False
             chess_game.input_to_candidate_move()
-            if all(item is not None for item in chess_game.candidate_move):
-                pass
+            if (all(item is not None for item in chess_game.candidate_move)
+                and board.color_and_occupied_square(chess_game.candidate_move[0], chess_game.candidate_move[1]) == chess_game.player_turn):
+                print("             ",chess_game.candidate_move)
+                eval(f"chess_game.{chess_game.player_turn}_player.move()")
                 # if in legal_moves
                     # play_move
                     # if check

@@ -5,6 +5,7 @@ Toutes les fonctions qui gèrent le déroulement de la partie.
 import pygame as pg
 import main
 import const
+import pieces
 import player_bot as pb
 import board
 
@@ -38,7 +39,6 @@ class Game:
     def input_to_candidate_move(self):
         # if the button was released
         if self.left_click_up is not None:
-
             # if clicked
             if self.left_click_down == self.left_click_up:
                 # if nothing was clicked
@@ -62,14 +62,13 @@ class Game:
                     else:
                         self.candidate_move[2], self.candidate_move[3] = self.left_click_down[0], self.left_click_down[1]
                         self.left_click_down, self.left_click_up = None, None
-    
+
             else:
                 # if the end square is the same color as the starting square
                 if board.color_and_occupied_square(self.left_click_up[0], self.left_click_up[1]) != self.player_turn:
                     self.candidate_move = [self.left_click_down[0], self.left_click_down[1], self.left_click_up[0], self.left_click_up[1]]
 
                 self.left_click_down, self.left_click_up = None, None
-
 
     def make_move(self):
         move = eval(f"self.{self.player_turn}_player.return_move(self.candidate_move)")
@@ -94,13 +93,63 @@ class Game:
     
     def in_check(self, player):
         opposite_color = "b" if player == "w" else "w"
-    
-        for ranks, a in enumerate(self.position):
-            for cols, piece in enumerate(a):
-                if piece[0] == opposite_color:
-                    if (eval(f"{player}_player.king_pos")) in board.get_type(ranks, cols).legal_moves(ranks, cols):
-                        print(ranks, cols)
+        coeff = -1 if player == "w" else 1
+
+        (kp_rank, kp_col) = eval(f"self.{player}_player.king_pos")
+
+        pawn_dir = [(1*coeff, -1), (1*coeff, 1)]
+        knight_dir = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
+        bishop_dir = [(1, 1), (-1, 1), (-1, -1), (1, -1)]
+        rook_dir =  [(0, 1), (1, 0), (-1, 0), (0, -1)]
+
+        # for the pawn
+        for dir in pawn_dir:
+            new_rank = kp_rank+dir[0]
+            new_col = kp_col+dir[1]
+            if 0 <= new_rank <= 7 and 0 <= new_col <= 7:
+                if board.color_and_occupied_square(new_rank, new_col) == opposite_color:
+                    if isinstance(board.get_type(new_rank, new_col), pieces.Piece.Pawn):
                         return True
+
+        # for the knights
+        for dir in knight_dir:
+            new_rank = kp_rank+dir[0]
+            new_col = kp_col+dir[1]
+            if 0 <= new_rank <= 7 and 0 <= new_col <= 7:
+                if board.color_and_occupied_square(new_rank, new_col) == opposite_color:
+                    if isinstance(board.get_type(new_rank, new_col), pieces.Piece.Knight):
+                        return True
+
+        # for the bishops and queen
+        for dir in bishop_dir:
+            rank, col = kp_rank, kp_col
+            while 0 <= rank <= 7 and 0 <= col <= 7:
+                rank += dir[0]
+                col += dir[1]
+                if 0 <= rank <= 7 and 0 <= col <= 7:
+                    if board.color_and_occupied_square(rank, col) == opposite_color:
+                        if isinstance(board.get_type(rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
+                            return True
+                    elif board.color_and_occupied_square(rank, col) == player:
+                        break
+
+        # for the rooks and queen
+        for dir in rook_dir:
+            rank, col = kp_rank, kp_col
+            while 0 <= rank <= 7 and 0 <= col <= 7:
+                rank += dir[0]
+                col += dir[1]
+                if 0 <= rank <= 7 and 0 <= col <= 7:
+                    if board.color_and_occupied_square(rank, col) == opposite_color:
+                        if isinstance(board.get_type(rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
+                            return True
+                    elif board.color_and_occupied_square(rank, col) == player:
+                        break
+
+        # for the opponent's king
+        if abs(kp_rank-eval(f"self.{opposite_color}_player.king_pos[0]"))<2 and abs(kp_col-eval(f"self.{opposite_color}_player.king_pos[1]"))<2:
+            return True
+
         return False
     
     def blit_legal_moves_if_possible(self):
