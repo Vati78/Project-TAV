@@ -1,4 +1,4 @@
-import pygame as pg, math, os, time, random as rd, copy
+import pygame as pg, math, os, time, random as rd, copy, baseClass
 
 pg.init()
 os.chdir(os.path.dirname(__file__))
@@ -41,9 +41,9 @@ def contact(p, balle, n):
 
 ####~~~~~~~~~~~~####+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+-+-+--+-+-+####
 #fonction principale
-class Game:
+class Game(baseClass.item):
     def __init__(self):
-        self.phone = False
+        self.phone = not False
 
         self.nbplayers = 1
         self.n = 0
@@ -71,13 +71,15 @@ class Game:
     def run(self):
         self.main()
     def main(self):
-        import baseClass, variants
+        import variants #, baseClass
         #création des objets
         self.players = [baseClass.Plateform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
                    baseClass.Plateform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), 15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
+        
+        a = variants.Portals(200,200,600,400)
 
-        self.items = []
+        self.items = [a.p1,a.p2]
 
         #nombre d'itérations et variable de boucle principale
         n = 0
@@ -146,12 +148,12 @@ class Game:
             if self.nbplayers != 2: self.players[1].move(0, self)
 
             #gestion des items
-            for i in self.items: i.move()
+            for i in self.items: i.move(self)
 
             #terminer le jeu si aucune interaction quand la balle sort du terrain
             if running:
                 #si balle sort du terrain
-                if not self.interactions(self): # n  loop (car loop != 0)
+                if not self.interactions(): # n  loop (car loop != 0)
                     last_r = None
                     # attitrage des points
                     if self.balle.vx < 0:
@@ -162,16 +164,16 @@ class Game:
                     #recréation d'un nouvel échange
                     for i in (0, 1):
                         self.players[i].y = (self.HEIGHT-100)//2
-                        self.players[i].reset()
-                    self.balle = self.Ball(self.WIDTH // 2, self.HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
-                    n = 0
+                        self.players[i].reset() 
+                    self.balle = baseClass.Ball(self.WIDTH // 2, self.HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
+                    self.n = 0
                     time.sleep(1)
 
             #affichage de tous les éléments
             self.win.fill((0,0,0))
             self.win.blit(fond, (0, 100))
             self.win.blit(haut, (0, 0))
-            for i in self.items: i.draw()
+            for i in self.items: i.draw(self)
             self.balle.draw(self)
             for i in enumerate(self.players): i[1].draw(self)
 

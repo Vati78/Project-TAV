@@ -4,11 +4,13 @@ import pygame as pg, math, os, time, random as rd, copy
 #classe relative à chauqe lutin du jeu
 class item():
 
-    #initialisation des variables communes à chaque lutin
+    #initialisation des variables communes à chaque objet
     #leur coordonnées et leur image d'affichage
-    def __init__(self, x, y, imagename = None):
+    def __init__(self, x, y, lx=50,ly=50,imagename = None):
         self.x = x
         self.y = y
+        self.lx = lx
+        self.ly = ly
 
         if imagename is not None:
             self.image = pg.image.load(imagename)
@@ -17,10 +19,12 @@ class item():
         else:
             imagename = type(self).__name__
 
-            try:
-                self.image = pg.image.load(f"{imagename}.png")
-            except:
-                pass
+        #    try:
+            self.img = pg.image.load(f"images/{imagename}.png")
+        #    except:
+                
+    def draw(self, game):
+        game.win.blit(self.img, (self.x, self.y))
 
     #cette fonction crée une nouvelle instance d'une classe particulière dont les variables seront
     #les mêmes que celle originale, sauf que les variables relatives à l'affichage de l'originale ne sont pas
@@ -167,27 +171,28 @@ class Plateform(item):
             self.count = 0
 
     #déplacement de la PLATEFORME
-    def move(self, vy, jeu = None):
-        import game
-        if self.ia and jeu is not None:
-            if jeu.balle.vx > 0 and self.y_v is None:
-                s_players = copy.deepcopy(jeu.players)#Plateform(0,0,0,0,0,0,0,0) for i in range(2)]
-                s_ball = copy.deepcopy(jeu.balle)#balle(0,0,0,0,0)
-                s_items = copy.deepcopy(jeu.items) #[eval(type(i).__name__)(0,0) for i in items]
-                s_n = jeu.n
+    def move(self, vy, game = None):
+        if self.ia and game is not None:
+            if game.balle.vx > 0 and self.y_v is None:
+             #   s_players = copy.deepcopy(jeu.players)#Plateform(0,0,0,0,0,0,0,0) for i in range(2)]
+             #   s_ball = copy.deepcopy(jeu.balle)#balle(0,0,0,0,0)
+             #   s_items = copy.deepcopy(jeu.items) #[eval(type(i).__name__)(0,0) for i in items]
+             #   s_n = jeu.n
                 #print(s_ball, s_players, s_items)
+                jeu = copy.deepcopy(game)
 
                 while jeu.balle.x  + jeu.balle.radius < self.x:
                     jeu.balle.move()
-                    for i in s_items: i.move()
+                    for i in jeu.items: i.move(jeu)
                     if not jeu.interactions(): break
 
-                self.y_v = s_ball.y - self.ly/2
+                self.y_v = jeu.balle.y - self.ly/2
                 self.count += 1
-                jeu.players = s_players
-                jeu.balle = s_ball
-                jeu.items = s_items
-                jeu.n = s_n
+              #  jeu.players = s_players
+      #          jeu.balle = s_ball
+          #      jeu.items = s_items
+             #   jeu.n = s_n
+                del jeu
 
                 #print(vy)
                 #print(y, ' -')
@@ -196,7 +201,7 @@ class Plateform(item):
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
                         #print("rd")
-            elif jeu.balle.vx<0: self.y_v = None
+            elif game.balle.vx<0: self.y_v = None
             if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
             else: y_v = self.y_v
             vy=0
