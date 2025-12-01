@@ -43,7 +43,7 @@ def contact(p, balle, n):
 #fonction principale
 class Game(baseClass.item):
     def __init__(self):
-        self.phone = not False
+        self.phone = False
 
         self.nbplayers = 1
         self.n = 0
@@ -54,7 +54,7 @@ class Game(baseClass.item):
 
         # création de la fenetre PYGAME
         self.win = pg.display.set_mode((self.WIDTH, self.HEIGHT + self.POINTS))
-        pg.display.set_caption("Ping-Pong")
+        pg.display.set_caption("Pong game")
 
         # creation de certaines couleurs
         self.GREEN = (118, 150, 86)
@@ -74,7 +74,7 @@ class Game(baseClass.item):
         import variants #, baseClass
         #création des objets
         self.players = [baseClass.Plateform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
-                   baseClass.Plateform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), 15)]
+                   baseClass.Plateform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
         
         a = variants.Portals(200,200,600,400)
@@ -200,7 +200,6 @@ class Game(baseClass.item):
             if c:
                 self.balle.rebond(self.players[p], n, c, self)
             else:
-                s = False
                 py = int(self.players[p].y)
                 bx, by = int(self.balle.x), int(self.balle.y)
                 #  print(f">>>Simulation {n}>>>")
@@ -215,9 +214,8 @@ class Game(baseClass.item):
                         # print("")
                         self.balle.freeze()
                         self.players[p].freeze()
-                        s = True
                         break
-                if not s:
+                else:
                     self.players[p].y = py
                     self.balle.x = bx
                     self.balle.y = by
@@ -237,8 +235,7 @@ class Game(baseClass.item):
         for i in self.items:
             c = contact(i, self.balle, n)
             if c:
-                a = i.interagit(c, self.balle)
-                if a is not None: self.balle.x, self.balle.y = a
+                a = i.interagit(c, self)
 
         # continuer le jeu
         return True

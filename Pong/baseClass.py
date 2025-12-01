@@ -20,7 +20,7 @@ class item():
             imagename = type(self).__name__
 
         #    try:
-            self.img = pg.image.load(f"images/{imagename}.png")
+            self.img = pg.transform.scale(pg.image.load(f"Images/{imagename}.png"), (self.lx, self.ly))
         #    except:
                 
     def draw(self, game):
@@ -169,39 +169,37 @@ class Plateform(item):
             self.vmax /= 2
             self.diff = diff
             self.count = 0
+            self.last_x_calculated = 0
+            self.calculation_interval = 200
 
     #déplacement de la PLATEFORME
     def move(self, vy, game = None):
         if self.ia and game is not None:
-            if game.balle.vx > 0 and self.y_v is None:
-             #   s_players = copy.deepcopy(jeu.players)#Plateform(0,0,0,0,0,0,0,0) for i in range(2)]
-             #   s_ball = copy.deepcopy(jeu.balle)#balle(0,0,0,0,0)
-             #   s_items = copy.deepcopy(jeu.items) #[eval(type(i).__name__)(0,0) for i in items]
-             #   s_n = jeu.n
-                #print(s_ball, s_players, s_items)
-                jeu = copy.deepcopy(game)
-
-                while jeu.balle.x  + jeu.balle.radius < self.x:
-                    jeu.balle.move()
-                    for i in jeu.items: i.move(jeu)
-                    if not jeu.interactions(): break
-
-                self.y_v = jeu.balle.y - self.ly/2
-                self.count += 1
-              #  jeu.players = s_players
-      #          jeu.balle = s_ball
-          #      jeu.items = s_items
-             #   jeu.n = s_n
-                del jeu
-
-                #print(vy)
-                #print(y, ' -')
+            if game.balle.vx > 0 and (self.y_v is None or game.balle.x - self.last_x_calculated > self.calculation_interval):
+                a = True
                 if self.diff != "":
+                    #if failing
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
+                        a = False
+                        print("r", end = "; ")
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
-                        #print("rd")
-            elif game.balle.vx<0: self.y_v = None
+                if a: #if not voluntary failing
+                    jeu = copy.deepcopy(game)
+
+                    while jeu.balle.x  + jeu.balle.radius < self.x:
+                        jeu.balle.move()
+                        for i in jeu.items: i.move(jeu)
+                        if not jeu.interactions(): break
+
+                    self.y_v = jeu.balle.y - self.ly/2
+                    self.count += 1
+                    del jeu
+                    print(self.y_v)
+                    self.last_x_calculated = game.balle.x
+            elif game.balle.vx<0:
+                self.y_v = None
+                self.last_x_calculated = 0
             if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
             else: y_v = self.y_v
             vy=0
