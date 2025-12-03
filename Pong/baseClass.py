@@ -2,7 +2,7 @@
 import pygame as pg, math, os, time, random as rd, copy
 
 #classe relative à chauqe lutin du jeu
-class item():
+class Item():
 
     #initialisation des variables communes à chaque objet
     #leur coordonnées et leur image d'affichage
@@ -50,7 +50,7 @@ class item():
         return result
 
 #création de la classe BALLE
-class Ball(item):
+class Ball(Item):
     #initialisation des variables relatives à la BALLE
     def __init__(self, x, y, vx, vy, radius):
         self.x = x
@@ -62,6 +62,7 @@ class Ball(item):
         self.radius = radius
         self.image = pg.image.load(f"Images/Balle.png")
         self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
+        self.last_rebond = None #dernière plateforme où la balle a rebondi
 
     #détection d'un rebond
     def rebond(self, p, loop, position, game):
@@ -70,9 +71,10 @@ class Ball(item):
 
         :param p: objet Plateforme
         :param loop: nombre d'échages (rebonds sur un joueur) pour la vitesse
-        :param position: LEFT, RIGHT, ABOVE ou BELOW (lutin par rapport a la balle)
+        :param position: LEFT, RIGHT, ABOVE ou BELOW, walldown, wallup (lutin par rapport a la balle)
         :param game: objet Game
-        :return:
+        :return: None
+        :rtype: None
         """
 
         position = position.lower()
@@ -94,8 +96,7 @@ class Ball(item):
         if position in ("right","left"):
             signe_x = -1 if position == "left" else 1
 
-        #si la balle touche un mur, on accélère pas sa vitesse, si c'est une plateforme, on le fait à raison de +20% de celle de
-        #la plateforme
+        #si la balle touche un mur, on accélère pas sa vitesse, si c'est une plateforme, on le fait à raison de +20% de celle de la plateforme
         vy = 0 if "wall" in position else 0.2 * p.vy
 
         #on accélère la vitesse horizontale de la balle à chaque rebond
@@ -128,6 +129,8 @@ class Ball(item):
             if self.x > p.x + p.lx // 2: self.x = p.x + p.lx + self.radius
             else: self.x = p.x - self.radius
         #print("rebond", position, self.vx, self.vy)
+        if position in ("above", "below", "left", "right"):
+            self.last_rebond = p
 
     #affichage de la balle
     def draw(self, game):
@@ -147,7 +150,7 @@ class Ball(item):
         else: self.stop = False
 
 #création de la classe PLATEFORME
-class Plateform(item):
+class Platform(Item):
     #création des variables relatives à la classe PLATEFORME
     def __init__(self, x, y, lx, ly, ymax, ymin, color, index, ia = None, diff = 10):
         self.x = x
@@ -179,7 +182,7 @@ class Plateform(item):
         """
         Move of the Platform
         
-        :param self: Plateform object
+        :param self: Platform object
         :param vy: imposed vertical speed if human player
         :param game: Game object (needed if bot player)
         """

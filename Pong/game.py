@@ -18,7 +18,7 @@ def contact(p, balle, n):
     """
     Détermine le type de contact ('ABOVE', 'LEFT', 'RIGHT', 'BELOW', ou '') entre une balle (cercle) et une plateforme rectangulaire.
 
-    :param p: The 2 Plateform objects
+    :param p: The 2 Platform objects
     :param balle: The Ball object
     :param n: Iteration
     :return: Direction of the contact
@@ -45,7 +45,7 @@ def contact(p, balle, n):
 
 
 #objet jeu principale
-class Game(baseClass.item):
+class Game(baseClass.Item):
     def __init__(self):
         self.phone = False
 
@@ -87,13 +87,13 @@ class Game(baseClass.item):
         """
         import variants #, baseClass
         #création des objets
-        self.players = [baseClass.Plateform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
-                   baseClass.Plateform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
+        self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
+                   baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
         
         a = variants.Portals(200,200,600,400)
 
-        self.items = [a.p1,a.p2]
+        self.items = [variants.Bomb(300, 400), variants.Coin(600, 400)]#[a.p1,a.p2]
 
         #nombre d'itérations et variable de boucle principale
         self.n = 0

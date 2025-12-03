@@ -34,9 +34,9 @@ class Portals():
                 #return self.p1.x, self.p2.y
 
 
-class Portal(item):
-    def __init__(self, x, y, p,i):
-        item.__init__(self,x,y,30,60)
+class Portal(Item):
+    def __init__(self, x, y, p, i):
+        Item.__init__(self,x,y,30,60)
         self.p = p
         self.index = i
     def move(self,game):
@@ -56,3 +56,30 @@ class Portal(item):
         :param game: Game object
         """
         return self.p.teleport(self.index, game) 
+
+class Bomb(Item):
+    def __init__(self, x, y, lx=50, ly=50):
+        Item.__init__(self, x, y, lx, ly)
+    def move(self, game):
+        pass
+    def interagit(self, c, game):
+        if game.balle.last_rebond is not None:
+            game.balle.last_rebond.nmb_points -= 1
+            if game.balle.last_rebond.nmb_points < 0: game.balle.last_rebond.nmb_points = 0
+            self.explose(game)
+    def explose(self, game):
+        game.items.remove(self)
+        del self
+
+class Coin(Item):
+    def __init__(self, x, y, lx=50, ly=50):
+        Item.__init__(self, x, y, lx, ly)
+    def move(self, game):
+        pass
+    def interagit(self, c, game):
+        if game.balle.last_rebond is not None:
+            game.balle.last_rebond.nmb_points += 1
+            self.explose(game)
+    def explose(self, game):
+        game.items.remove(self)
+        del self
