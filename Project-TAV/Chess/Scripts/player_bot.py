@@ -21,26 +21,26 @@ class Player:
         self.l_castling_right = True
         self.castle = False
 
-    def move(self):
-        print(main.chess_game.candidate_move)
-        rank_i = main.chess_game.candidate_move[0]
-        col_i = main.chess_game.candidate_move[1]
-        rank_f = main.chess_game.candidate_move[2]
-        col_f = main.chess_game.candidate_move[3]
+    def move(self, chess_game):
+        print(chess_game.candidate_move)
+        rank_i = chess_game.candidate_move[0]
+        col_i = chess_game.candidate_move[1]
+        rank_f = chess_game.candidate_move[2]
+        col_f = chess_game.candidate_move[3]
 
         specific = None
         #print(rank_i)
-        #main.chess_game.candidate_move = [None, None, None, None]
+        #chess_game.candidate_move = [None, None, None, None]
         #print(rank_i)
 
         if (rank_f, col_f) in board.get_type(rank_i, col_i).legal_moves(rank_i, col_i):
-            actual_position = [row[:] for row in main.chess_game.position]
+            actual_position = [row[:] for row in chess_game.position]
 
             if isinstance(board.get_type(rank_i, col_i), pieces.Piece.King):
                 self.king_pos = (rank_f, col_f)
 
-            main.chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
-            if not main.chess_game.in_check(self.color):
+            chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
+            if not chess_game.in_check(self.color):
                 print("no check ...")
             else:
                 game.position = actual_position

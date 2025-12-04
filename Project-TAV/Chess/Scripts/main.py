@@ -67,7 +67,7 @@ def main():
             if (all(item is not None for item in chess_game.candidate_move)
                 and board.color_and_occupied_square(chess_game.candidate_move[0], chess_game.candidate_move[1]) == chess_game.player_turn):
                 print("             ",chess_game.candidate_move)
-                eval(f"chess_game.{chess_game.player_turn}_player.move()")
+                eval(f"chess_game.{chess_game.player_turn}_player.move(chess_game)")
                 # if in legal_moves
                     # play_move
                     # if check
