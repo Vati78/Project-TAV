@@ -46,6 +46,9 @@ def contact(p, balle, n):
 
 #objet jeu principale
 class Game(baseClass.Item):
+
+    import variants #, baseClass
+
     def __init__(self):
         self.phone = False
 
@@ -72,6 +75,8 @@ class Game(baseClass.Item):
         self.win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
+        self.items = []
+
     def run(self):
         """
         runs the main main function
@@ -79,21 +84,38 @@ class Game(baseClass.Item):
         :param self: Game object
         """
         self.main()
+
+    def nouvelItem(self, type):
+        if type == "Coin":
+            self.items.append(self.variants.Coin(rd.randint(200,800), rd.randint(200,400)))
+
+        elif type == "Bomb":
+            self.items.append(self.variants.Bomb(rd.randint(200,800), rd.randint(200,400)))
+
+        elif type == "Portals":
+            premier = [rd.randint(400,600), rd.randint(400,500)]
+            a = self.variants.Portals(premier[0],premier[1],premier[0] - 200, premier[1] - 200)
+            self.items += [a.p1, a.p2]
+
+        pass
+
     def main(self):
         """
         main function of the game
         
         :param self: Game object
         """
-        import variants #, baseClass
+        
         #création des objets
         self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
                    baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
         
-        a = variants.Portals(200,200,600,400)
+        '''
+        a = self.variants.Portals(200,200,600,400)
 
-        self.items = [variants.Bomb(300, 400), variants.Coin(600, 400)]#[a.p1,a.p2]
+        self.items = [self.variants.Bomb(300, 400), self.variants.Coin(600, 400)]
+        '''
 
         #nombre d'itérations et variable de boucle principale
         self.n = 0
@@ -154,6 +176,16 @@ class Game(baseClass.Item):
             # + 1 itération à la boucle principale
             self.n += 1
 
+            if self.n % 500 == 0:
+                self.nouvelItem("Coin")
+
+            if self.n % 250 == 0:
+                self.nouvelItem("Bomb")
+
+            if self.n % 700 == 0:
+                self.nouvelItem("Portals")
+
+
             #mouvement de la balle
             self.balle.move()
             #pg.draw.rect(win, "black", (self.balle.x, self.balle.y, 5, 5))
@@ -162,6 +194,7 @@ class Game(baseClass.Item):
             if self.nbplayers != 2: self.players[1].move(0, self)
 
             #gestion des items
+            print(self.items)
             for i in self.items: i.move(self)
 
             #terminer le jeu si aucune interaction quand la balle sort du terrain

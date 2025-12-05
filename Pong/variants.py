@@ -5,8 +5,9 @@ class Portals():
     def __init__(self, x1, y1, x2, y2):
         self.p1 = Portal(x1, y1, self,1)
         self.p2 = Portal(x2, y2, self,2)
-        self.contact = False
-        self.ok = True
+        self.contact = False #if there was a contact with one Portal before
+        self.ok = True #if the Portals can teleport again
+
     def move(self):
         self.ok = not self.contact
         self.contact = False
