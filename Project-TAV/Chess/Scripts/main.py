@@ -25,7 +25,8 @@ class Gestionary:
 
     def run(self):
         running = True
-        input_change = False
+
+        const.start_sound.play()
 
         while running:
 
@@ -63,20 +64,12 @@ class Gestionary:
                     coor = mk.mouse_to_coor(mouse_pos)
                     if coor and self.chess_game.left_click_down is not None:
                         self.chess_game.left_click_up = coor
-                        input_change = True
 
-            if self.chess_game.human and input_change:
-                input_change = False
+            if self.chess_game.human:
                 self.chess_game.input_to_candidate_move()
                 if (all(item is not None for item in self.chess_game.candidate_move)
                     and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
-                    print("             ",self.chess_game.candidate_move)
                     eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
-                    # if in legal_moves
-                        # play_move
-                        # if check
-                            # put back old position
-                pass
 
             else:
                 pass

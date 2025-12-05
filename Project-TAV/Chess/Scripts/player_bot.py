@@ -26,23 +26,27 @@ class Player:
         rank_f = gestionary.chess_game.candidate_move[2]
         col_f = gestionary.chess_game.candidate_move[3]
 
-        specific = None
+        gestionary.chess_game.candidate_move = [None, None, None, None]
 
         if (rank_f, col_f) in board.get_type(gestionary, rank_i, col_i).legal_moves(gestionary, rank_i, col_i):
             actual_position = [row[:] for row in gestionary.chess_game.position]
+            specific = None
+            king_move = False
+            capture = board.color_and_occupied_square(gestionary, rank_f, col_f)
 
             if isinstance(board.get_type(gestionary, rank_i, col_i), pieces.Piece.King):
+                king_move = True
                 self.king_pos = (rank_f, col_f)
 
             gestionary.chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
+
             if not gestionary.chess_game.in_check(self.color):
-                const.move_sound.play()
-                print("no check ...")
+                if capture: const.capture_sound.play()
+                else: const.move_sound.play()
             else:
-                print("check !!!!!!!!")
-                const.check_sound.play()
+                const.illegal_sound.play()
                 gestionary.chess_game.position = actual_position
-                self.king_pos = (rank_i, col_i)
+                if king_move: self.king_pos = (rank_i, col_i)
                 return False
 
             return True

@@ -23,4 +23,11 @@ HUMAN = "wb" #None
 
 #Sounds
 move_sound = pg.mixer.Sound("../Sounds/move.mp3")
+illegal_sound = pg.mixer.Sound("../Sounds/illegal.mp3")
 check_sound = pg.mixer.Sound("../Sounds/check.mp3")
+capture_sound = pg.mixer.Sound("../Sounds/capture.mp3")
+castle_sound = pg.mixer.Sound("../Sounds/castle.mp3")
+promote_sound = pg.mixer.Sound("../Sounds/promote.mp3")
+start_sound = pg.mixer.Sound("../Sounds/start.mp3")
+end_sound = pg.mixer.Sound("../Sounds/end.mp3")
+low_time_sound = pg.mixer.Sound("../Sounds/tenseconds.mp3")

@@ -90,6 +90,8 @@ class Game:
     
         self.position[rank_f][col_f] = self.position[rank_i][col_i]
         self.position[rank_i][col_i] = " "
+
+        print(self.position)
     
     def in_check(self, player):
         for rank in self.position:
