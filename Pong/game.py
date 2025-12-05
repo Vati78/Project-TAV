@@ -1,6 +1,7 @@
 import pygame as pg, math, os, time, random as rd, copy, baseClass
 
 pg.init()
+pg.mixer.init()
 os.chdir(os.path.dirname(__file__))
 
 
@@ -85,19 +86,6 @@ class Game(baseClass.Item):
         """
         self.main()
 
-    def nouvelItem(self, type):
-        if type == "Coin":
-            self.items.append(self.variants.Coin(rd.randint(200,800), rd.randint(200,400)))
-
-        elif type == "Bomb":
-            self.items.append(self.variants.Bomb(rd.randint(200,800), rd.randint(200,400)))
-
-        elif type == "Portals":
-            premier = [rd.randint(400,600), rd.randint(400,500)]
-            a = self.variants.Portals(premier[0],premier[1],premier[0] - 200, premier[1] - 200)
-            self.items += [a.p1, a.p2]
-
-        pass
 
     def main(self):
         """
@@ -176,15 +164,7 @@ class Game(baseClass.Item):
             # + 1 itération à la boucle principale
             self.n += 1
 
-            if self.n % 500 == 0:
-                self.nouvelItem("Coin")
-
-            if self.n % 250 == 0:
-                self.nouvelItem("Bomb")
-
-            if self.n % 700 == 0:
-                self.nouvelItem("Portals")
-
+            self.spawn()
 
             #mouvement de la balle
             self.balle.move()
@@ -194,7 +174,6 @@ class Game(baseClass.Item):
             if self.nbplayers != 2: self.players[1].move(0, self)
 
             #gestion des items
-            print(self.items)
             for i in self.items: i.move(self)
 
             #terminer le jeu si aucune interaction quand la balle sort du terrain
@@ -292,6 +271,32 @@ class Game(baseClass.Item):
 
         # continuer le jeu
         return True
+    def spawn(self):
+        if self.n % 500 == 0:
+            self.nouvelItem("Coin")
+
+        if self.n % 250 == 0:
+            self.nouvelItem("Bomb")
+
+        if self.n % 700 == 0:
+            for i in self.items[:]:
+                if type(i).__name__ == "Portal": self.items.remove(i)
+            self.nouvelItem("Portals")
+
+    def nouvelItem(self, type):
+        if type == "Coin":
+            self.items.append(self.variants.Coin(rd.randint(200,800), rd.randint(200,400)))
+
+        elif type == "Bomb":
+            self.items.append(self.variants.Bomb(rd.randint(200,800), rd.randint(200,400)))
+
+        elif type == "Portals":
+            premier = [rd.randint(400,600), rd.randint(400,500)]
+            a = self.variants.Portals(premier[0],premier[1],premier[0] - 200, premier[1] - 200)
+            self.items += [a.p1, a.p2]
+
+        pass
+
 
 
 game = Game()

@@ -6,7 +6,7 @@ class Item():
 
     #initialisation des variables communes à chaque objet
     #leur coordonnées et leur image d'affichage
-    def __init__(self, x, y, lx=50,ly=50,imagename = None):
+    def __init__(self, x, y, lx=50,ly=50, imagename = None, son = None):
         self.x = x
         self.y = y
         self.lx = lx
@@ -14,15 +14,22 @@ class Item():
 
         if imagename is not None:
             self.image = pg.image.load(imagename)
-
         # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
         else:
             imagename = type(self).__name__
-
-        #    try:
             self.img = pg.transform.scale(pg.image.load(f"Images/{imagename}.png"), (self.lx, self.ly))
-        #    except:
-                
+
+        if son is not None:
+            self.son = pg.mixer.Sound(son)
+            # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
+        else:
+            try:
+                son = type(self).__name__
+                self.son = pg.mixer.Sound(f"ISons/{imagename}.mp3")
+
+            except:
+                pass
+
     def draw(self, game):
         game.win.blit(self.img, (self.x, self.y))
 
@@ -63,6 +70,7 @@ class Ball(Item):
         self.image = pg.image.load(f"Images/Balle.png")
         self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
         self.last_rebond = None #dernière plateforme où la balle a rebondi
+        self.random = [False, 0] #if the bounce of the ball on a Platform has to be random, and until what time
 
     #détection d'un rebond
     def rebond(self, p, loop, position, game):
@@ -104,6 +112,12 @@ class Ball(Item):
 
         #on fait de même
         self.vy =  abs(self.vy) * diry + vy
+
+        # if the bounce has to be random
+        if "wall" not in position and self.random[0]:
+            if time.time() > self.random[1]: self.random[0] = False
+            self.vy = (2 * rd.random() - 1) * 2 * self.vy
+            print("r")
 
         #if the ball is between the plateform and the borders
         m = False #bool: if the ball is forced by the platform to go out of the border
@@ -193,7 +207,6 @@ class Platform(Item):
                     #if failing
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
                         a = False
-                        print("r", end = "; ")
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
                 if a: #if not voluntary failing
@@ -207,7 +220,6 @@ class Platform(Item):
                     self.y_v = jeu.balle.y - self.ly/2
                     self.count += 1
                     del jeu
-                    print(self.y_v)
                     self.last_x_calculated = game.balle.x
             elif game.balle.vx<0:
                 self.y_v = None

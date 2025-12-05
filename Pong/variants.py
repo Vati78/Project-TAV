@@ -8,6 +8,7 @@ class Portals():
         self.contact = False #if there was a contact with one Portal before
         self.ok = True #if the Portals can teleport again
 
+
     def move(self):
         self.ok = not self.contact
         self.contact = False
@@ -75,12 +76,36 @@ class Bomb(Item):
 class Coin(Item):
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
+        self.actif = False
+       # self.son =
     def move(self, game):
-        pass
+        if self.actif:
+            if game.balle.random[0] is False:
+                self.explose(game)
     def interagit(self, c, game):
-        if game.balle.last_rebond is not None:
+        if game.balle.last_rebond is not None and not self.actif:
             game.balle.last_rebond.nmb_points += 1
-            self.explose(game)
+            self.actif = True
+            self.x, self.y = 20, 20
+
     def explose(self, game):
         game.items.remove(self)
         del self
+
+class Dice(Item):
+    def __init__(self, x, y, lx=50, ly=50):
+        Item.__init__(self, x, y, lx, ly)
+        self.actif = False
+    def move(self, game):
+        if self.actif and not game.balle.random[0]:
+            self.explose(game)
+    def interagit(self, c, game):
+        if not self.actif:
+            game.balle.random = [True, time.time() + 10]
+            self.actif = True
+            self.x, self.y = 20, 20
+    def explose(self, game):
+        game.items.remove(self)
+        del self
+
+
