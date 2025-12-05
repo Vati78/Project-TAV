@@ -1,10 +1,6 @@
 """
 Toutes les interactions de la souris et du clavier
 """
-
-import pygame as pg
-import main
-import game
 import const
 
 # translates mouse position to chess coordinates

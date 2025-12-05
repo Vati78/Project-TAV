@@ -2,8 +2,6 @@
 Toutes les fonctions qui gèrent le déroulement de la partie.
 """
 
-import pygame as pg
-import main
 import const
 import pieces
 import player_bot as pb
@@ -11,7 +9,9 @@ import board
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, gestionary):
+        self.gestionary = gestionary
+
         self.position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
                     ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
                     [" ", " ", " ", " ", " ", " ", " ", " "],
@@ -55,7 +55,7 @@ class Game:
                         self.left_click_down, self.left_click_up = None, None
 
                     # if the end square is the same color as the starting square
-                    elif board.color_and_occupied_square(self.left_click_up[0], self.left_click_up[1]) == self.player_turn:
+                    elif board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) == self.player_turn:
                         self.candidate_move = [self.left_click_up[0], self.left_click_up[1], None, None]
                         self.left_click_down, self.left_click_up = None, None
 
@@ -65,7 +65,7 @@ class Game:
 
             else:
                 # if the end square is the same color as the starting square
-                if board.color_and_occupied_square(self.left_click_up[0], self.left_click_up[1]) != self.player_turn:
+                if board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) != self.player_turn:
                     self.candidate_move = [self.left_click_down[0], self.left_click_down[1], self.left_click_up[0], self.left_click_up[1]]
 
                 self.left_click_down, self.left_click_up = None, None
@@ -91,7 +91,7 @@ class Game:
         self.position[rank_f][col_f] = self.position[rank_i][col_i]
         self.position[rank_i][col_i] = " "
     
-    def in_check(self, player):
+    def in_check(self, gestionary, player):
         opposite_color = "b" if player == "w" else "w"
         coeff = -1 if player == "w" else 1
 
@@ -107,8 +107,8 @@ class Game:
             new_rank = kp_rank+dir[0]
             new_col = kp_col+dir[1]
             if 0 <= new_rank <= 7 and 0 <= new_col <= 7:
-                if board.color_and_occupied_square(new_rank, new_col) == opposite_color:
-                    if isinstance(board.get_type(new_rank, new_col), pieces.Piece.Pawn):
+                if board.color_and_occupied_square(self.gestionary, new_rank, new_col) == opposite_color:
+                    if isinstance(board.get_type(gestionary, new_rank, new_col), pieces.Piece.Pawn):
                         return True
 
         # for the knights
@@ -116,8 +116,8 @@ class Game:
             new_rank = kp_rank+dir[0]
             new_col = kp_col+dir[1]
             if 0 <= new_rank <= 7 and 0 <= new_col <= 7:
-                if board.color_and_occupied_square(new_rank, new_col) == opposite_color:
-                    if isinstance(board.get_type(new_rank, new_col), pieces.Piece.Knight):
+                if board.color_and_occupied_square(self.gestionary, new_rank, new_col) == opposite_color:
+                    if isinstance(board.get_type(gestionary, new_rank, new_col), pieces.Piece.Knight):
                         return True
 
         # for the bishops and queen
@@ -127,10 +127,10 @@ class Game:
                 rank += dir[0]
                 col += dir[1]
                 if 0 <= rank <= 7 and 0 <= col <= 7:
-                    if board.color_and_occupied_square(rank, col) == opposite_color:
-                        if isinstance(board.get_type(rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
+                    if board.color_and_occupied_square(self.gestionary, rank, col) == opposite_color:
+                        if isinstance(board.get_type(gestionary, rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
                             return True
-                    elif board.color_and_occupied_square(rank, col) == player:
+                    elif board.color_and_occupied_square(self.gestionary, rank, col) == player:
                         break
 
         # for the rooks and queen
@@ -140,10 +140,10 @@ class Game:
                 rank += dir[0]
                 col += dir[1]
                 if 0 <= rank <= 7 and 0 <= col <= 7:
-                    if board.color_and_occupied_square(rank, col) == opposite_color:
-                        if isinstance(board.get_type(rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
+                    if board.color_and_occupied_square(self.gestionary, rank, col) == opposite_color:
+                        if isinstance(board.get_type(gestionary, rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
                             return True
-                    elif board.color_and_occupied_square(rank, col) == player:
+                    elif board.color_and_occupied_square(self.gestionary, rank, col) == player:
                         break
 
         # for the opponent's king
@@ -151,10 +151,7 @@ class Game:
             return True
 
         return False
-    
-    def blit_legal_moves_if_possible(self):
-        if (self.candidate_move[2], self.candidate_move[3]) == (None, None) and self.candidate_move[0] is not None and self.candidate_move[1] is not None:
-            board.blit_legal_moves(self.candidate_move[0], self.candidate_move[1])
+
 
 
 

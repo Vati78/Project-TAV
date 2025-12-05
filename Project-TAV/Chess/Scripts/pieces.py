@@ -1,9 +1,7 @@
 """
 Toutes les fonctions en rapport avec le mouvement des pièces.
 """
-
-import main
-import board
+import board, const
 
 class Piece:
     class Pawn:
@@ -11,20 +9,20 @@ class Piece:
             self.color = color
             self.opposite_color = "w" if self.color == "b" else "b"
 
-        def legal_moves(self, rank, col):
+        def legal_moves(self, gestionary, rank, col):
             legal_moves = []
             coeff = -1 if self.color == "w" else 1
 
-            if not board.color_and_occupied_square(rank+1*coeff, col):
+            if not board.color_and_occupied_square(gestionary, rank+1*coeff, col):
                 legal_moves.append((rank+1*coeff, col))
 
-            if rank == (0+1*coeff)%7 and not board.color_and_occupied_square(rank+2*coeff, col):
+            if rank == (0+1*coeff)%7 and not board.color_and_occupied_square(gestionary, rank+2*coeff, col):
                 legal_moves.append((rank+2*coeff, col))
 
-            if 0 < col and board.color_and_occupied_square(rank+1*coeff, col-1) == self.opposite_color:
+            if 0 < col and board.color_and_occupied_square(gestionary, rank+1*coeff, col-1) == self.opposite_color:
                 legal_moves.append((rank+1*coeff, col-1))
 
-            if col < 7 and board.color_and_occupied_square(rank+1*coeff, col+1) == self.opposite_color:
+            if col < 7 and board.color_and_occupied_square(gestionary, rank+1*coeff, col+1) == self.opposite_color:
                 legal_moves.append((rank+1*coeff, col+1))
 
 
@@ -36,7 +34,7 @@ class Piece:
             self.color = color
             self.opposite_color = "w" if self.color == "b" else "b"
 
-        def legal_moves(self, rank, col):
+        def legal_moves(self, gestionary, rank, col):
             legal_moves = []
             dir = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
@@ -50,11 +48,11 @@ class Piece:
                     if abs(col_dir-3.5) > 3.5 or abs(rank_dir-3.5) > 3.5:
                         break
 
-                    if not board.color_and_occupied_square(rank_dir, col_dir):
+                    if not board.color_and_occupied_square(gestionary, rank_dir, col_dir):
                         legal_moves.append((rank_dir, col_dir))
 
                     else:
-                        if board.color_and_occupied_square(rank_dir, col_dir) == self.opposite_color:
+                        if board.color_and_occupied_square(gestionary, rank_dir, col_dir) == self.opposite_color:
                             legal_moves.append((rank_dir, col_dir))
                         break
 
@@ -65,7 +63,7 @@ class Piece:
             self.color = color
             self.opposite_color = "w" if self.color == "b" else "b"
 
-        def legal_moves(self, rank, col):
+        def legal_moves(self, gestionary, rank, col):
             legal_moves = []
             dir = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
 
@@ -74,7 +72,7 @@ class Piece:
                 col_dir = col+direction[1]
 
                 if 0 <= rank_dir <= 7 and 0 <= col_dir <= 7:
-                    if board.color_and_occupied_square(rank_dir, col_dir) != self.color:
+                    if board.color_and_occupied_square(gestionary, rank_dir, col_dir) != self.color:
                         legal_moves.append((rank_dir, col_dir))
 
             return legal_moves
@@ -84,7 +82,7 @@ class Piece:
             self.color = color
             self.opposite_color = "w" if self.color == "b" else "b"
 
-        def legal_moves(self, rank, col):
+        def legal_moves(self, gestionary, rank, col):
             legal_moves = []
             dir = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
@@ -98,11 +96,11 @@ class Piece:
                     if abs(col_dir-3.5) > 3.5 or abs(rank_dir-3.5) > 3.5:
                         break
 
-                    if not board.color_and_occupied_square(rank_dir, col_dir):
+                    if not board.color_and_occupied_square(gestionary, rank_dir, col_dir):
                         legal_moves.append((rank_dir, col_dir))
 
                     else:
-                        if board.color_and_occupied_square(rank_dir, col_dir) == self.opposite_color:
+                        if board.color_and_occupied_square(gestionary, rank_dir, col_dir) == self.opposite_color:
                             legal_moves.append((rank_dir, col_dir))
                         break
 
@@ -113,7 +111,7 @@ class Piece:
             self.color = color
             self.opposite_color = "w" if self.color == "b" else "b"
 
-        def legal_moves(self, rank, col):
+        def legal_moves(self, gestionary, rank, col):
             legal_moves = []
             dir = [(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)]
 
@@ -122,7 +120,7 @@ class Piece:
                 rank_dir = rank + direction[0]
 
                 if 0 <= col_dir <= 7 and 0 <= rank_dir <= 7:
-                    if board.color_and_occupied_square(rank_dir, col_dir) != self.color:
+                    if board.color_and_occupied_square(gestionary, rank_dir, col_dir) != self.color:
                         legal_moves.append((rank_dir, col_dir))
 
 
@@ -136,9 +134,9 @@ class Piece:
         def __init__(self, color):
             self.color = color
 
-        def legal_moves(self, rank, col):
-            rook_moves = Piece.Rook(self.color).legal_moves(rank, col)
-            bishop_moves = Piece.Bishop(self.color).legal_moves(rank, col)
+        def legal_moves(self, gestionary, rank, col):
+            rook_moves = Piece.Rook(self.color).legal_moves(gestionary, rank, col)
+            bishop_moves = Piece.Bishop(self.color).legal_moves(gestionary, rank, col)
 
             legal_moves = []
 

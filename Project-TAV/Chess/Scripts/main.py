@@ -13,83 +13,85 @@ import game
 import mouse_keys as mk
 
 os.chdir(os.path.dirname(__file__))
-pg.init()
-win = pg.display.set_mode((const.WIDTH + 5*const.SQUARE, const.HEIGHT))
-pg.display.set_caption("Chess")
-win.fill((50, 50, 50))
-chess_game = game.Game()
 
-def main():
-    running = True
-    input_change = False
 
-    while running:
+class Gestionary:
+    def __init__(self):
+        pg.init()
+        self.win = pg.display.set_mode((const.WIDTH + 5 * const.SQUARE, const.HEIGHT))
+        pg.display.set_caption("Chess")
+        self.win.fill((50, 50, 50))
+        self.chess_game = game.Game(self)
 
-        mouse_pos = pg.mouse.get_pos()
-        user_input = pg.key.get_pressed()
+    def run(self):
+        running = True
+        input_change = False
 
-        game.left_click_up = None
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
+        while running:
 
-            if user_input[pg.K_a]:
-                board.theme_index = (board.theme_index+1)%const.NMB_THEMES
+            mouse_pos = pg.mouse.get_pos()
+            user_input = pg.key.get_pressed()
 
-            if user_input[pg.K_LEFT]:
+            game.left_click_up = None
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+
+                if user_input[pg.K_a]:
+                    board.theme_index = (board.theme_index+1)%const.NMB_THEMES
+
+                if user_input[pg.K_LEFT]:
+                    pass
+
+                if user_input[pg.K_RIGHT]:
+                    pass
+
+                if user_input[pg.K_DOWN]:
+                    pass
+
+                if user_input[pg.K_UP]:
+                    pass
+
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                    self.chess_game.left_click_up = None
+                    coor =  mk.mouse_to_coor(mouse_pos)
+                    if coor and (self.chess_game.candidate_move[0] is not None or board.color_and_occupied_square(self, coor[0], coor[1])):
+                        self.chess_game.left_click_down = coor
+
+
+                if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                    coor = mk.mouse_to_coor(mouse_pos)
+                    if coor and self.chess_game.left_click_down is not None:
+                        self.chess_game.left_click_up = coor
+                        input_change = True
+
+            if self.chess_game.human and input_change:
+                input_change = False
+                self.chess_game.input_to_candidate_move()
+                if (all(item is not None for item in self.chess_game.candidate_move)
+                    and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
+                    print("             ",self.chess_game.candidate_move)
+                    eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
+                    # if in legal_moves
+                        # play_move
+                        # if check
+                            # put back old position
                 pass
 
-            if user_input[pg.K_RIGHT]:
+            else:
                 pass
-
-            if user_input[pg.K_DOWN]:
-                pass
-
-            if user_input[pg.K_UP]:
-                pass
-
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                chess_game.left_click_up = None
-                coor =  mk.mouse_to_coor(mouse_pos)
-                if coor and (chess_game.candidate_move[0] is not None or board.color_and_occupied_square(coor[0], coor[1])):
-                    chess_game.left_click_down = coor
+                # fonctions androïde
 
 
-            if event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                coor = mk.mouse_to_coor(mouse_pos)
-                if coor and chess_game.left_click_down is not None:
-                    chess_game.left_click_up = coor
-                    input_change = True
+            self.win.fill((50, 50, 50))
+            board.draw_board(gestionary)
+            board.draw_pieces(gestionary)
+            board.write_player_turn(gestionary)
 
-        if chess_game.human and input_change:
-            input_change = False
-            chess_game.input_to_candidate_move()
-            if (all(item is not None for item in chess_game.candidate_move)
-                and board.color_and_occupied_square(chess_game.candidate_move[0], chess_game.candidate_move[1]) == chess_game.player_turn):
-                print("             ",chess_game.candidate_move)
-                eval(f"chess_game.{chess_game.player_turn}_player.move(chess_game)")
-                # if in legal_moves
-                    # play_move
-                    # if check
-                        # put back old position
-            pass
-
-        else:
-            pass
-            # fonctions androïde
-
-
-        #chess_game.make_move()
-
-
-        win.fill((50, 50, 50))
-        board.draw_board()
-        board.draw_pieces()
-        board.write_player_turn()
-
-        pg.display.update()
+            pg.display.update()
 
 
 
 if __name__ == "__main__":
-    main()
+    gestionary = Gestionary()
+    gestionary.run()
