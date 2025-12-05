@@ -2,6 +2,9 @@
 Toutes les constantes du jeu
 """
 
+import pygame as pg
+pg.mixer.init()
+
 # Board
 SQUARE = 70
 WIDTH = 8*SQUARE
@@ -17,3 +20,7 @@ GREY = (50, 50, 50)
 
 # Players
 HUMAN = "wb" #None
+
+#Sounds
+move_sound = pg.mixer.Sound("../Sounds/move.mp3")
+check_sound = pg.mixer.Sound("../Sounds/check.mp3")

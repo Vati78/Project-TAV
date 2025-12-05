@@ -3,12 +3,10 @@ Classe joueur humain et bot
 """
 
 import pygame as pg
-import main
-import random
 import const
 import board
 import pieces
-import game
+
 
 class Player:
     def __init__(self,color):
@@ -29,9 +27,6 @@ class Player:
         col_f = gestionary.chess_game.candidate_move[3]
 
         specific = None
-        #print(rank_i)
-        #gestionary.chess_game.candidate_move = [None, None, None, None]
-        #print(rank_i)
 
         if (rank_f, col_f) in board.get_type(gestionary, rank_i, col_i).legal_moves(gestionary, rank_i, col_i):
             actual_position = [row[:] for row in gestionary.chess_game.position]
@@ -40,10 +35,14 @@ class Player:
                 self.king_pos = (rank_f, col_f)
 
             gestionary.chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
-            if not gestionary.chess_game.in_check(gestionary, self.color):
+            if not gestionary.chess_game.in_check(self.color):
+                const.move_sound.play()
                 print("no check ...")
             else:
-                game.position = actual_position
+                print("check !!!!!!!!")
+                const.check_sound.play()
+                gestionary.chess_game.position = actual_position
+                self.king_pos = (rank_i, col_i)
                 return False
 
             return True

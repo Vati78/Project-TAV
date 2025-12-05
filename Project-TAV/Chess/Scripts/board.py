@@ -32,7 +32,6 @@ def color_and_occupied_square(gestionary, rank, col):
 
 # returns the type of piece /!\ Make sure there is a piece !!!
 def get_type(gestionary, rank, col):
-    print("gest", gestionary)
     piece = gestionary.chess_game.position[rank][col]
 
     if piece[1] == "P":
