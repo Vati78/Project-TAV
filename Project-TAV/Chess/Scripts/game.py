@@ -138,7 +138,7 @@ class Game:
                 if 0 <= rank <= 7 and 0 <= col <= 7:
                     if board.color_and_occupied_square(self.gestionary, rank, col) == opposite_color:
                         if isinstance(board.get_type(self.gestionary, rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
-                            print("Rook, Queen")
+                            print("Bishop, Queen")
                             return True
                         else:
                             break
@@ -153,8 +153,8 @@ class Game:
                 col += dir[1]
                 if 0 <= rank <= 7 and 0 <= col <= 7:
                     if board.color_and_occupied_square(self.gestionary, rank, col) == opposite_color:
-                        if isinstance(board.get_type(self.gestionary, rank, col), (pieces.Piece.Bishop, pieces.Piece.Queen)):
-                            print("Bishop/Queen")
+                        if isinstance(board.get_type(self.gestionary, rank, col), (pieces.Piece.Rook, pieces.Piece.Queen)):
+                            print("Rook/Queen")
                             return True
                         else:
                             break
