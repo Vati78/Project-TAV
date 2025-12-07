@@ -62,8 +62,6 @@ class Portal(Item):
 class Bomb(Item):
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
-    def move(self, game):
-        pass
     def interagit(self, c, game):
         if game.balle.last_rebond is not None:
             game.balle.last_rebond.nmb_points -= 1
@@ -76,17 +74,10 @@ class Bomb(Item):
 class Coin(Item):
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
-        self.actif = False
-       # self.son =
-    def move(self, game):
-        if self.actif:
-            if game.balle.random[0] is False:
-                self.explose(game)
     def interagit(self, c, game):
-        if game.balle.last_rebond is not None and not self.actif:
+        if game.balle.last_rebond is not None:
             game.balle.last_rebond.nmb_points += 1
-            self.actif = True
-            self.x, self.y = 20, 20
+            self.explose(game)
 
     def explose(self, game):
         game.items.remove(self)

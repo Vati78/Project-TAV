@@ -12,12 +12,16 @@ class Item():
         self.lx = lx
         self.ly = ly
 
-        if imagename is not None:
-            self.image = pg.image.load(imagename)
-        # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
-        else:
-            imagename = type(self).__name__
-            self.img = pg.transform.scale(pg.image.load(f"Images/{imagename}.png"), (self.lx, self.ly))
+        if hasattr(type(self), "img"): self.img = type(self).img
+        else: 
+            if imagename is not None:
+                self.image = pg.transform.scale(pg.image.load(imagename), (self.lx, self.ly))
+            # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
+            else:
+                imagename = type(self).__name__
+                self.img = pg.transform.scale(pg.image.load(f"Images/{imagename}.png"), (self.lx, self.ly))
+            type(self).img=self.img
+
 
         if son is not None:
             self.son = pg.mixer.Sound(son)
@@ -32,6 +36,7 @@ class Item():
 
     def draw(self, game):
         game.win.blit(self.img, (self.x, self.y))
+    def move(self, game): pass
 
     #cette fonction crée une nouvelle instance d'une classe particulière dont les variables seront
     #les mêmes que celle originale, sauf que les variables relatives à l'affichage de l'originale ne sont pas

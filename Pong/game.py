@@ -77,6 +77,10 @@ class Game(baseClass.Item):
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
         self.items = []
+        for i in ["Coin", "Dice", "Bomb", "Portal"]:
+            a = eval(f"self.variants.{i}")(0,0, 0, 0)
+            del a
+
 
     def run(self):
         """
@@ -280,7 +284,7 @@ class Game(baseClass.Item):
 
         if self.n % 700 == 0:
             for i in self.items[:]:
-                if type(i).__name__ == "Portal": self.items.remove(i)
+                if isinstance(i, self.variants.Portal): self.items.remove(i)
             self.nouvelItem("Portals")
 
     def nouvelItem(self, type):
