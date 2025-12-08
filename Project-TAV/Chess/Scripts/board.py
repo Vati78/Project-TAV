@@ -50,13 +50,14 @@ def get_type(gestionary, rank, col):
         return False
 
 # blits all legal moves
-def blit_legal_moves(gestionary, rank, col):
-    for move in get_type(rank, col).legal_moves(rank, col):
-        if color_and_occupied_square(col, rank):
-            pg.draw.circle(gestionary.win, (168, 168, 168), (col * const.SQUARE + const.SQUARE // 2, rank * const.SQUARE + const.SQUARE // 2),
+def blit_legal_moves(gestionary):
+    for move in gestionary.chess_game.legal_moves_list:
+        (col, rank, _) = move
+        if color_and_occupied_square(gestionary, col, rank):
+            pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2),
                            const.SQUARE // 2 - 2, 3)
         else:
-            pg.draw.circle(gestionary.win, (168, 168, 168), (col * const.SQUARE + const.SQUARE // 2, rank * const.SQUARE + const.SQUARE // 2), 10)
+            pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2), 10)
 
 def write_player_turn(gestionary):
     t="White" if gestionary.chess_game.player_turn == "w" else "Black"

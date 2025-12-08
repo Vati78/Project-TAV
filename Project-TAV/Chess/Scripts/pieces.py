@@ -16,8 +16,9 @@ class Piece:
             if not board.color_and_occupied_square(gestionary, rank+1*coeff, col):
                 legal_moves.append((rank+1*coeff, col))
 
-            if rank == (0+1*coeff)%7 and not board.color_and_occupied_square(gestionary, rank+2*coeff, col):
-                legal_moves.append((rank+2*coeff, col))
+                if rank == (0+1*coeff)%7 and not board.color_and_occupied_square(gestionary, rank+2*coeff, col):
+                    if not gestionary.chess_game.in_check(self.color):
+                        legal_moves.append((rank+2*coeff, col))
 
             if 0 < col and board.color_and_occupied_square(gestionary, rank+1*coeff, col-1) == self.opposite_color:
                 legal_moves.append((rank+1*coeff, col-1))
@@ -126,7 +127,6 @@ class Piece:
 
             # short castle
             # long castle
-
 
             return legal_moves
 

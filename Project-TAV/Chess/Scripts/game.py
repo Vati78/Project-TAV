@@ -33,48 +33,49 @@ class Game:
         self.left_click_down = None
         self.left_click_up = None
         self.candidate_move = [None, None, None, None]
+        self.legal_moves_list = []
+        self.illegal_moves_list = []
 
 
 
     def input_to_candidate_move(self):
+        print(self.candidate_move)
         # if the button was released
         if self.left_click_up is not None:
+
             # if clicked
             if self.left_click_down == self.left_click_up:
-                # if nothing was clicked
-                if (self.candidate_move[0], self.candidate_move[1]) == (None, None):
+
+                # if nothing was clicked and user clicked on own piece
+                if (self.candidate_move[0], self.candidate_move[1]) == (None, None) and board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) == self.player_turn:
                     self.candidate_move[0], self.candidate_move[1] = self.left_click_down[0], self.left_click_down[1]
-                    self.left_click_down, self.left_click_up = None, None
 
                 # if something was already clicked
-                elif (self.candidate_move[2], self.candidate_move[3]) == (None, None):
+                elif (self.candidate_move[2], self.candidate_move[3]) == (None, None) and (self.candidate_move[0], self.candidate_move[1]) != (None, None):
 
                     # if the end square is the same as the starting square
                     if (self.left_click_down[0], self.left_click_down[1]) == (self.candidate_move[0], self.candidate_move[1]):
                         self.candidate_move = [None, None, None, None]
-                        self.left_click_down, self.left_click_up = None, None
+                        self.legal_moves_list = []
+                        self.illegal_moves_list = []
 
                     # if the end square is the same color as the starting square
                     elif board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) == self.player_turn:
                         self.candidate_move = [self.left_click_up[0], self.left_click_up[1], None, None]
-                        self.left_click_down, self.left_click_up = None, None
+                        self.legal_moves_list = []
+                        self.illegal_moves_list = []
+
 
                     else:
                         self.candidate_move[2], self.candidate_move[3] = self.left_click_down[0], self.left_click_down[1]
-                        self.left_click_down, self.left_click_up = None, None
+
 
             else:
-                # if the end square is the same color as the starting square
+                # if the end square is the not same color as the starting square
                 if board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) != self.player_turn:
                     self.candidate_move = [self.left_click_down[0], self.left_click_down[1], self.left_click_up[0], self.left_click_up[1]]
 
-                self.left_click_down, self.left_click_up = None, None
-
-    def make_move(self):
-        move = eval(f"self.{self.player_turn}_player.return_move(self.candidate_move)")
-    
-        if move:
-            self.player_turn = "w" if self.player_turn == "b" else "b"
+            self.left_click_down, self.left_click_up = None, None
     
     def play_move(self, rank_i, col_i, rank_f, col_f, specific=None):
         if specific == "s_castle":
@@ -90,19 +91,12 @@ class Game:
     
         self.position[rank_f][col_f] = self.position[rank_i][col_i]
         self.position[rank_i][col_i] = " "
-
-        print(self.position)
     
     def in_check(self, player):
-        for rank in self.position:
-            print(rank)
-
-
         opposite_color = "b" if player == "w" else "w"
         coeff = -1 if player == "w" else 1
 
         (kp_rank, kp_col) = eval(f"self.{player}_player.king_pos")
-        print(kp_rank, kp_col)
 
         pawn_dir = [(1*coeff, -1), (1*coeff, 1)]
         knight_dir = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
@@ -167,6 +161,32 @@ class Game:
 
         return False
 
+    def get_all_legal_moves(self):
+        [rank, col] = self.candidate_move[:2]
+        legal_moves = []
+        illegal_moves = []
+        actual_position = [row[:] for row in self.gestionary.chess_game.position]
+        for move in board.get_type(self.gestionary, rank, col).legal_moves(self.gestionary, rank, col):
+            specific = None
+            king_move = False
+
+            if isinstance(board.get_type(self.gestionary, rank, col), pieces.Piece.King):
+                king_move = True
+                exec(f"self.{self.player_turn}_player.king_pos = (move[0], move[1])")
+
+            self.gestionary.chess_game.play_move(rank, col, move[0], move[1], specific)
+
+            if not self.gestionary.chess_game.in_check(self.player_turn):
+                legal_moves.append((move[0], move[1], specific))
+            else:
+                illegal_moves.append((move[0], move[1], specific))
+
+
+            if king_move: exec(f"self.{self.player_turn}_player.king_pos = (rank, col)")
+            self.position = [row[:] for row in actual_position]
+
+        self.legal_moves_list = legal_moves
+        self.illegal_moves_list = illegal_moves
 
 
 

@@ -65,20 +65,24 @@ class Gestionary:
                     if coor and self.chess_game.left_click_down is not None:
                         self.chess_game.left_click_up = coor
 
+
             if self.chess_game.human:
                 self.chess_game.input_to_candidate_move()
-                if (all(item is not None for item in self.chess_game.candidate_move)
+                if (all(item is not None for item in self.chess_game.candidate_move[:2])
                     and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
-                    eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
+                    if len(self.chess_game.legal_moves_list) == 0 and len(self.chess_game.illegal_moves_list) == 0:
+                        self.chess_game.get_all_legal_moves()
+                    if all(item is not None for item in self.chess_game.candidate_move[2:]):
+                        eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
 
             else:
                 pass
-                # fonctions androïde
 
 
             self.win.fill((50, 50, 50))
             board.draw_board(gestionary)
             board.draw_pieces(gestionary)
+            board.blit_legal_moves(gestionary)
             board.write_player_turn(gestionary)
 
             pg.display.update()
