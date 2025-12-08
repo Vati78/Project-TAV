@@ -39,6 +39,10 @@ class Player:
                 if gestionary.chess_game.in_check(self.opposite_color): const.check_sound.play()
                 elif capture: const.capture_sound.play()
                 else: const.move_sound.play()
+
+                gestionary.chess_game.player_turn = "w" if gestionary.chess_game.player_turn == "b" else "b"
+                gestionary.chess_game.opposite_color = "w" if gestionary.chess_game.opposite_color == "b" else "b"
+
         else:
             for rank, col, specific in gestionary.chess_game.illegal_moves_list:
                 if rank_f == rank and col_f == col:

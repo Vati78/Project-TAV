@@ -81,6 +81,7 @@ class Gestionary:
 
             self.win.fill((50, 50, 50))
             board.draw_board(gestionary)
+            board.draw_coor(gestionary)
             board.draw_pieces(gestionary)
             board.blit_legal_moves(gestionary)
             board.write_player_turn(gestionary)

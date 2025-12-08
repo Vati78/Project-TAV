@@ -10,6 +10,10 @@ SQUARE = 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
+# Coordinates
+COLS = ['a','b','c','d','e','f','g','h']
+RANKS = ['1','2','3','4','5','6','7','8']
+
 # Themes and colors
 NMB_THEMES = 2
 BLACK = [(118,150,86), (150, 77, 34)]

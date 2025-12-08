@@ -39,7 +39,6 @@ class Game:
 
 
     def input_to_candidate_move(self):
-        print(self.candidate_move)
         # if the button was released
         if self.left_click_up is not None:
 

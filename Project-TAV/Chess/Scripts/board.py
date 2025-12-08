@@ -5,7 +5,11 @@ Toutes les fonctions en rapport avec le plateau de jeu
 import pygame as pg
 import const, pieces
 
+pg.init()
 theme_index = 1
+board_origin = (0, 0)
+font = pg.font.SysFont(None, 24)
+
 
 # draws the board
 def draw_board(gestionary):
@@ -15,6 +19,24 @@ def draw_board(gestionary):
                 pg.draw.rect(gestionary.win, const.WHITE[theme_index], (col*const.SQUARE, rank*const.SQUARE, const.SQUARE, const.SQUARE))
             else: # else
                 pg.draw.rect(gestionary.win, const.BLACK[theme_index], (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
+
+# draws the coordinates
+def draw_coor(gestionary):
+    for i, col in enumerate(const.COLS):
+        color = const.WHITE if i%2 == 0 else const.BLACK
+        text = font.render(col, True, color[theme_index])
+        x = (i+1)*const.SQUARE - text.get_width() - 5
+        y = 8*const.SQUARE - text.get_width() - 10
+
+        gestionary.win.blit(text, (x, y))
+
+    for i, rank in enumerate(const.RANKS[::-1]):
+        color = const.WHITE if i%2 == 1 else const.BLACK
+        text = font.render(rank, True, color[theme_index])
+        y = i*const.SQUARE + 5
+        x = 5
+
+        gestionary.win.blit(text, (x, y))
 
 # draws the pieces
 def draw_pieces(gestionary):
