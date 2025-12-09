@@ -1,7 +1,7 @@
 """
 Toutes les fonctions en rapport avec le mouvement des pièces.
 """
-import board, const
+import board
 
 class Piece:
     class Pawn:

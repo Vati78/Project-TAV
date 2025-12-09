@@ -42,16 +42,22 @@ class Gestionary:
                     board.theme_index = (board.theme_index+1)%const.NMB_THEMES
 
                 if user_input[pg.K_LEFT]:
-                    pass
+                    if self.chess_game.index_position > 0:
+                        self.chess_game.index_position -= 1
+                        self.chess_game.update_position()
 
                 if user_input[pg.K_RIGHT]:
-                    pass
+                    if self.chess_game.index_position + 1 < len(self.chess_game.list_position):
+                        self.chess_game.index_position += 1
+                        self.chess_game.update_position()
 
                 if user_input[pg.K_DOWN]:
-                    pass
+                    self.chess_game.index_position = 0
+                    self.chess_game.update_position()
 
                 if user_input[pg.K_UP]:
-                    pass
+                    self.chess_game.index_position = len(self.chess_game.list_position)-1
+                    self.chess_game.update_position()
 
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     self.chess_game.left_click_up = None

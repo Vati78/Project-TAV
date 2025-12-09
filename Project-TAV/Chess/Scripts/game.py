@@ -12,14 +12,16 @@ class Game:
     def __init__(self, gestionary):
         self.gestionary = gestionary
 
-        self.position = [["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+        self.list_position = [[["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
                     ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
                     [" ", " ", " ", " ", " ", " ", " ", " "],
                     [" ", " ", " ", " ", " ", " ", " ", " "],
                     [" ", " ", " ", " ", " ", " ", " ", " "],
                     [" ", " ", " ", " ", " ", " ", " ", " "],
                     ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-                    ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+                    ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]]
+        self.index_position = 0
+        self.position = [row[:] for row in self.list_position[self.index_position]]
 
 
         self.player_turn = "w"
@@ -186,6 +188,16 @@ class Game:
 
         self.legal_moves_list = legal_moves
         self.illegal_moves_list = illegal_moves
+
+    def update_position(self):
+        self.position = [row[:] for row in self.list_position[self.index_position]]
+        self.candidate_move = [None, None, None, None]
+        self.left_click_down = None
+        self.left_click_up = None
+        self.legal_moves_list = []
+        self.illegal_moves_list = []
+        self.player_turn = "w" if self.index_position % 2 == 0 else "b"
+        self.opposite_color = "w" if self.player_turn == "b" else "b"
 
 
 

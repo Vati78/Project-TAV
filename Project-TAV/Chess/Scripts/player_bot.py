@@ -2,7 +2,6 @@
 Classe joueur humain et bot
 """
 
-import pygame as pg
 import const
 import board
 import pieces
@@ -31,6 +30,7 @@ class Player:
         for rank, col, specific in gestionary.chess_game.legal_moves_list:
             if rank_f == rank and col_f == col:
                 capture = board.color_and_occupied_square(gestionary, rank_f, col_f)
+
                 if isinstance(board.get_type(gestionary, rank_i, col_i), pieces.Piece.King):
                     self.king_pos = (rank_f, col_f)
 
@@ -40,8 +40,10 @@ class Player:
                 elif capture: const.capture_sound.play()
                 else: const.move_sound.play()
 
-                gestionary.chess_game.player_turn = "w" if gestionary.chess_game.player_turn == "b" else "b"
-                gestionary.chess_game.opposite_color = "w" if gestionary.chess_game.opposite_color == "b" else "b"
+                gestionary.chess_game.index_position += 1
+                del gestionary.chess_game.list_position[gestionary.chess_game.index_position:]
+                gestionary.chess_game.list_position.append([row[:] for row in gestionary.chess_game.position])
+                gestionary.chess_game.update_position()
 
         else:
             for rank, col, specific in gestionary.chess_game.illegal_moves_list:
