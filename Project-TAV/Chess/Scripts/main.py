@@ -3,12 +3,9 @@ Tour de contrôle de tous les scripts.
 """
 
 import pygame as pg
-import random
 import os
-import time
 import const
 import board
-import pieces
 import game
 import mouse_keys as mk
 

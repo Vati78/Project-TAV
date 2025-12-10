@@ -167,20 +167,37 @@ class Game:
         legal_moves = []
         illegal_moves = []
         actual_position = [row[:] for row in self.gestionary.chess_game.position]
-        for move in board.get_type(self.gestionary, rank, col).legal_moves(self.gestionary, rank, col):
-            specific = None
+        for rank_f, col_f, specific in board.get_type(self.gestionary, rank, col).legal_moves(self.gestionary, rank, col):
             king_move = False
+            specific_condition = True if specific is None else False
 
             if isinstance(board.get_type(self.gestionary, rank, col), pieces.Piece.King):
                 king_move = True
-                exec(f"self.{self.player_turn}_player.king_pos = (move[0], move[1])")
+                if specific == "s_castle":
+                    if not self.gestionary.chess_game.in_check(self.player_turn):
+                        self.gestionary.chess_game.play_move(rank, col, rank, col+1, specific)
+                        exec(f"self.{self.player_turn}_player.king_pos = (rank, col+1)")
+                        if not self.gestionary.chess_game.in_check(self.player_turn):
+                            specific_condition = True
 
-            self.gestionary.chess_game.play_move(rank, col, move[0], move[1], specific)
+                if specific == "l_castle":
+                    if not self.gestionary.chess_game.in_check(self.player_turn):
+                        self.gestionary.chess_game.play_move(rank, col, rank, col-1, specific)
+                        exec(f"self.{self.player_turn}_player.king_pos = (rank, col-1)")
+                        if not self.gestionary.chess_game.in_check(self.player_turn):
+                            specific_condition = True
 
-            if not self.gestionary.chess_game.in_check(self.player_turn):
-                legal_moves.append((move[0], move[1], specific))
+                exec(f"self.{self.player_turn}_player.king_pos = (rank_f, col_f)")
+
+
+
+
+            self.gestionary.chess_game.play_move(rank, col, rank_f, col_f, specific)
+
+            if not self.gestionary.chess_game.in_check(self.player_turn) and specific_condition:
+                legal_moves.append((rank_f, col_f, specific))
             else:
-                illegal_moves.append((move[0], move[1], specific))
+                illegal_moves.append((rank_f, col_f, specific))
 
 
             if king_move: exec(f"self.{self.player_turn}_player.king_pos = (rank, col)")
