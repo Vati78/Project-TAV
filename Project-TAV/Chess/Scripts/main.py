@@ -81,7 +81,6 @@ class Gestionary:
             else:
                 pass
 
-
             self.win.fill((50, 50, 50))
             board.draw_board(gestionary)
             board.draw_coor(gestionary)

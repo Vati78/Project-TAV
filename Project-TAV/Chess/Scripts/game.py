@@ -168,11 +168,11 @@ class Game:
         illegal_moves = []
         actual_position = [row[:] for row in self.gestionary.chess_game.position]
         for rank_f, col_f, specific in board.get_type(self.gestionary, rank, col).legal_moves(self.gestionary, rank, col):
-            king_move = False
+            k_move = False
             specific_condition = True if specific is None else False
 
             if isinstance(board.get_type(self.gestionary, rank, col), pieces.Piece.King):
-                king_move = True
+                k_move = True
                 if specific == "s_castle":
                     if not self.gestionary.chess_game.in_check(self.player_turn):
                         self.gestionary.chess_game.play_move(rank, col, rank, col+1, specific)
@@ -200,7 +200,7 @@ class Game:
                 illegal_moves.append((rank_f, col_f, specific))
 
 
-            if king_move: exec(f"self.{self.player_turn}_player.king_pos = (rank, col)")
+            if k_move: exec(f"self.{self.player_turn}_player.king_pos = (rank, col)")
             self.position = [row[:] for row in actual_position]
 
         self.legal_moves_list = legal_moves
@@ -213,6 +213,16 @@ class Game:
         self.left_click_up = None
         self.legal_moves_list = []
         self.illegal_moves_list = []
+        if self.w_player.king_move is not None:
+            if self.index_position >= self.w_player.king_move:
+                self.w_player.king_moved_yet = True
+            else:
+                self.w_player.king_moved_yet = False
+        if self.b_player.king_move is not None:
+            if self.index_position >= self.b_player.king_move:
+                self.b_player.king_moved_yet = True
+            else:
+                self.b_player.king_moved_yet = False
         self.player_turn = "w" if self.index_position % 2 == 0 else "b"
         self.opposite_color = "w" if self.player_turn == "b" else "b"
 

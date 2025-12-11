@@ -13,6 +13,7 @@ class Player:
         self.opposite_color = "w" if self.color == "b" else "b"
         self.king_pos = (7, 4) if self.color == "w" else (0, 4)
         self.king_move = None
+        self.king_moved_yet = False
         self.a_rook_move = False
         self.h_rook_move = False
         self.s_castling_right = True
@@ -37,9 +38,15 @@ class Player:
                 # if the king is moved
                 if isinstance(board.get_type(gestionary, rank_i, col_i), pieces.Piece.King):
                     self.king_pos = (rank_f, col_f)
-                    self.king_move = gestionary.chess_game.index_position+1
+                    if self.king_move is None: self.king_move = gestionary.chess_game.index_position+1
                     self.s_castling_right = False
                     self.l_castling_right = False
+                else:
+                    if self.king_move is not None:
+                        if self.king_move-1 <= gestionary.chess_game.index_position:
+                            self.king_move = None
+                            self.king_moved_yet = False
+
 
                 # plays the move
                 gestionary.chess_game.play_move(rank_i, col_i, rank_f, col_f, specific)
@@ -69,7 +76,8 @@ class Bot:
     def __init__(self, color):
         self.color = color
         self.king_pos = (7, 4) if self.color == "w" else (0, 4)
-        self.king_move = False
+        self.king_move = None
+        self.king_moved_yet = False
         self.a_rook_move = False
         self.h_rook_move = False
         self.s_castling_right = True

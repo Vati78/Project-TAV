@@ -125,14 +125,14 @@ class Piece:
                         legal_moves.append((rank_dir, col_dir, None))
 
             # short castle
-            if not (exec(f"gestionary.chess_game.{self.color}_player.king_move")
+            if not (exec(f"gestionary.chess_game.{self.color}_player.king_moved_yet")
                     or exec(f"gestionary.chess_game.{self.color}_player.h_rook_move")
                     or board.color_and_occupied_square(gestionary, rank, col+1
                     or board.color_and_occupied_square(gestionary, rank, col+2))):
                 legal_moves.append((rank, col+2, "s_castle"))
 
             # long castle
-            if not (exec(f"gestionary.chess_game.{self.color}_player.king_move")
+            if not (exec(f"gestionary.chess_game.{self.color}_player.king_moved_yet")
                     or exec(f"gestionary.chess_game.{self.color}_player.a_rook_move")
                     or board.color_and_occupied_square(gestionary, rank, col-1
                     or board.color_and_occupied_square(gestionary, rank, col-2))):
