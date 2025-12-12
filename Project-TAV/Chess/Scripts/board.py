@@ -3,7 +3,7 @@ Toutes les fonctions en rapport avec le plateau de jeu
 """
 
 import pygame as pg
-import const, pieces
+import const, pieces, mouse_keys as mk
 
 pg.init()
 theme_index = 1
@@ -40,10 +40,25 @@ def draw_coor(gestionary):
 
 # draws the pieces
 def draw_pieces(gestionary):
+    coor = None
+    move_piece = False
+    if gestionary.chess_game.left_click_down and not gestionary.chess_game.left_click_up:
+        coor = gestionary.chess_game.left_click_down
+
     for rank in enumerate(gestionary.chess_game.position): # goes through every rank
         for col in enumerate(rank[1]): # goes through every column
             if col[1] != " ": # if the square is not empty
-                gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces/{col[1]}.png"), (const.SQUARE, const.SQUARE)), ((col[0])*const.SQUARE, (rank[0])*const.SQUARE))
+                if (rank[0], col[0]) == coor and mk.mouse_to_coor(gestionary.mouse_pos) is not None:
+                    move_piece = True
+                else:
+                    gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces/{col[1]}.png"),
+                                                           (const.SQUARE, const.SQUARE)),
+                                        ((col[0])*const.SQUARE, (rank[0])*const.SQUARE))
+
+    if move_piece:
+        gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces/{gestionary.chess_game.position[coor[0]][coor[1]]}.png"),
+                                               (const.SQUARE, const.SQUARE)),
+                            (gestionary.mouse_pos[0] - const.SQUARE / 2, gestionary.mouse_pos[1] - const.SQUARE / 2))
 
 # checks if a specific square is occupied by a piece, if so : returns the color
 def color_and_occupied_square(gestionary, rank, col):

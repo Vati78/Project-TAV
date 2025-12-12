@@ -19,6 +19,7 @@ class Gestionary:
         pg.display.set_caption("Chess")
         self.win.fill((50, 50, 50))
         self.chess_game = game.Game(self)
+        self.mouse_pos = None
 
     def run(self):
         running = True
@@ -27,7 +28,7 @@ class Gestionary:
 
         while running:
 
-            mouse_pos = pg.mouse.get_pos()
+            self.mouse_pos = pg.mouse.get_pos()
             user_input = pg.key.get_pressed()
 
             game.left_click_up = None
@@ -58,13 +59,13 @@ class Gestionary:
 
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     self.chess_game.left_click_up = None
-                    coor =  mk.mouse_to_coor(mouse_pos)
+                    coor =  mk.mouse_to_coor(self.mouse_pos)
                     if coor and (self.chess_game.candidate_move[0] is not None or board.color_and_occupied_square(self, coor[0], coor[1])):
                         self.chess_game.left_click_down = coor
 
 
                 if event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                    coor = mk.mouse_to_coor(mouse_pos)
+                    coor = mk.mouse_to_coor(self.mouse_pos)
                     if coor and self.chess_game.left_click_down is not None:
                         self.chess_game.left_click_up = coor
 
@@ -81,6 +82,7 @@ class Gestionary:
             else:
                 pass
 
+            print(self.chess_game.left_click_down)
             self.win.fill((50, 50, 50))
             board.draw_board(gestionary)
             board.draw_coor(gestionary)
