@@ -15,7 +15,6 @@ class Piece:
 
             if not board.color_and_occupied_square(gestionary, rank+1*coeff, col):
                 legal_moves.append((rank+1*coeff, col, None))
-
                 if rank == (0+1*coeff)%7 and not board.color_and_occupied_square(gestionary, rank+2*coeff, col):
                     if not gestionary.chess_game.in_check(self.color):
                         legal_moves.append((rank+2*coeff, col, None))
@@ -85,9 +84,9 @@ class Piece:
 
         def legal_moves(self, gestionary, rank, col):
             legal_moves = []
-            dir = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+            dirs = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-            for direction in dir:
+            for direction in dirs:
                 col_dir = col
                 rank_dir = rank
                 while 0 <= col <= 7 and 0 <= rank <= 7:

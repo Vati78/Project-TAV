@@ -38,12 +38,13 @@ class Game:
         self.legal_moves_list = []
         self.illegal_moves_list = []
 
+        self.calculated = (None, None) #coordinates of the Piece which has calculated moves
+
 
 
     def input_to_candidate_move(self):
         # if the button was released
         if self.left_click_up is not None:
-
             # if clicked
             if self.left_click_down == self.left_click_up:
 
@@ -186,6 +187,7 @@ class Game:
                         exec(f"self.{self.player_turn}_player.king_pos = (rank, col-1)")
                         if not self.gestionary.chess_game.in_check(self.player_turn):
                             specific_condition = True
+
 
                 exec(f"self.{self.player_turn}_player.king_pos = (rank_f, col_f)")
 

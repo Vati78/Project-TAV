@@ -48,7 +48,7 @@ def draw_pieces(gestionary):
     for rank in enumerate(gestionary.chess_game.position): # goes through every rank
         for col in enumerate(rank[1]): # goes through every column
             if col[1] != " ": # if the square is not empty
-                if (rank[0], col[0]) == coor and mk.mouse_to_coor(gestionary.mouse_pos) is not None:
+                if (rank[0], col[0]) == coor: # and mk.mouse_to_coor(gestionary.mouse_pos) is not None:
                     move_piece = True
                 else:
                     gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces/{col[1]}.png"),
@@ -88,13 +88,15 @@ def get_type(gestionary, rank, col):
 
 # blits all legal moves
 def blit_legal_moves(gestionary):
-    for move in gestionary.chess_game.legal_moves_list:
-        (col, rank, _) = move
-        if color_and_occupied_square(gestionary, col, rank):
-            pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2),
-                           const.SQUARE // 2 - 2, 3)
-        else:
-            pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2), 10)
+    print(gestionary.chess_game.calculated, gestionary.chess_game.candidate_move)
+    if gestionary.chess_game.calculated == gestionary.chess_game.left_click_down:
+        for move in gestionary.chess_game.legal_moves_list:
+            (col, rank, _) = move
+            if color_and_occupied_square(gestionary, col, rank):
+                pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2),
+                               const.SQUARE // 2 - 2, 3)
+            else:
+                pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2), 10)
 
 def write_player_turn(gestionary):
     t="White" if gestionary.chess_game.player_turn == "w" else "Black"
