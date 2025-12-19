@@ -77,7 +77,7 @@ class Game(baseClass.Item):
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
         self.items = []
-        for i in ["Coin", "Dice", "Bomb", "Portal"]:
+        for i in ["Coin", "Dice", "Bomb", "Portal","SpeedUp"]:
             a = eval(f"self.variants.{i}")(0,0, 0, 0)
             del a
 
