@@ -3,7 +3,7 @@ import pygame as pg, math, os, time, random as rd, copy
 
 #classe relative à chauqe lutin du jeu
 class Item():
-
+    variant = False
     #initialisation des variables communes à chaque objet
     #leur coordonnées et leur image d'affichage
     def __init__(self, x, y, lx=50,ly=50, imagename = None, son = None):
@@ -13,7 +13,7 @@ class Item():
         self.ly = ly
 
         if hasattr(type(self), "img"): self.img = type(self).img
-        else: 
+        else:
             if imagename is not None:
                 self.image = pg.transform.scale(pg.image.load(imagename), (self.lx, self.ly))
             # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe

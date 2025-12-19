@@ -1,4 +1,4 @@
-import pygame as pg, math, os, time, random as rd, copy, baseClass
+import pygame as pg, math, os, time, random as rd, copy, baseClass, inspect
 
 pg.init()
 pg.mixer.init()
@@ -76,10 +76,16 @@ class Game(baseClass.Item):
         self.win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
 
+        self.itemList = []
+        for name, objet in inspect.getmembers(self.variants):
+            if inspect.isclass(objet) and objet.variant:
+                self.itemList.append(name)
+        print(self.itemList)
         self.items = []
-        for i in ["Coin", "Dice", "Bomb", "Portal"]:
-            a = eval(f"self.variants.{i}")(0,0, 0, 0)
+        for i in self.itemList:
+            a = eval(f"self.variants.{i}")(0,0)
             del a
+
 
 
     def run(self):
@@ -276,30 +282,33 @@ class Game(baseClass.Item):
         # continuer le jeu
         return True
     def spawn(self):
-        if self.n % 500 == 0:
-            self.nouvelItem("Coin")
-
-        if self.n % 250 == 0:
-            self.nouvelItem("Bomb")
-
-        if self.n % 700 == 0:
+        if rd.random() < 0.01:
+            a=rd.choice(self.itemList)
+            self.newItem(a)
+            print(a)
+        elif rd.random() < 0.01:
             for i in self.items[:]:
                 if isinstance(i, self.variants.Portal): self.items.remove(i)
-            self.nouvelItem("Portals")
+            self.newItem("Portals")
 
-    def nouvelItem(self, type):
-        if type == "Coin":
-            self.items.append(self.variants.Coin(rd.randint(200,800), rd.randint(200,400)))
+        # if self.n % 500 == 0:
+        #     self.newItem("Coin")
+        #
+        # if self.n % 250 == 0:
+        #     self.newItem("Bomb")
+        #
+        # if self.n % 700 == 0:
+        #     for i in self.items[:]:
+        #         if isinstance(i, self.variants.Portal): self.items.remove(i)
+        #     self.newItem("Portals")
 
-        elif type == "Bomb":
-            self.items.append(self.variants.Bomb(rd.randint(200,800), rd.randint(200,400)))
-
-        elif type == "Portals":
-            premier = [rd.randint(400,600), rd.randint(400,500)]
-            a = self.variants.Portals(premier[0],premier[1],premier[0] - 200, premier[1] - 200)
+    def newItem(self, type):
+        if type == "Portals":
+            premier = [rd.randint(400, 600), rd.randint(400, 500)]
+            a = self.variants.Portals(premier[0], premier[1], premier[0] - 200, premier[1] - 200)
             self.items += [a.p1, a.p2]
-
-        pass
+        else:
+            self.items.append(eval(f"self.variants.{type}")(rd.randint(200,800), rd.randint(200,400)))
 
 
 

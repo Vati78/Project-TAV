@@ -2,6 +2,7 @@ import pygame as pg, math, os, time, random as rd, copy
 from baseClass import *
 
 class Portals():
+    variant = False
     def __init__(self, x1, y1, x2, y2):
         self.p1 = Portal(x1, y1, self,1)
         self.p2 = Portal(x2, y2, self,2)
@@ -60,6 +61,7 @@ class Portal(Item):
         return self.p.teleport(self.index, game) 
 
 class Bomb(Item):
+    variant = True
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
     def interagit(self, c, game):
@@ -72,6 +74,7 @@ class Bomb(Item):
         del self
 
 class Coin(Item):
+    variant = True
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
     def interagit(self, c, game):
@@ -84,6 +87,7 @@ class Coin(Item):
         del self
 
 class Dice(Item):
+    variant = True
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
         self.actif = False
