@@ -215,6 +215,7 @@ class Game:
         self.left_click_up = None
         self.legal_moves_list = []
         self.illegal_moves_list = []
+        print(self.index_position, self.w_player.king_move, self.b_player.king_move)
         if self.w_player.king_move is not None:
             if self.index_position >= self.w_player.king_move:
                 self.w_player.king_moved_yet = True
@@ -227,8 +228,3 @@ class Game:
                 self.b_player.king_moved_yet = False
         self.player_turn = "w" if self.index_position % 2 == 0 else "b"
         self.opposite_color = "w" if self.player_turn == "b" else "b"
-
-
-
-
-

@@ -4,12 +4,13 @@ Tour de contrôle de tous les scripts.
 
 import pygame as pg
 import os
+os.chdir(os.path.dirname(__file__))
+
 import const
 import board
 import game
 import mouse_keys as mk
 
-os.chdir(os.path.dirname(__file__))
 
 
 class Gestionary:
@@ -63,7 +64,6 @@ class Gestionary:
                     if coor and (self.chess_game.candidate_move[0] is not None or board.color_and_occupied_square(self, coor[0], coor[1])):
                         self.chess_game.left_click_down = coor
 
-
                 if event.type == pg.MOUSEBUTTONUP and event.button == 1:
                     coor = mk.mouse_to_coor(self.mouse_pos)
                     if coor is None: #if click up out of the board
@@ -76,7 +76,7 @@ class Gestionary:
                 self.chess_game.input_to_candidate_move()
                 if (all(item is not None for item in self.chess_game.candidate_move[:2])
                     and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
-                    if ((len(self.chess_game.legal_moves_list) == 0 and len(self.chess_game.illegal_moves_list) == 0)
+                    if ((len(self.chess_game.legal_moves_list) == 0 or len(self.chess_game.illegal_moves_list) == 0)
                         or self.chess_game.calculated != self.chess_game.candidate_move[:2]):
                         self.chess_game.get_all_legal_moves()
                         self.chess_game.calculated = self.chess_game.candidate_move[:2]
@@ -88,11 +88,11 @@ class Gestionary:
 
             #print(self.chess_game.left_click_down)
             self.win.fill((50, 50, 50))
-            board.draw_board(gestionary)
-            board.draw_coor(gestionary)
-            board.draw_pieces(gestionary)
-            board.blit_legal_moves(gestionary)
-            board.write_player_turn(gestionary)
+            board.draw_board(self)
+            board.draw_coor(self)
+            board.draw_pieces(self)
+            board.blit_legal_moves(self)
+            board.write_player_turn(self)
 
             pg.display.update()
 
