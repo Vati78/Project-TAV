@@ -174,7 +174,7 @@ class Game(baseClass.Item):
             # + 1 itération à la boucle principale
             self.n += 1
 
-            self.spawn()
+            #self.spawn()
 
             #mouvement de la balle
             self.balle.move()
@@ -284,28 +284,19 @@ class Game(baseClass.Item):
     def spawn(self):
         if rd.random() < 0.01:
             a=rd.choice(self.itemList)
-            self.newItem(a)
-            print(a)
-        elif rd.random() < 0.01:
+            if a == "Dice" and any(type(i).__name__=="Dice" for i in self.items): pass
+            else: self.newItem(a)
+        elif rd.random() < 0.002:
+            a = True
             for i in self.items[:]:
-                if isinstance(i, self.variants.Portal): self.items.remove(i)
-            self.newItem("Portals")
-
-        # if self.n % 500 == 0:
-        #     self.newItem("Coin")
-        #
-        # if self.n % 250 == 0:
-        #     self.newItem("Bomb")
-        #
-        # if self.n % 700 == 0:
-        #     for i in self.items[:]:
-        #         if isinstance(i, self.variants.Portal): self.items.remove(i)
-        #     self.newItem("Portals")
+                if isinstance(i, self.variants.Portal):
+                    self.items.remove(i)
+                    a = False
+            if a: self.newItem("Portals")
 
     def newItem(self, type):
         if type == "Portals":
-            premier = [rd.randint(400, 600), rd.randint(400, 500)]
-            a = self.variants.Portals(premier[0], premier[1], premier[0] - 200, premier[1] - 200)
+            a = self.variants.Portals(rd.randint(400, 600), rd.randint(400, 500), rd.randint(400, 600), rd.randint(400, 500))
             self.items += [a.p1, a.p2]
         else:
             self.items.append(eval(f"self.variants.{type}")(rd.randint(200,800), rd.randint(200,400)))
