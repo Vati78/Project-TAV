@@ -1,7 +1,6 @@
-import pygame as pg, math, os, time, random as rd, copy
 from baseClass import *
 
-class Portals():
+class Portals:
     variant = False
     def __init__(self, x1, y1, x2, y2):
         self.p1 = Portal(x1, y1, self,1)

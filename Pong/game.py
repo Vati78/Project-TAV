@@ -1,4 +1,4 @@
-import pygame as pg, math, os, time, random as rd, copy, baseClass, inspect
+import pygame as pg, os, time, random as rd, baseClass, inspect
 
 pg.init()
 pg.mixer.init()
@@ -49,18 +49,17 @@ def contact(p, balle, n):
 class Game(baseClass.Item):
 
     import variants #, baseClass
-
     def __init__(self):
         self.phone = False
 
-        self.nbplayers = 1
+        self.nbplayers = 0
         self.n = 0
-        # dimensions de la fenetre PYGAME
+        # dimensions de la fenêtre PYGAME
         self.WIDTH = 1000
         self.HEIGHT = 600
         self.POINTS = 50
 
-        # création de la fenetre PYGAME
+        # création de la fenêtre PYGAME
         self.win = pg.display.set_mode((self.WIDTH, self.HEIGHT + self.POINTS))
         pg.display.set_caption("Pong game")
 
@@ -80,7 +79,6 @@ class Game(baseClass.Item):
         for name, objet in inspect.getmembers(self.variants):
             if inspect.isclass(objet) and objet.variant:
                 self.itemList.append(name)
-        print(self.itemList)
         self.items = []
         for i in self.itemList:
             a = eval(f"self.variants.{i}")(0,0)
@@ -105,7 +103,7 @@ class Game(baseClass.Item):
         """
         
         #création des objets
-        self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
+        self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0, self.nbplayers == 0, ""),#[baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
                    baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
         
@@ -174,14 +172,16 @@ class Game(baseClass.Item):
             # + 1 itération à la boucle principale
             self.n += 1
 
-            #self.spawn()
+            self.spawn()
 
             #mouvement de la balle
             self.balle.move()
             #pg.draw.rect(win, "black", (self.balle.x, self.balle.y, 5, 5))
 
             #mouvement du bot
-            if self.nbplayers != 2: self.players[1].move(0, self)
+            if self.nbplayers != 2:
+                self.players[1].move(0, self)
+                if self.nbplayers == 0: self.players[0].move(0, self)
 
             #gestion des items
             for i in self.items: i.move(self)

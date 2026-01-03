@@ -1,8 +1,8 @@
 #import de diférents modules
-import pygame as pg, math, os, time, random as rd, copy
+import pygame as pg, time, random as rd, copy
 
 #classe relative à chauqe lutin du jeu
-class Item():
+class Item:
     variant = False
     #initialisation des variables communes à chaque objet
     #leur coordonnées et leur image d'affichage
@@ -121,7 +121,7 @@ class Ball(Item):
         # if the bounce has to be random
         if "wall" not in position and self.random[0]:
             if time.time() > self.random[1]: self.random[0] = False
-            self.vy = (2 * rd.random() - 1) * 2 * self.vy
+            self.vy = (2 * rd.random() - 1) * 2 * self.vx
 
         #if the ball is between the plateform and the borders
         m = False #bool: if the ball is forced by the platform to go out of the border
@@ -186,14 +186,14 @@ class Platform(Item):
         self.nmb_points = 0
         self.stop = False #si il doit ne pas bouger à l'iteration, cf freeze()
 
-        self.ia = ia if ia != None else (index == 1)
+        self.ia = ia if ia is not None else (index == 1)
 
         if self.ia:
             self.y_v = None
             self.vmax /= 2
             self.diff = diff
             self.count = 0
-            self.last_x_calculated = 0
+            self.last_x_calculated = 0 if self.index == 1 else 1000000000000000000
             self.calculation_interval = 200
 
     def move(self, vy, game = None):
@@ -202,10 +202,11 @@ class Platform(Item):
         
         :param self: Platform object
         :param vy: imposed vertical speed if human player
-        :param game: Game object (needed if bot player)
+        :param game: Game object (needed for bot player)
         """
         if self.ia and game is not None:
-            if game.balle.vx > 0 and (self.y_v is None or game.balle.x - self.last_x_calculated > self.calculation_interval):
+            coef = 1 if self.index == 1 else -1
+            if game.balle.vx * coef > 0 and (self.y_v is None or abs(game.balle.x - self.last_x_calculated) > self.calculation_interval):
                 a = True
                 if self.diff != "" and self.y_v is None:
                     #if failing
@@ -215,7 +216,9 @@ class Platform(Item):
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
                 if a: #if not voluntary failing
                     jeu = copy.deepcopy(game) #creates a copy of the game object
-                    while jeu.balle.x + jeu.balle.radius < self.x:
+                    jeu.players[0].x = - self.ly
+                    jeu.players[1].x = - self.ly
+                    while (jeu.balle.x + jeu.balle.radius * coef - self.x) * coef < 0:
                         jeu.balle.move()
                         for i in jeu.items: i.move(jeu)
                         if not jeu.interactions(): break
@@ -223,25 +226,22 @@ class Platform(Item):
                     self.y_v = jeu.balle.y - self.ly/2
                     del jeu
                     self.last_x_calculated = game.balle.x
-            elif game.balle.vx > 0 and self.x - game.balle.x - game.balle.radius < game.balle.vx + 20 and not game.balle.random[0]:
+            elif game.balle.vx * coef > 0 and (self.x - (game.balle.x + game.balle.radius * coef + game.balle.vx + 5)) * coef < 0 and not game.balle.random[0]:
                 pts = []
                 for v in range(-1,2):
                     jeu = copy.deepcopy(game) #creates a copy of the game object
-                    jeu.players[1].vy = self.vmax * v
-                    jeu.players[0].y = 0
-                    while jeu.balle.x - jeu.balle.radius > game.players[0].x:
+                    jeu.players[self.index].vy = self.vmax * v
+                    jeu.players[-self.index+1].y = - self.ly
+                    while (jeu.balle.x - jeu.balle.radius * coef) * coef > game.players[-self.index+1].x * coef:
                         jeu.balle.move()
                         for i in jeu.items: i.move(jeu)
                         if not jeu.interactions(): break
-                    pts.append(jeu.players[1].nmb_points-jeu.players[0].nmb_points +abs(game.players[0].y-jeu.balle.y)/game.HEIGHT)
+                    pts.append(jeu.players[self.index].nmb_points-jeu.players[-self.index+1].nmb_points +abs(game.players[-self.index+1].y-jeu.balle.y)/game.HEIGHT)
                     del jeu
-                print(pts)
-                print(self.y_v, end=" -> ")
                 self.y_v += (pts.index(max(pts)) - 1) * 2 * self.vmax
-                print(self.y_v)
-            elif game.balle.vx<0:
+            elif game.balle.vx * coef < 0:
                 self.y_v = None
-                self.last_x_calculated = 0
+                self.last_x_calculated = 0 if self.index == 1 else game.WIDTH
           #  print(self.x - game.balle.x, game.balle.vx)
             if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
             else: y_v = self.y_v
@@ -266,7 +266,3 @@ class Platform(Item):
     def reset(self):
         self.vy = 0
         if self.ia: self.y_v = None
-
-    #affichage de la PLATEFORME
-    def draw(self, game):
-        game.win.blit(self.img, (self.x, self.y))
