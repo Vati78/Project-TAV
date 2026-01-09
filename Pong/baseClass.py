@@ -232,10 +232,13 @@ class Platform(Item):
                     jeu = copy.deepcopy(game) #creates a copy of the game object
                     jeu.players[self.index].vy = self.vmax * v
                     jeu.players[-self.index+1].y = - self.ly
+                    a = 0
                     while (jeu.balle.x - jeu.balle.radius * coef) * coef > game.players[-self.index+1].x * coef:
                         jeu.balle.move()
                         for i in jeu.items: i.move(jeu)
                         if not jeu.interactions(): break
+                        if a > 10000000: break
+                        a += 1
                     pts.append(jeu.players[self.index].nmb_points-jeu.players[-self.index+1].nmb_points +abs(game.players[-self.index+1].y-jeu.balle.y)/game.HEIGHT)
                     del jeu
                 self.y_v += (pts.index(max(pts)) - 1) * 2 * self.vmax

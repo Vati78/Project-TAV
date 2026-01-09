@@ -105,7 +105,7 @@ class Game(baseClass.Item):
         #création des objets
         self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0, self.nbplayers == 0, ""),#[baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
                    baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
-        self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
+        self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 25)
         
         '''
         a = self.variants.Portals(200,200,600,400)
