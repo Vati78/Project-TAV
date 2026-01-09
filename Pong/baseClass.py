@@ -72,7 +72,7 @@ class Ball(Item):
         self.vx = vx
         self.vy = vy
         self.radius = radius
-        self.image = pg.image.load(f"Images/Balle.png")
+        self.image = pg.transform.scale(pg.image.load(f"Images/Balle.png"), (2 * self.radius, 2 * self.radius))
         self.stop = False #si il doit ne pas move dans cette iteration (cf freeze())
         self.last_rebond = None #dernière plateforme où la balle a rebondi
         self.random = [False, 0] #if the bounce of the ball on a Platform has to be random, and until what time
