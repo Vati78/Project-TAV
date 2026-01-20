@@ -49,10 +49,10 @@ def contact(p, balle, n):
 class Game(baseClass.Item):
 
     import variants #, baseClass
-    def __init__(self):
+    def __init__(self, config = None):
+        print(self, config)
         self.phone = False
 
-        self.nbplayers = 0
         self.n = 0
         # dimensions de la fenêtre PYGAME
         self.WIDTH = 1000
@@ -80,11 +80,32 @@ class Game(baseClass.Item):
             if inspect.isclass(objet) and objet.variant:
                 self.itemList.append(name)
         self.items = []
+        if config is None: config = {
+            "ball_speed": 5,
+            "ball_size": 35,
+            "human_players": 1,
+            "bot_difficulty": "",
+            "bonus_frequency": 10,
+            "active_items": self.itemList}
+        self.ball_speed = config["ball_speed"]
+        self.ball_size = config["ball_size"]
+        self.nbplayers = config["human_players"]
+        self.diff = config["bot_difficulty"]
+        self.freq = config["bonus_frequency"]
+        self.itemList = config["active_items"]
+        if "Portal" in self.itemList:
+            self.itemList.remove("Portal")
+            self.portal = True
+        else: self.portal = False
+
         for i in self.itemList:
             a = eval(f"self.variants.{i}")(0,0)
             del a
-
-
+ #       baseClass.Ball(self.WIDTH//2, self.HEIGHT + 5 - 2*self.ball_size, self.ball_speed, rd.randint(-50, 50)/10, self.ball_size).draw(self)
+  ##      baseClass.Ball(self.WIDTH // 2+50, self.HEIGHT + 7 - 2*self.ball_size, self.ball_speed, rd.randint(-50, 50) / 10, self.ball_size).draw(self)
+    #    baseClass.Ball(self.WIDTH // 2+100, self.HEIGHT + 9 - 2*self.ball_size, self.ball_speed, rd.randint(-50, 50) / 10, self.ball_size).draw(self)
+     #   pg.display.update()
+      #  time.sleep(10000)
 
     def run(self):
         """
@@ -103,9 +124,9 @@ class Game(baseClass.Item):
         """
         
         #création des objets
-        self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0, self.nbplayers == 0, ""),#[baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
-                   baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), "")]#15)]
-        self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, 5, rd.randint(-50, 50)/10, 35)
+        self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0, self.nbplayers == 0, self.diff),#[baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
+                   baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), self.diff)]#15)]
+        self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, self.ball_speed, rd.randint(-50, 50)/10, self.ball_size)
         
         '''
         a = self.variants.Portals(200,200,600,400)
@@ -201,7 +222,7 @@ class Game(baseClass.Item):
                     for i in (0, 1):
                         self.players[i].y = (self.HEIGHT-100)//2
                         self.players[i].reset() 
-                    self.balle = baseClass.Ball(self.WIDTH // 2, self.HEIGHT // 2 - 10, 5, rd.randint(-20,20)/10, 35)
+                    self.balle = baseClass.Ball(self.WIDTH // 2, self.HEIGHT // 2 - 10, self.ball_speed, rd.randint(-50, 50)/10, self.ball_size)
                     self.n = 0
                     time.sleep(1)
 
@@ -264,12 +285,12 @@ class Game(baseClass.Item):
             #  print("<<<End<<<")
 
         # si la self.balle touche le haut ou le bas du terrain
-        if self.balle.y - self.balle.radius <= 120:
+        if self.balle.y - self.balle.radius <= 130:
             self.balle.rebond(self.players[p], self.n, "wallup", self)
-        if self.balle.y + self.balle.radius >= self.HEIGHT - 20:
+        if self.balle.y + self.balle.radius >= self.HEIGHT - 30:
             self.balle.rebond(self.players[p], self.n, "walldown", self)
 
-        # si la self.balle touche la gauche ou la droite du terrain
+        # si la balle touche la gauche ou la droite du terrain
         if self.balle.x - self.balle.radius < 0 or self.balle.x + self.balle.radius > self.WIDTH:
             # arreter le jeu
             return False
@@ -282,11 +303,11 @@ class Game(baseClass.Item):
         # continuer le jeu
         return True
     def spawn(self):
-        if rd.random() < 0.01:
+        if self.freq!=0 and rd.randint(0, (1000 // self.freq)) == 0 and len(self.itemList) != 0:
             a=rd.choice(self.itemList)
             if a == "Dice" and any(type(i).__name__=="Dice" for i in self.items): pass
             else: self.newItem(a)
-        elif rd.random() < 0.002:
+        elif self.freq !=0 and self.portal and rd.randint(0, 30*(100 - self.freq)) == 0:
             a = True
             for i in self.items[:]:
                 if isinstance(i, self.variants.Portal):
@@ -301,7 +322,7 @@ class Game(baseClass.Item):
         else:
             self.items.append(eval(f"self.variants.{type}")(rd.randint(200,800), rd.randint(200,400)))
 
-
-
-game = Game()
-game.run()
+print(__name__)
+if __name__ == "__main__":
+    game = Game()
+    game.run()

@@ -11,9 +11,9 @@ class PongMenu(tk.Tk):
 
         # Variables
         self.ball_speed = tk.IntVar(value=5)
-        self.ball_size = tk.IntVar(value=10)
+        self.ball_size = tk.IntVar(value=30)
         self.human_players = tk.IntVar(value=1)
-        self.bot_difficulty = tk.IntVar(value=3)
+        self.bot_difficulty = tk.IntVar(value=5)
         self.bonus_freq = tk.IntVar(value=10)
         self.item_vars = {item: tk.BooleanVar(value=True) for item in itemList}
 
@@ -21,9 +21,7 @@ class PongMenu(tk.Tk):
 
     def slider(self, parent, text, var, from_, to, row):
         ttk.Label(parent, text=text).grid(row=row, column=0, sticky="w")
-        slider = tk.Scale(
-            parent, from_=from_, to=to, orient=tk.HORIZONTAL
-        )
+        slider = tk.Scale(parent, from_=from_, to=to, orient=tk.HORIZONTAL, variable=var)
         slider.set(var.get())
         slider.grid(row=row, column=1, padx=5, sticky="ew")
 
@@ -32,11 +30,11 @@ class PongMenu(tk.Tk):
         frame.grid()
         frame.columnconfigure(1, weight=1)
 
-        self.slider(frame, "Vitesse balle:", self.ball_speed, 1, 20, 0)
-        self.slider(frame, "Taille balle:", self.ball_size, 5, 30, 1)
+        self.slider(frame, "Vitesse balle:", self.ball_speed, 1, 15, 0)
+        self.slider(frame, "Taille balle:", self.ball_size, 5, 60, 1)
         self.slider(frame, "Nombre de joueurs:", self.human_players, 0, 2, 2)
-        self.slider(frame, "Difficulté IA:", self.bot_difficulty, 1, 5, 3)
-        self.slider(frame, "Fréquence bonus:", self.bonus_freq, 0, 30, 4)
+        self.slider(frame, "Difficulté IA:", self.bot_difficulty, 1, 20, 3)
+        self.slider(frame, "Fréquence bonus:", self.bonus_freq, 0, 80, 4)
 
      #   ttk.Label(frame, text="Joueurs humains").grid(row=4, column=0, sticky="w")
      #   ttk.Spinbox(frame, from_=0, to=2, textvariable=self.human_players, width=5).grid(row=4, column=1, sticky="w")
@@ -68,7 +66,7 @@ class PongMenu(tk.Tk):
             var.set(state)
 
     def launch(self):
-        config = {
+        self.config = {
             "ball_speed": self.ball_speed.get(),
             "ball_size": self.ball_size.get(),
             "human_players": self.human_players.get(),
@@ -77,14 +75,25 @@ class PongMenu(tk.Tk):
             "active_items": [item for item, var in self.item_vars.items() if var.get()]
         }
 
-        print("CONFIG:", config)
-        self.destroy()
+        print("CONFIG:", self.config)
+        self.quit()
         # start_game(config)
 
 
 if __name__ == "__main__":
-    itemList = ["SpeedUp", "SlowDown", "BigBall", "SmallPaddle"]
-    PongMenu(itemList).mainloop()
+    import variants, inspect
+    itemList = ["Portal"]
+    for name, objet in inspect.getmembers(variants):
+        if inspect.isclass(objet) and objet.variant:
+            itemList.append(name)
+    m = PongMenu(itemList)
+    m.mainloop()
+    import game
+    jeu = game.Game(m.config)
+    m.destroy()
+    jeu.run()
+
+
 #menu = PongMenu(itemList)
 #menu.mainloop()
 
