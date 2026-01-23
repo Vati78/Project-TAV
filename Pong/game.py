@@ -50,7 +50,6 @@ class Game(baseClass.Item):
 
     import variants #, baseClass
     def __init__(self, config = None):
-        print(self, config)
         self.phone = False
 
         self.n = 0
@@ -74,6 +73,8 @@ class Game(baseClass.Item):
         # affichage des images de
         self.win.blit(pg.image.load(f"Images/haut.png"), (0, 0))
         self.win.blit(pg.image.load(f"Images/terrain.png"), (0, 100))
+
+        self.simulate = False
 
         self.itemList = []
         for name, objet in inspect.getmembers(self.variants):
@@ -305,7 +306,7 @@ class Game(baseClass.Item):
     def spawn(self):
         if self.freq!=0 and rd.randint(0, (1000 // self.freq)) == 0 and len(self.itemList) != 0:
             a=rd.choice(self.itemList)
-            if a == "Dice" and any(type(i).__name__=="Dice" for i in self.items): pass
+            if a == "Dice" and (any(type(i).__name__=="Dice" for i in self.items) or rd.random()<0.9): pass
             else: self.newItem(a)
         elif self.freq !=0 and self.portal and rd.randint(0, 30*(100 - self.freq)) == 0:
             a = True
@@ -322,7 +323,6 @@ class Game(baseClass.Item):
         else:
             self.items.append(eval(f"self.variants.{type}")(rd.randint(200,800), rd.randint(200,400)))
 
-print(__name__)
 if __name__ == "__main__":
     game = Game()
     game.run()

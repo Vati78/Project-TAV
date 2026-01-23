@@ -69,6 +69,9 @@ class Bomb(Item):
             if game.balle.last_rebond.nmb_points < 0: game.balle.last_rebond.nmb_points = 0
             self.explose(game)
     def explose(self, game):
+        if game.simulate is False:
+            type(self).son.play()
+            print(type(self), game)
         game.items.remove(self)
         del self
 
@@ -76,12 +79,16 @@ class Coin(Item):
     variant = True
     def __init__(self, x, y, lx=50, ly=50):
         Item.__init__(self, x, y, lx, ly)
+
     def interagit(self, c, game):
         if game.balle.last_rebond is not None:
             game.balle.last_rebond.nmb_points += 1
             self.explose(game)
 
     def explose(self, game):
+        if game.simulate is False:
+            type(self).son.play()
+            print(type(self))
         game.items.remove(self)
         del self
 
@@ -98,8 +105,10 @@ class Dice(Item):
             game.balle.random = [True, time.time() + 10]
             self.actif = True
             self.x, self.y = 20, 20
+            if game.simulate is False:
+                type(self).son.play()
+                print(type(self))
+
     def explose(self, game):
         game.items.remove(self)
         del self
-
-

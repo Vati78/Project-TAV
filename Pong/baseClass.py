@@ -22,17 +22,16 @@ class Item:
                 self.img = pg.transform.scale(pg.image.load(f"Images/{imagename}.png"), (self.lx, self.ly))
             type(self).img=self.img
 
-
-        if son is not None:
-            self.son = pg.mixer.Sound(son)
-            # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
-        else:
-            try:
-                son = type(self).__name__
-                self.son = pg.mixer.Sound(f"ISons/{imagename}.mp3")
-
-            except:
-                pass
+        if not hasattr(type(self), "son"):
+            if son is not None:
+                type(self).son = pg.mixer.Sound(son)
+                # si l'image n'est pas précisée, on affiche l'image correspondante au nom de la classe
+            else:
+                try:
+                    son = type(self).__name__
+                    type(self).son = pg.mixer.Sound(f"Sons/{son}.mp3")
+                except:
+                    print(f"could not load sound : Sons/{type(self).__name__}.mp3")
 
     def draw(self, game):
         game.win.blit(self.img, (self.x, self.y))
@@ -43,12 +42,11 @@ class Item:
     #recopiées
     def __deepcopy__(self, memo):
 
-        #on récupère la classe relative à l'objet que l'on veut copier
+        #on récupère la class relative à l'objet que l'on veut copier
         cls = self.__class__
         #on crée une nouvelle instance de classe "cls" sans passer par la fonction "init" (c'est le principe de new)
         result = cls.__new__(cls)
-        #pour éviter une copie d'un élément à l'infini, on alloue une place dans un dictionnaire à chaque lutin
-        #du jeu, et chaque nouvelle instance remplacera l'ancienne
+        #pour éviter une copie d'un élément à l'infini, on alloue une place dans un dictionnaire à chaque objet du jeu, et chaque nouvelle instance remplacera l'ancienne
         memo[id(self)] = result
 
         #ensuite on parcourt chaque attribut de l'objet dans son dictionnaire "self"
@@ -84,7 +82,7 @@ class Ball(Item):
 
         :param p: objet Plateforme
         :param loop: nombre d'échages (rebonds sur un joueur) pour la vitesse
-        :param position: LEFT, RIGHT, ABOVE ou BELOW, walldown, wallup (lutin par rapport a la balle)
+        :param position: LEFT, RIGHT, ABOVE ou BELOW, walldown, wallup (objet par rapport a la balle)
         :param game: objet Game
         :return: None
         :rtype: None
@@ -109,7 +107,7 @@ class Ball(Item):
         if position in ("right","left"):
             signe_x = -1 if position == "left" else 1
 
-        #si la balle touche un mur, on accélère pas sa vitesse, si c'est une plateforme, on le fait à raison de +20% de celle de la plateforme
+        #si la balle touche un mur, on n'accélère pas sa vitesse, si c'est une plateforme, on le fait à raison de +20% de celle de la plateforme
         vy = 0 if "wall" in position else 0.2 * p.vy
 
         #on accélère la vitesse horizontale de la balle à chaque rebond
@@ -216,6 +214,7 @@ class Platform(Item):
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
                 if a: #if not voluntary failing
                     jeu = copy.deepcopy(game) #creates a copy of the game object
+                    jeu.simulate = True
                     jeu.players[0].x = - self.ly
                     jeu.players[1].x = - self.ly
                     while (jeu.balle.x + jeu.balle.radius * coef - self.x) * coef < 0:
@@ -230,6 +229,7 @@ class Platform(Item):
                 pts = []
                 for v in range(-1,2):
                     jeu = copy.deepcopy(game) #creates a copy of the game object
+                    jeu.simulate = True
                     jeu.players[self.index].vy = self.vmax * v
                     jeu.players[-self.index+1].y = - self.ly
                     a = 0
