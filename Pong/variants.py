@@ -24,6 +24,7 @@ class Portals:
         if self.contact and self.ok: self.ok = False
         self.contact = True
         if self.ok:
+            if game.simulate is False: type(self.p1).son.play()
             if p==2:
                 game.balle.x += self.p1.x - self.p2.x
                 game.balle.y += self.p1.y - self.p2.y
@@ -37,6 +38,7 @@ class Portals:
 
 
 class Portal(Item):
+    variant = True
     def __init__(self, x, y, p, i):
         Item.__init__(self,x,y,30,60)
         self.p = p
@@ -57,7 +59,7 @@ class Portal(Item):
         :param c: Direction of the contact
         :param game: Game object
         """
-        return self.p.teleport(self.index, game) 
+        return self.p.teleport(self.index, game)
 
 class Bomb(Item):
     variant = True
@@ -71,7 +73,6 @@ class Bomb(Item):
     def explose(self, game):
         if game.simulate is False:
             type(self).son.play()
-            print(type(self), game)
         game.items.remove(self)
         del self
 
@@ -88,7 +89,6 @@ class Coin(Item):
     def explose(self, game):
         if game.simulate is False:
             type(self).son.play()
-            print(type(self))
         game.items.remove(self)
         del self
 
@@ -107,7 +107,6 @@ class Dice(Item):
             self.x, self.y = 20, 20
             if game.simulate is False:
                 type(self).son.play()
-                print(type(self))
 
     def explose(self, game):
         game.items.remove(self)

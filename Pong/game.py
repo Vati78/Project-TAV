@@ -83,10 +83,10 @@ class Game(baseClass.Item):
         self.items = []
         if config is None: config = {
             "ball_speed": 5,
-            "ball_size": 35,
+            "ball_size": 30,
             "human_players": 1,
-            "bot_difficulty": "",
-            "bonus_frequency": 10,
+            "bot_difficulty": 5,
+            "bonus_frequency": 5,
             "active_items": self.itemList}
         self.ball_speed = config["ball_speed"]
         self.ball_size = config["ball_size"]
@@ -94,7 +94,7 @@ class Game(baseClass.Item):
         self.diff = config["bot_difficulty"]
         self.freq = config["bonus_frequency"]
         self.itemList = config["active_items"]
-        print(self.diff)
+
         if "Portal" in self.itemList:
             self.itemList.remove("Portal")
             self.portal = True
@@ -112,7 +112,7 @@ class Game(baseClass.Item):
     def run(self):
         """
         runs the main main function
-        
+
         :param self: Game object
         """
         self.main()
@@ -129,7 +129,6 @@ class Game(baseClass.Item):
         self.players = [baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0, self.nbplayers == 0, self.diff),#[baseClass.Platform(100,     (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 0),
                    baseClass.Platform(self.WIDTH-110, (self.HEIGHT-100)//2, 10, 100, self.HEIGHT-20, 120, self.GREEN, 1, self.nbplayers in (0,1), self.diff)]#15)]
         self.balle = baseClass.Ball(self.WIDTH//2, self.HEIGHT//2 - 10, self.ball_speed, rd.randint(-50, 50)/10, self.ball_size)
-        print("..", self.diff)
         '''
         a = self.variants.Portals(200,200,600,400)
 
@@ -144,8 +143,8 @@ class Game(baseClass.Item):
         clock = pg.time.Clock()
 
         #chargement des images de fond
-        fond = pg.image.load(f"Images/terrain.png")
-        haut = pg.image.load(f"Images/haut.png")
+        fond = pg.image.load("Images/terrain.png")
+        haut = pg.image.load("Images/haut.png")
         police = pg.font.SysFont("Arial", 45)
 
         pause = False
@@ -158,9 +157,6 @@ class Game(baseClass.Item):
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-
-            #mise à 0 de la vitesse verticale de chaque joueur
-    #        for i in self.players: i.vy = 0
 
             if self.phone:
                  mouse_pos = pg.mouse.get_pos()
@@ -254,7 +250,7 @@ class Game(baseClass.Item):
         :rtype: bool
         """
         global last_r
-        p = - 1
+        p = - 1  #index de la plateforme
         # print("a", players, self.balle)
         if self.balle.x < self.players[0].x + self.players[0].lx + self.balle.radius + self.balle.vx + 10:
             p = 0
@@ -269,6 +265,8 @@ class Game(baseClass.Item):
                 bx, by = int(self.balle.x), int(self.balle.y)
                 #  print(f">>>Simulation {self.n}>>>")
                 steps = int(max(abs(self.players[p].vy), abs(self.balle.vy), abs(self.balle.vx)))
+
+                #faire la simulation pixel par pixel de la balle arrivant sur la plateforme
                 for simx in range(steps):
                     self.players[p].y = int(py + (simx * self.players[p].vy / steps))
                     self.balle.y = int(by + (simx * self.balle.vy / steps))
@@ -286,7 +284,7 @@ class Game(baseClass.Item):
                     self.balle.y = by
             #  print("<<<End<<<")
 
-        # si la self.balle touche le haut ou le bas du terrain
+        # si la balle touche le haut ou le bas du terrain
         if self.balle.y - self.balle.radius <= 130:
             self.balle.rebond(self.players[p], self.n, "wallup", self)
         if self.balle.y + self.balle.radius >= self.HEIGHT - 30:
@@ -304,12 +302,14 @@ class Game(baseClass.Item):
 
         # continuer le jeu
         return True
+
+
     def spawn(self):
         if self.freq!=0 and rd.randint(0, (1000 // self.freq)) == 0 and len(self.itemList) != 0:
             a=rd.choice(self.itemList)
-            if a == "Dice" and (any(type(i).__name__=="Dice" for i in self.items) or rd.random()<0.9): pass
+            if a == "Dice" and (any(type(i).__name__=="Dice" for i in self.items) or rd.random()<0.9): pass #évite d'avoir plusieurs dés en même temps
             else: self.newItem(a)
-        elif self.freq !=0 and self.portal and rd.randint(0, 30*(100 - self.freq)) == 0:
+        elif self.freq !=0 and self.portal and rd.randint(0, 10*(100 - self.freq)) == 0:
             a = True
             for i in self.items[:]:
                 if isinstance(i, self.variants.Portal):
@@ -319,7 +319,7 @@ class Game(baseClass.Item):
 
     def newItem(self, type):
         if type == "Portals":
-            a = self.variants.Portals(rd.randint(400, 600), rd.randint(400, 500), rd.randint(400, 600), rd.randint(400, 500))
+            a = self.variants.Portals(rd.randint(150, 820), rd.randint(130, 510), rd.randint(150, 820), rd.randint(130, 510))
             self.items += [a.p1, a.p2]
         else:
             self.items.append(eval(f"self.variants.{type}")(rd.randint(200,800), rd.randint(200,400)))

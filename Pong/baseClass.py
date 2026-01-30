@@ -51,7 +51,7 @@ class Item:
 
         #ensuite on parcourt chaque attribut de l'objet dans son dictionnaire "self"
         for k, v in self.__dict__.items():
-            if isinstance(v, pg.Surface):  # Exclure les Surface (attributs relatifs à l'affichage de l'objet)
+            if isinstance(v, (pg.Surface, pg.mixer.Sound)):  # Exclure les Surface et Sons (attributs relatifs à l'affichage de l'objet)
                 setattr(result, k, v)  # on garde les éléments de l'objet initial
             else:
                 setattr(result, k, copy.deepcopy(v, memo))
@@ -194,7 +194,6 @@ class Platform(Item):
             self.last_x_calculated = 0 if self.index == 1 else 1000000000000000000
             self.calculation_interval = 200
             self.fail = False
-            print(self.diff)
 
     def move(self, vy, game = None):
         """
@@ -204,12 +203,13 @@ class Platform(Item):
         :param vy: imposed vertical speed if human player
         :param game: Game object (needed for bot player)
         """
+        force_vy = False
         if self.ia and game is not None:
             coef = 1 if self.index == 1 else -1
+            #calculation of the y goal (y_v)
             if game.balle.vx * coef > 0 and (self.y_v is None or abs(game.balle.x - self.last_x_calculated) > self.calculation_interval):
                 if self.diff != "" and self.y_v is None:
                     #if failing
-                    print("r")
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
                         self.fail = True
                         self.count = 0
@@ -227,7 +227,7 @@ class Platform(Item):
                     self.y_v = jeu.balle.y - self.ly/2
                     del jeu
                     self.last_x_calculated = game.balle.x
-            elif not self.fail and game.balle.vx * coef > 0 and (self.x - (game.balle.x + game.balle.radius * coef + game.balle.vx + 5)) * coef < 0 and not game.balle.random[0]:
+            elif not self.fail and game.balle.vx * coef > 0 and (self.x - (game.balle.x + game.balle.radius * coef + game.balle.vx + 2)) * coef < 0 and not game.balle.random[0]:
                 pts = []
                 for v in range(-1,2):
                     jeu = copy.deepcopy(game) #creates a copy of the game object
@@ -243,13 +243,15 @@ class Platform(Item):
                         a += 1
                     pts.append(jeu.players[self.index].nmb_points-jeu.players[-self.index+1].nmb_points +abs(game.players[-self.index+1].y-jeu.balle.y)/game.HEIGHT)
                     del jeu
-                self.y_v += (pts.index(max(pts)) - 1) * 2 * self.vmax
+                #self.y_v += (pts.index(max(pts)) - 1) * 2 * self.vmax
+                force_vy = True
+                self.vy = (pts.index(max(pts)) - 1) * self.vmax
             elif game.balle.vx * coef < 0:
                 self.y_v = None
                 self.fail = False
                 self.last_x_calculated = 0 if self.index == 1 else game.WIDTH
           #  print(self.x - game.balle.x, game.balle.vx)
-            if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
+            if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2) #comme au tennis
             else: y_v = self.y_v
             vy=0
             if abs(y_v - self.y) >= self.vmax: vy = 1 if y_v - self.y > 0 else -1
@@ -257,7 +259,7 @@ class Platform(Item):
             vy *= self.vmax
             if self.ymin < self.y + vy < self.y + vy + self.ly < self.ymax:
                 self.y += vy
-                self.vy = vy
+                if not force_vy: self.vy = vy
         else: self.stop = False
 
     def freeze(self):
