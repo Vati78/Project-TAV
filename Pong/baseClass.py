@@ -193,6 +193,8 @@ class Platform(Item):
             self.count = 0
             self.last_x_calculated = 0 if self.index == 1 else 1000000000000000000
             self.calculation_interval = 200
+            self.fail = False
+            print(self.diff)
 
     def move(self, vy, game = None):
         """
@@ -205,14 +207,14 @@ class Platform(Item):
         if self.ia and game is not None:
             coef = 1 if self.index == 1 else -1
             if game.balle.vx * coef > 0 and (self.y_v is None or abs(game.balle.x - self.last_x_calculated) > self.calculation_interval):
-                a = True
                 if self.diff != "" and self.y_v is None:
                     #if failing
+                    print("r")
                     if self.count >= self.diff + int(self.diff * (rd.random()- 0.5)/2):
-                        a = False
+                        self.fail = True
                         self.count = 0
                         self.y_v = rd.randint(self.ymin, self.ymax-self.ly)
-                if a: #if not voluntary failing
+                if not self.fail: #if not voluntary failing
                     jeu = copy.deepcopy(game) #creates a copy of the game object
                     jeu.simulate = True
                     jeu.players[0].x = - self.ly
@@ -225,7 +227,7 @@ class Platform(Item):
                     self.y_v = jeu.balle.y - self.ly/2
                     del jeu
                     self.last_x_calculated = game.balle.x
-            elif game.balle.vx * coef > 0 and (self.x - (game.balle.x + game.balle.radius * coef + game.balle.vx + 5)) * coef < 0 and not game.balle.random[0]:
+            elif not self.fail and game.balle.vx * coef > 0 and (self.x - (game.balle.x + game.balle.radius * coef + game.balle.vx + 5)) * coef < 0 and not game.balle.random[0]:
                 pts = []
                 for v in range(-1,2):
                     jeu = copy.deepcopy(game) #creates a copy of the game object
@@ -244,6 +246,7 @@ class Platform(Item):
                 self.y_v += (pts.index(max(pts)) - 1) * 2 * self.vmax
             elif game.balle.vx * coef < 0:
                 self.y_v = None
+                self.fail = False
                 self.last_x_calculated = 0 if self.index == 1 else game.WIDTH
           #  print(self.x - game.balle.x, game.balle.vx)
             if self.y_v is None: y_v = ((self.ymin + self. ymax) / 2 - self.ly / 2)
