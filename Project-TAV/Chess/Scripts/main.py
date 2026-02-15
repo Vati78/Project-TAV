@@ -8,6 +8,7 @@ import const
 import board
 import game
 import mouse_keys as mk
+import menu
 
 os.chdir(os.path.dirname(__file__))
 
@@ -27,7 +28,6 @@ class Gestionary:
         const.start_sound.play()
 
         while running:
-
             self.mouse_pos = pg.mouse.get_pos()
             user_input = pg.key.get_pressed()
 
@@ -96,8 +96,13 @@ class Gestionary:
 
             pg.display.update()
 
+        menu.main_menu(gestionary)
+
+
+
 
 
 if __name__ == "__main__":
     gestionary = Gestionary()
-    gestionary.run()
+    menu.main_menu(gestionary)
+    #gestionary.run()
