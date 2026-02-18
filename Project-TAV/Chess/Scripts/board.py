@@ -88,8 +88,7 @@ def get_type(gestionary, rank, col):
 
 # blits all legal moves
 def blit_legal_moves(gestionary):
-    print(gestionary.chess_game.calculated, gestionary.chess_game.candidate_move)
-    if gestionary.chess_game.calculated == gestionary.chess_game.left_click_down:
+    if gestionary.chess_game.left_click_down is None or gestionary.chess_game.calculated == gestionary.chess_game.left_click_down:
         for move in gestionary.chess_game.legal_moves_list:
             (col, rank, _) = move
             if color_and_occupied_square(gestionary, col, rank):
