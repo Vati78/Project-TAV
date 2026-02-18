@@ -14,7 +14,7 @@ class Button:
         self.is_invert = False
         self.enabled = enabled
 
-    def blit(self,gestionary):
+    def draw(self,gestionary):
         if self.enabled: gestionary.win.blit(self.image, (self.x,self.y))
         else: pg.draw.rect(gestionary.win, (10,12,35), (self.x,self.y,self.w,self.h))
 
@@ -30,7 +30,7 @@ class Button:
             self.image = image
             self.is_invert = not self.is_invert
 class Image:
-    def __init__(self, x, y, w, h, image, enabled=True):
+    def __init__(self, x, y, w, h, image):
         self.x = x
         self.y = y
         self.w = w
@@ -38,7 +38,7 @@ class Image:
         self.image = pg.transform.scale(pg.image.load(f"../Images/{image}.png"), (self.w, self.h))
         self.enabled = True
 
-    def blit(self,gestionary):
+    def draw(self,gestionary):
         if self.enabled: gestionary.win.blit(self.image, (self.x,self.y))
         else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
@@ -64,7 +64,7 @@ def main_menu(gestionary):
                         pg.quit()
                         sys.exit()
 
-        for button in buttons: button.blit(gestionary)
+        for button in buttons: button.draw(gestionary)
         pg.display.update()
 
 def options(gestionary):
@@ -121,7 +121,7 @@ def options(gestionary):
                                     if buttons[j].is_invert: buttons[j].invert()
                                 buttons[i].invert()
 
-        for button in buttons: button.blit(gestionary)
-        for image in images: image.blit(gestionary)
+        for button in buttons: button.draw(gestionary)
+        for image in images: image.draw(gestionary)
         pg.display.update()
 
