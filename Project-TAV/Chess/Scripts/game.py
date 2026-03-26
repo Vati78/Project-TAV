@@ -78,6 +78,9 @@ class Game:
                     self.candidate_move = [self.left_click_down[0], self.left_click_down[1], self.left_click_up[0], self.left_click_up[1]]
 
             self.left_click_down, self.left_click_up = None, None
+
+        else:
+            pass
     
     def play_move(self, rank_i, col_i, rank_f, col_f, specific=None):
         if specific == "s_castle":

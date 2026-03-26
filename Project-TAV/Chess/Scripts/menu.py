@@ -56,6 +56,8 @@ def main_menu(gestionary):
                 if event.button == 1:
                     if buttons[0].if_input(pg.mouse.get_pos()):
                         gestionary.run()
+                        pg.quit()
+                        sys.exit()
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
                         options(gestionary)

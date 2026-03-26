@@ -85,7 +85,7 @@ class Gestionary:
             else:
                 pass
 
-            #print(self.chess_game.left_click_down)
+            print(self.chess_game.left_click_down)
             self.win.fill((50, 50, 50))
             board.draw_board(self)
             board.draw_coor(self)
@@ -95,7 +95,7 @@ class Gestionary:
 
             pg.display.update()
 
-        menu.main_menu(gestionary)
+        #menu.main_menu(gestionary)
 
 
 
