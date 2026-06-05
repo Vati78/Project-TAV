@@ -47,7 +47,6 @@ class Game:
         if self.left_click_up is not None:
             # if clicked
             if self.left_click_down == self.left_click_up:
-
                 # if nothing was clicked and user clicked on own piece
                 if (self.candidate_move[0], self.candidate_move[1]) == (None, None) and board.color_and_occupied_square(self.gestionary, self.left_click_up[0], self.left_click_up[1]) == self.player_turn:
                     self.candidate_move[0], self.candidate_move[1] = self.left_click_down[0], self.left_click_down[1]
@@ -230,3 +229,4 @@ class Game:
                 self.b_player.king_moved_yet = False
         self.player_turn = "w" if self.index_position % 2 == 0 else "b"
         self.opposite_color = "w" if self.player_turn == "b" else "b"
+        self.human = True if self.player_turn in const.HUMAN else False

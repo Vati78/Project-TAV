@@ -42,6 +42,10 @@ class Player:
         self.castle = False
 
     def move(self, gestionary):
+        square_i = gestionary.chess_game.candidate_move[0]
+        square_f = gestionary.chess_game.candidate_move[1]
+        gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"))
+        """
         rank_i = gestionary.chess_game.candidate_move[0]
         col_i = gestionary.chess_game.candidate_move[1]
         rank_f = gestionary.chess_game.candidate_move[2]
@@ -89,7 +93,8 @@ class Player:
                 if rank_f == rank and col_f == col:
                     # plays the sound
                     const.illegal_sound.play()
-
+        """
+        gestionary.chess_game.candidate_move = [0,0]
         gestionary.chess_game.legal_moves_list = []
         gestionary.chess_game.illegal_moves_list = []
 

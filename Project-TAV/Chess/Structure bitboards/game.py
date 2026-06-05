@@ -32,6 +32,10 @@ class Game:
 
     def input_to_candidate_move(self):
         """
+        transforms input into the move wanted by the user
+        :return: None
+        """
+        """
         Click down :
         if clicked not on right piece color
         --> if move_i
@@ -56,6 +60,8 @@ class Game:
             if not self.left_click_down & self.players[self.player_turn].pieces_total:
                 if self.candidate_move[0]:
                     if self.clicked_move:
+                        #print(self.legal_moves)
+                        #print(self.left_click_down & self.legal_moves)
                         if self.left_click_down & self.legal_moves:
                             self.candidate_move[1] = self.left_click_down
                         else:
@@ -109,6 +115,7 @@ class Game:
 
         if self.left_click_up:
             self.left_click_up = 0
+        print(self.candidate_move, self.clicked_move, self.double_click)
 
 
     def play_move(self, square_i, square_f, color):
@@ -134,7 +141,9 @@ class Game:
         for i in range(6):
             # changing the moving piece
             if square_i & player.pieces[i]:
+                print(bin(player.pieces[i]))
                 player.pieces[i] = player.pieces[i] ^ square_i | square_f
+                print(bin(player.pieces[i]))
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
@@ -194,7 +203,7 @@ class Game:
                 for j in range(6):
                     if square & self.players[color].pieces[j]:
                         legal_moves_piece = pieces.get_type(j, color).legal_moves(self.gestionary, square)
-
+        self.legal_moves = const.FULL_BOARD
 
         """                
             else:
@@ -241,6 +250,7 @@ class Game:
         self.illegal_moves_list = illegal_moves
 
         """
+        """
     def update_position(self):
         self.position = [row[:] for row in self.list_position[self.index_position]]
         self.candidate_move = [None, None, None, None]
@@ -260,3 +270,9 @@ class Game:
                 self.b_player.king_moved_yet = False
         self.player_turn = "w" if self.index_position % 2 == 0 else "b"
         self.opposite_color = "w" if self.player_turn == "b" else "b"
+        """
+    def update_position(self):
+        self.total = 0
+        for j in self.players:
+            for i in j.pieces:
+                self.total |= i

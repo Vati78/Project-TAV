@@ -29,29 +29,31 @@ class Gestionary:
 
         const.start_sound.play()
         self.chess_game.left_click_up = 0
+        self.chess_game.get_all_legal_moves(0)
 
         while running:
             self.mouse_pos = pg.mouse.get_pos()
             user_input = pg.key.get_pressed()
 
+            if user_input[pg.K_a]:
+                board.theme_index = (board.theme_index+1)%const.NMB_THEMES
+
+            if user_input[pg.K_LEFT]:
+                pass
+
+            if user_input[pg.K_RIGHT]:
+                pass
+
+            if user_input[pg.K_DOWN]:
+                pass
+
+            if user_input[pg.K_UP]:
+                pass
+
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
 
-                if user_input[pg.K_a]:
-                    board.theme_index = (board.theme_index+1)%const.NMB_THEMES
-
-                if user_input[pg.K_LEFT]:
-                    pass
-
-                if user_input[pg.K_RIGHT]:
-                    pass
-
-                if user_input[pg.K_DOWN]:
-                    pass
-
-                if user_input[pg.K_UP]:
-                    pass
 
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     self.chess_game.left_click_down = mk.mouse_to_coor(self.mouse_pos)
@@ -67,6 +69,10 @@ class Gestionary:
             if isinstance(self.chess_game.players[self.chess_game.index_position], pb.Player):
                 if self.input :
                     self.chess_game.input_to_candidate_move()
+                if self.chess_game.candidate_move[1] != 0:
+                    self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
+                    self.chess_game.players[self.chess_game.player_turn].move(self)
+                    self.chess_game.update_position()
                 """
                 if (all(item is not None for item in self.chess_game.candidate_move[:2])
                     and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
@@ -102,4 +108,3 @@ class Gestionary:
 if __name__ == "__main__":
     gestionary = Gestionary()
     menu.main_menu(gestionary)
-    #gestionary.run()

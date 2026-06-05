@@ -42,14 +42,14 @@ def draw_coor(gestionary):
 def draw_pieces(gestionary):
     for i in range(64):
         a = 1 << i
-        if a&gestionary.chess_game.total:
+        if a & gestionary.chess_game.total:
             for k in range(6):
-                if gestionary.chess_game.players[0].pieces[k]&a:
+                if gestionary.chess_game.players[0].pieces[k] & a:
                     gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
                                                            (const.SQUARE, const.SQUARE)),
                                         (i%8*const.SQUARE, i//8*const.SQUARE))
                     break
-                elif gestionary.chess_game.players[1].pieces[k]&a:
+                elif gestionary.chess_game.players[1].pieces[k] & a:
                     gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
                                                                (const.SQUARE, const.SQUARE)),
                                             (i%8*const.SQUARE, i//8*const.SQUARE))
@@ -93,7 +93,7 @@ def blit_legal_moves(gestionary):
                 pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2), 10)
 
 def write_player_turn(gestionary):
-    t="White" if gestionary.chess_game.player_turn == "w" else "Black"
+    t="White" if not gestionary.chess_game.player_turn else "Black"
     t += " is playing"
     police = pg.font.SysFont("Arial", int(const.SQUARE/3))
     texte = police.render(t, True, (255,255,255))

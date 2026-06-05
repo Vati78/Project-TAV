@@ -1,5 +1,5 @@
 """
-Classe joueur humain et bot
+Humain and Bot player classes
 """
 
 import const
@@ -84,5 +84,5 @@ class Bot:
         self.l_castling_right = True
         self.castle = False
 
-    def return_move(self):
+    def return_move(self, gestionary):
         pass

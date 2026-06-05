@@ -83,9 +83,8 @@ class Gestionary:
                         eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
 
             else:
-                pass
+                eval(f"self.chess_game.{self.chess_game.player_turn}_player.return_move(self)")
 
-            print(self.chess_game.left_click_down)
             self.win.fill((50, 50, 50))
             board.draw_board(self)
             board.draw_coor(self)

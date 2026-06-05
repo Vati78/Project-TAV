@@ -28,7 +28,7 @@ class Button:
             image = self.image_i
             self.image_i = self.image
             self.image = image
-            self.is_invert = not self.is_invert()
+            self.is_invert = not self.is_invert
 class Image:
     def __init__(self, x, y, w, h, image):
         self.x = x
