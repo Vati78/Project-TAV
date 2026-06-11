@@ -73,18 +73,9 @@ class Gestionary:
                     self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
                     self.chess_game.players[self.chess_game.player_turn].move(self)
                     self.chess_game.update_position()
-                """
-                if (all(item is not None for item in self.chess_game.candidate_move[:2])
-                    and board.color_and_occupied_square(self, self.chess_game.candidate_move[0], self.chess_game.candidate_move[1]) == self.chess_game.player_turn):
-                    if ((len(self.chess_game.legal_moves_list) == 0 or len(self.chess_game.illegal_moves_list) == 0)
-                        or self.chess_game.calculated != self.chess_game.candidate_move[:2]):
-                        self.chess_game.get_all_legal_moves()
-                        self.chess_game.calculated = self.chess_game.candidate_move[:2]
-                    if all(item is not None for item in self.chess_game.candidate_move[2:]):
-                        eval(f"self.chess_game.{self.chess_game.player_turn}_player.move(self)")
-                """
+
             else:
-                """Bot.move()"""
+                self.chess_game.players[self.chess_game.index_position.move()].return_move()
 
 
 

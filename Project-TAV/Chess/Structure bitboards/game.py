@@ -276,3 +276,4 @@ class Game:
         for j in self.players:
             for i in j.pieces:
                 self.total |= i
+
