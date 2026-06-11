@@ -47,7 +47,7 @@ class Piece:
     class Pawn:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color
+            self.opposite_color = - ~self.color & 1
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0

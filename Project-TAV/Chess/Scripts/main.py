@@ -66,16 +66,18 @@ class Gestionary:
                     self.input = True
 
 
-            if isinstance(self.chess_game.players[self.chess_game.index_position], pb.Player):
-                if self.input :
+            if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):
+                if self.input:
                     self.chess_game.input_to_candidate_move()
+                if self.chess_game.candidate_move[0] != 0 and self.chess_game.legal_moves == 0:
+                    self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
                 if self.chess_game.candidate_move[1] != 0:
                     self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
                     self.chess_game.players[self.chess_game.player_turn].move(self)
                     self.chess_game.update_position()
 
             else:
-                self.chess_game.players[self.chess_game.index_position.move()].return_move()
+                self.chess_game.players[self.chess_game.player_turn].return_move()
 
 
 

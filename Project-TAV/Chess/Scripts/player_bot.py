@@ -6,14 +6,13 @@ import const
 import board
 import pieces
 
-
-class Player:
-    def __init__(self,color):
+class Item:
+    def __init__(self, color):
         self.color = color
         self.opposite_color = "w" if self.color == "b" else "b"
-        
+
         self.pieces = [0 for _ in range(6)]
-        
+
         if color == "w":
             self.pieces[0] = 71776119061217280  # pawns
             self.pieces[1] = 4755801206503243776  # knights
@@ -33,14 +32,20 @@ class Player:
         for i in self.pieces:
             self.pieces_total |= i
 
-        self.king_moved_yet = False
         self.king_move = None
+        self.king_moved_yet = False
         self.a_rook_move = False
         self.h_rook_move = False
         self.s_castling_right = True
         self.l_castling_right = True
         self.castle = False
 
+    def update_pos(self):
+        self.pieces_total = 0
+        for i in self.pieces:
+            self.pieces_total |= i
+
+class Player(Item):
     def move(self, gestionary):
         square_i = gestionary.chess_game.candidate_move[0]
         square_f = gestionary.chess_game.candidate_move[1]
@@ -99,39 +104,6 @@ class Player:
         gestionary.chess_game.illegal_moves_list = []
 
 
-class Bot:
-    def __init__(self, color):
-        self.color = color
-        self.opposite_color = "w" if self.color == "b" else "b"
-
-        self.pieces = [0 for _ in range(6)]
-
-        if color == "w":
-            self.pieces[0] = 71776119061217280  # pawns
-            self.pieces[1] = 4755801206503243776  # knights
-            self.pieces[2] = 2594073385365405696  # bishops
-            self.pieces[3] = 9295429630892703744  # rooks
-            self.pieces[4] = 576460752303423488  # queens
-            self.pieces[5] = 1152921504606846976  # king
-        else:
-            self.pieces[0] = 65280
-            self.pieces[1] = 66
-            self.pieces[2] = 36
-            self.pieces[3] = 129
-            self.pieces[4] = 8
-            self.pieces[5] = 16
-
-        self.pieces_total = 0
-        for i in self.pieces:
-            self.pieces_total |= i
-
-        self.king_move = None
-        self.king_moved_yet = False
-        self.a_rook_move = False
-        self.h_rook_move = False
-        self.s_castling_right = True
-        self.l_castling_right = True
-        self.castle = False
-
+class Bot(Item):
     def return_move(self):
         pass

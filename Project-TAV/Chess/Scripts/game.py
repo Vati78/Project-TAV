@@ -120,7 +120,7 @@ class Game:
 
     def play_move(self, square_i, square_f, color):
         player = self.players[color]
-        opposite_player = self.players[- ~color]
+        opposite_player = self.players[- ~color & 1]
 
         # short castle
         if player.pieces[5] == square_i and square_f == square_i << 2:
@@ -147,10 +147,13 @@ class Game:
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
+        self.index_position += 1
+        self.update_position()
 
 
     def in_check(self, color):
-        opposite_color = - ~color
+        opposite_color = - ~color & 1
+        print(color, opposite_color, -~color & 1)
         opposite_player = self.players[opposite_color]
 
         k_pos = self.players[color].pieces[5]
@@ -194,8 +197,10 @@ class Game:
         illegal_moves = []
         is_in_check = False, None
 
+        self.legal_moves = 0
+
         if self.in_check(color):
-            pass
+            self.legal_moves = 0
 
         for i in range(64):
             square = 1 << i
@@ -203,7 +208,10 @@ class Game:
                 for j in range(6):
                     if square & self.players[color].pieces[j]:
                         legal_moves_piece = pieces.get_type(j, color).legal_moves(self.gestionary, square)
-        self.legal_moves = const.FULL_BOARD
+                        if square & self.left_click_down:
+                            self.legal_moves = legal_moves_piece
+        print("l:", self.left_click_down, self.legal_moves)
+        #self.legal_moves = const.FULL_BOARD
 
         """                
             else:
@@ -250,30 +258,14 @@ class Game:
         self.illegal_moves_list = illegal_moves
 
         """
-        """
     def update_position(self):
-        self.position = [row[:] for row in self.list_position[self.index_position]]
-        self.candidate_move = [None, None, None, None]
-        self.left_click_down = None
-        self.left_click_up = None
-        self.legal_moves_list = []
+        self.left_click_down = 0
+        self.left_click_up = 0
+        self.legal_moves = 0
         self.illegal_moves_list = []
-        if self.w_player.king_move is not None:
-            if self.index_position >= self.w_player.king_move:
-                self.w_player.king_moved_yet = True
-            else:
-                self.w_player.king_moved_yet = False
-        if self.b_player.king_move is not None:
-            if self.index_position >= self.b_player.king_move:
-                self.b_player.king_moved_yet = True
-            else:
-                self.b_player.king_moved_yet = False
-        self.player_turn = "w" if self.index_position % 2 == 0 else "b"
-        self.opposite_color = "w" if self.player_turn == "b" else "b"
-        """
-    def update_position(self):
         self.total = 0
         for j in self.players:
             for i in j.pieces:
                 self.total |= i
-
+        self.player_turn = self.index_position % 2
+        for i in self.players: i.update_pos()
