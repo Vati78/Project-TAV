@@ -46,21 +46,48 @@ def draw_pieces(gestionary):
             for k in range(6):
                 if gestionary.chess_game.players[0].pieces[k] & a:
                     gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
-                                                           (const.SQUARE, const.SQUARE)),
-                                        (i%8*const.SQUARE, i//8*const.SQUARE))
+                        (const.SQUARE, const.SQUARE)),
+                        ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
                 elif gestionary.chess_game.players[1].pieces[k] & a:
                     gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
-                                                               (const.SQUARE, const.SQUARE)),
-                                            (i%8*const.SQUARE, i//8*const.SQUARE))
+                            (const.SQUARE, const.SQUARE)),
+                            ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
+
+            if (gestionary.chess_game.candidate_move[0]
+                    and not gestionary.chess_game.candidate_move[1]
+                    and not gestionary.chess_game.clicked_move):
+
+                # empties the square
+                i = gestionary.chess_game.candidate_move[0].bit_length() - 1
+                if ((i%8) + (i//8))%2 == 0:
+                    pg.draw.rect(gestionary.win, const.WHITE[theme_index], ((i%8) * const.SQUARE, (i//8) * const.SQUARE, const.SQUARE, const.SQUARE))
+                else:
+                    pg.draw.rect(gestionary.win, const.BLACK[theme_index], ((i%8) * const.SQUARE, (i//8) * const.SQUARE, const.SQUARE, const.SQUARE))
+
+                # blits the piece on mouse coor
+                for k in range(6):
+                    if gestionary.chess_game.players[0].pieces[k] & gestionary.chess_game.candidate_move[0]:
+                        gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
+                            (const.SQUARE, const.SQUARE)),
+                            (gestionary.mouse_pos[0] - const.SQUARE//2, gestionary.mouse_pos[1] - const.SQUARE//2))
+
+                        break
+                    elif gestionary.chess_game.players[1].pieces[k] & gestionary.chess_game.candidate_move[0]:
+                        gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
+                            (const.SQUARE, const.SQUARE)),
+                            (gestionary.mouse_pos[0] - const.SQUARE//2, gestionary.mouse_pos[1] - const.SQUARE//2))
+
+                        break
+
+
 # checks if a specific square is occupied by a piece, if so : returns the color
-def color_and_occupied_square(gestionary, rank, col):
-    if gestionary.chess_game.position[rank][col] == " ":
-        return False
-    else:
-        return gestionary.chess_game.position[rank][col][0]
+def color_and_occupied_square(gestionary, square):
+    if gestionary.chess_game.total & square:
+        return True
+    return False
 
 # returns the type of piece /!\ Make sure there is a piece !!!
 def get_type(gestionary, rank, col):
@@ -83,14 +110,14 @@ def get_type(gestionary, rank, col):
 
 # blits all legal moves
 def blit_legal_moves(gestionary):
-    if gestionary.chess_game.left_click_down is None or gestionary.chess_game.calculated == gestionary.chess_game.left_click_down:
-        for move in gestionary.chess_game.legal_moves_list:
-            (col, rank, _) = move
-            if color_and_occupied_square(gestionary, col, rank):
-                pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2),
-                               const.SQUARE // 2 - 2, 3)
-            else:
-                pg.draw.circle(gestionary.win, (168, 168, 168), (rank * const.SQUARE + const.SQUARE // 2, col * const.SQUARE + const.SQUARE // 2), 10)
+        for i in range(64):
+            square = 1 << i
+            if square & gestionary.chess_game.legal_moves:
+                if color_and_occupied_square(gestionary, square):
+                    pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
+                                   const.SQUARE // 2 - 2, 3)
+                else:
+                    pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
 
 def write_player_turn(gestionary):
     t="White" if not gestionary.chess_game.player_turn else "Black"

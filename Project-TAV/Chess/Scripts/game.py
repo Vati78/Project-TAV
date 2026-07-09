@@ -26,7 +26,7 @@ class Game:
         self.left_click_down = 0
         self.left_click_up = 0
         self.candidate_move = [0, 0]
-        self.legal_moves = 1
+        self.legal_moves = 0
         self.illegal_moves_list = []
 
 
@@ -64,14 +64,19 @@ class Game:
                         #print(self.left_click_down & self.legal_moves)
                         if self.left_click_down & self.legal_moves:
                             self.candidate_move[1] = self.left_click_down
+                            self.clicked_move = False
+                            self.double_click = False
+                            self.legal_moves = 0
                         else:
                             self.candidate_move = [0, 0]
                             self.clicked_move = False
                             self.double_click = False
+                            self.legal_moves = 0
                 else:
                     self.candidate_move = [0, 0]
                     self.clicked_move = False
                     self.double_click = False
+                    self.legal_moves = 0
             else:
                 if self.candidate_move[0]:
                     if self.clicked_move:
@@ -80,10 +85,10 @@ class Game:
                         else:
                             self.candidate_move[0] = self.left_click_down
                             self.double_click = False
-                            # update legal_moves
+                            self.get_all_legal_moves(self.player_turn, self.left_click_down)
                 else:
                     self.candidate_move[0] = self.left_click_down
-                    # update legal_moves
+                    self.get_all_legal_moves(self.player_turn, self.left_click_down)
 
         """ 
         Click up :
@@ -103,6 +108,9 @@ class Game:
             if not self.candidate_move[0] == self.left_click_up:
                 if self.left_click_up & self.legal_moves:
                     self.candidate_move[1] = self.left_click_up
+                    self.clicked_move = False
+                    self.double_click = False
+                    self.legal_moves = 0
                 else:
                     self.clicked_move = True
             else:
@@ -110,11 +118,13 @@ class Game:
                     self.candidate_move = [0,0]
                     self.clicked_move = False
                     self.double_click = False
+                    self.legal_moves = 0
                 else:
                     self.clicked_move = True
 
         if self.left_click_up:
             self.left_click_up = 0
+
         print(self.candidate_move, self.clicked_move, self.double_click)
 
 
@@ -141,9 +151,9 @@ class Game:
         for i in range(6):
             # changing the moving piece
             if square_i & player.pieces[i]:
-                print(bin(player.pieces[i]))
+                #print(bin(player.pieces[i]))
                 player.pieces[i] = player.pieces[i] ^ square_i | square_f
-                print(bin(player.pieces[i]))
+                #print(bin(player.pieces[i]))
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
@@ -192,7 +202,7 @@ class Game:
         return False
 
 
-    def get_all_legal_moves(self, color):
+    def get_all_legal_moves(self, color, square):
         legal_moves = []
         illegal_moves = []
         is_in_check = False, None
@@ -202,16 +212,11 @@ class Game:
         if self.in_check(color):
             self.legal_moves = 0
 
-        for i in range(64):
-            square = 1 << i
-            if square & self.players[color].pieces_total:
-                for j in range(6):
-                    if square & self.players[color].pieces[j]:
-                        legal_moves_piece = pieces.get_type(j, color).legal_moves(self.gestionary, square)
-                        if square & self.left_click_down:
-                            self.legal_moves = legal_moves_piece
-        print("l:", self.left_click_down, self.legal_moves)
-        #self.legal_moves = const.FULL_BOARD
+        for j in range(6):
+            if square & self.players[color].pieces[j]:
+                self.legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
+
+
 
         """                
             else:
@@ -258,6 +263,8 @@ class Game:
         self.illegal_moves_list = illegal_moves
 
         """
+
+
     def update_position(self):
         self.left_click_down = 0
         self.left_click_up = 0
