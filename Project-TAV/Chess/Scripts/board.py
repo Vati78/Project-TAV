@@ -59,7 +59,8 @@ def draw_pieces(gestionary):
 def draw_selected_piece(gestionary):
     if (gestionary.chess_game.candidate_move[0]
             and not gestionary.chess_game.candidate_move[1]
-            and not gestionary.chess_game.clicked_move):
+            and gestionary.chess_game.left_click_down
+            and not gestionary.chess_game.left_click_up):
 
         # empties the square
         i = gestionary.chess_game.candidate_move[0].bit_length() - 1
@@ -70,7 +71,7 @@ def draw_selected_piece(gestionary):
             pg.draw.rect(gestionary.win, const.BLACK[theme_index],
                          ((i % 8) * const.SQUARE, (i // 8) * const.SQUARE, const.SQUARE, const.SQUARE))
 
-        # blits the piece on mouse coor
+        # blits the piece on mouse coor with movement animation
         dir = 0 if sum(gestionary.previous_mouse_pos)//5 == gestionary.mouse_pos[0] else abs(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])//(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])
 
         angle = sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0] if -30 < sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0] < 30 else 30*dir
@@ -82,7 +83,7 @@ def draw_selected_piece(gestionary):
                     pg.transform.rotate(
                         pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
                         (const.SQUARE*1.1, const.SQUARE*1.1)),
-                    angle),
+                    angle*0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
                 break
@@ -91,7 +92,7 @@ def draw_selected_piece(gestionary):
                     pg.transform.rotate(
                         pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
-                    angle),
+                    angle*0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
                 break
