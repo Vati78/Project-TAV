@@ -55,33 +55,46 @@ def draw_pieces(gestionary):
                             ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
+#draws the selected piece
+def draw_selected_piece(gestionary):
+    if (gestionary.chess_game.candidate_move[0]
+            and not gestionary.chess_game.candidate_move[1]
+            and not gestionary.chess_game.clicked_move):
 
-            if (gestionary.chess_game.candidate_move[0]
-                    and not gestionary.chess_game.candidate_move[1]
-                    and not gestionary.chess_game.clicked_move):
+        # empties the square
+        i = gestionary.chess_game.candidate_move[0].bit_length() - 1
+        if ((i % 8) + (i // 8)) % 2 == 0:
+            pg.draw.rect(gestionary.win, const.WHITE[theme_index],
+                         ((i % 8) * const.SQUARE, (i // 8) * const.SQUARE, const.SQUARE, const.SQUARE))
+        else:
+            pg.draw.rect(gestionary.win, const.BLACK[theme_index],
+                         ((i % 8) * const.SQUARE, (i // 8) * const.SQUARE, const.SQUARE, const.SQUARE))
 
-                # empties the square
-                i = gestionary.chess_game.candidate_move[0].bit_length() - 1
-                if ((i%8) + (i//8))%2 == 0:
-                    pg.draw.rect(gestionary.win, const.WHITE[theme_index], ((i%8) * const.SQUARE, (i//8) * const.SQUARE, const.SQUARE, const.SQUARE))
-                else:
-                    pg.draw.rect(gestionary.win, const.BLACK[theme_index], ((i%8) * const.SQUARE, (i//8) * const.SQUARE, const.SQUARE, const.SQUARE))
+        # blits the piece on mouse coor
+        dir = 0 if sum(gestionary.previous_mouse_pos)//5 == gestionary.mouse_pos[0] else abs(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])//(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])
 
-                # blits the piece on mouse coor
-                for k in range(6):
-                    if gestionary.chess_game.players[0].pieces[k] & gestionary.chess_game.candidate_move[0]:
-                        gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
-                            (const.SQUARE, const.SQUARE)),
-                            (gestionary.mouse_pos[0] - const.SQUARE//2, gestionary.mouse_pos[1] - const.SQUARE//2))
+        angle = sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0] if -30 < sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0] < 30 else 30*dir
 
-                        break
-                    elif gestionary.chess_game.players[1].pieces[k] & gestionary.chess_game.candidate_move[0]:
-                        gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
-                            (const.SQUARE, const.SQUARE)),
-                            (gestionary.mouse_pos[0] - const.SQUARE//2, gestionary.mouse_pos[1] - const.SQUARE//2))
 
-                        break
+        for k in range(6):
+            if gestionary.chess_game.players[0].pieces[k] & gestionary.chess_game.candidate_move[0]:
+                gestionary.win.blit(
+                    pg.transform.rotate(
+                        pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
+                        (const.SQUARE*1.1, const.SQUARE*1.1)),
+                    angle),
+                (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
+                break
+            elif gestionary.chess_game.players[1].pieces[k] & gestionary.chess_game.candidate_move[0]:
+                gestionary.win.blit(
+                    pg.transform.rotate(
+                        pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
+                        (const.SQUARE * 1.1, const.SQUARE * 1.1)),
+                    angle),
+                (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
+
+                break
 
 # checks if a specific square is occupied by a piece, if so : returns the color
 def color_and_occupied_square(gestionary, square):

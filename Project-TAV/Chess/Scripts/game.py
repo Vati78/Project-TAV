@@ -84,6 +84,7 @@ class Game:
                             self.double_click = True
                         else:
                             self.candidate_move[0] = self.left_click_down
+                            self.clicked_move = False
                             self.double_click = False
                             self.get_all_legal_moves(self.player_turn, self.left_click_down)
                 else:

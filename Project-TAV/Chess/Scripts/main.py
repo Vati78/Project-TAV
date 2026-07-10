@@ -22,13 +22,14 @@ class Gestionary:
         self.win.fill((50, 50, 50))
         self.chess_game = game.Game(self)
         self.mouse_pos = None
+        self.previous_mouse_pos = []
         self.input = False
 
     def run(self):
         running = True
 
         const.start_sound.play()
-        self.chess_game.left_click_up = 0
+        self.chess_game.left_click_up = [None,None,None,None,None]
 
 
         while running:
@@ -84,11 +85,15 @@ class Gestionary:
             board.draw_coor(self)
             board.draw_pieces(self)
             board.blit_legal_moves(self)
+            board.draw_selected_piece(self)
             board.write_player_turn(self)
 
             pg.display.update()
 
             self.input = False
+            self.previous_mouse_pos.append(self.mouse_pos[0])
+
+            if len(self.previous_mouse_pos) > 5: del self.previous_mouse_pos[0]
 
         #menu.main_menu(gestionary)
 
