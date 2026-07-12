@@ -126,7 +126,7 @@ class Game:
         if self.left_click_up:
             self.left_click_up = 0
 
-        print(self.candidate_move, self.clicked_move, self.double_click)
+        #print(self.candidate_move, self.clicked_move, self.double_click)
 
 
     def play_move(self, square_i, square_f, color):
@@ -164,7 +164,7 @@ class Game:
 
     def in_check(self, color):
         opposite_color = - ~color & 1
-        print(color, opposite_color, -~color & 1)
+        #print(color, opposite_color, -~color & 1)
         opposite_player = self.players[opposite_color]
 
         k_pos = self.players[color].pieces[5]

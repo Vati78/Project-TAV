@@ -64,12 +64,34 @@ def draw_selected_piece(gestionary):
 
         # empties the square
         i = gestionary.chess_game.candidate_move[0].bit_length() - 1
+        print(i, i//8, i%8)
+
         if ((i % 8) + (i // 8)) % 2 == 0:
             pg.draw.rect(gestionary.win, const.WHITE[theme_index],
                          ((i % 8) * const.SQUARE, (i // 8) * const.SQUARE, const.SQUARE, const.SQUARE))
         else:
             pg.draw.rect(gestionary.win, const.BLACK[theme_index],
                          ((i % 8) * const.SQUARE, (i // 8) * const.SQUARE, const.SQUARE, const.SQUARE))
+
+        # blits coor if needed
+        if i//8 == 7: # if the piece is on the last rank
+            color = const.WHITE if (i%8) % 2 == 0 else const.BLACK
+            text = font.render(const.COLS[i%8], True, color[theme_index])
+            x = (i%8 + 1) * const.SQUARE - text.get_width() - 5
+            y = 8 * const.SQUARE - text.get_width() - 10
+
+            gestionary.win.blit(text, (x, y))
+
+        if i%8 == 0:
+            color = const.WHITE if (i//8)%2 == 1 else const.BLACK
+            text = font.render(const.RANKS[7 - i//8], True, color[theme_index])
+            y = (i//8) * const.SQUARE + 5
+            x = 5
+
+            gestionary.win.blit(text, (x, y))
+
+
+
 
         # blits the piece on mouse coor with movement animation
         dir = 0 if sum(gestionary.previous_mouse_pos)//5 == gestionary.mouse_pos[0] else abs(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])//(sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0])
