@@ -39,6 +39,7 @@ class Item:
         self.s_castling_right = True
         self.l_castling_right = True
         self.castle = False
+        self.last_piece_played = (0, 0)
 
     def update_pos(self):
         self.pieces_total = 0

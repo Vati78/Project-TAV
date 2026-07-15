@@ -40,20 +40,19 @@ def draw_coor(gestionary):
 
 # draws the pieces
 def draw_pieces(gestionary):
-    for i in range(64):
-        a = 1 << i
-        if a & gestionary.chess_game.total:
-            for k in range(6):
-                if gestionary.chess_game.players[0].pieces[k] & a:
-                    gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
+    for square in split_bits(gestionary.chess_game.total):
+        i = square.bit_length() - 1
+        for k in range(6):
+            if gestionary.chess_game.players[0].pieces[k] & square:
+                gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
+                    (const.SQUARE, const.SQUARE)),
+                    ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
+                break
+            elif gestionary.chess_game.players[1].pieces[k] & square:
+                gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
                         (const.SQUARE, const.SQUARE)),
                         ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
-                    break
-                elif gestionary.chess_game.players[1].pieces[k] & a:
-                    gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
-                            (const.SQUARE, const.SQUARE)),
-                            ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
-                    break
+                break
 
 #draws the selected piece
 def draw_selected_piece(gestionary):
@@ -64,7 +63,6 @@ def draw_selected_piece(gestionary):
 
         # empties the square
         i = gestionary.chess_game.candidate_move[0].bit_length() - 1
-        print(i, i//8, i%8)
 
         if ((i % 8) + (i // 8)) % 2 == 0:
             pg.draw.rect(gestionary.win, const.WHITE[theme_index],
@@ -125,40 +123,32 @@ def color_and_occupied_square(gestionary, square):
         return True
     return False
 
-# returns the type of piece /!\ Make sure there is a piece !!!
-def get_type(gestionary, rank, col):
-    piece = gestionary.chess_game.position[rank][col]
-
-    if piece[1] == "P":
-        return pieces.Piece.Pawn(piece[0])
-    elif piece[1] == "N":
-        return pieces.Piece.Knight(piece[0])
-    elif piece[1] == "R":
-        return pieces.Piece.Rook(piece[0])
-    elif piece[1] == "B":
-        return pieces.Piece.Bishop(piece[0])
-    elif piece[1] == "K":
-        return pieces.Piece.King(piece[0])
-    elif piece[1] == "Q":
-        return pieces.Piece.Queen(piece[0])
-    else:
-        return False
-
 # blits all legal moves
 def blit_legal_moves(gestionary):
-        for i in range(64):
-            square = 1 << i
-            if square & gestionary.chess_game.legal_moves:
-                if color_and_occupied_square(gestionary, square):
-                    pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
-                                   const.SQUARE // 2 - 2, 3)
-                else:
-                    pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
+        for square in split_bits(gestionary.chess_game.legal_moves):
+            i = square.bit_length() - 1
+            if color_and_occupied_square(gestionary, square):
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
+                               const.SQUARE // 2 - 2, 3)
+            else:
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
 
+# displays whose turn it is
 def write_player_turn(gestionary):
     t="White" if not gestionary.chess_game.player_turn else "Black"
     t += " is playing"
     police = pg.font.SysFont("Arial", int(const.SQUARE/3))
     texte = police.render(t, True, (255,255,255))
     gestionary.win.blit(texte, (const.WIDTH + 30, 10))
+
+# splits bits into seperated bits
+def split_bits(n):
+    parts = []
+    while n:
+        # isolates the lowest bit
+        bit = n & -n
+        parts.append(bit)
+        # removes the lowest bit
+        n &= n - 1
+    return parts
 

@@ -71,6 +71,9 @@ class Gestionary:
                 if self.input:
                     self.chess_game.input_to_candidate_move()
 
+                if not self.chess_game.list_legal_moves:
+                    self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
+
                 if self.chess_game.candidate_move[1]:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
                     self.chess_game.update_position()

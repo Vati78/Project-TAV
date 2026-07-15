@@ -26,6 +26,7 @@ class Game:
         self.left_click_down = 0
         self.left_click_up = 0
         self.candidate_move = [0, 0]
+        self.list_legal_moves = []
         self.legal_moves = 0
         self.illegal_moves_list = []
 
@@ -86,10 +87,10 @@ class Game:
                             self.candidate_move[0] = self.left_click_down
                             self.clicked_move = False
                             self.double_click = False
-                            self.get_all_legal_moves(self.player_turn, self.left_click_down)
+                            self.legal_moves = self.list_legal_moves[self.candidate_move[0].bit_length() - 1]
                 else:
                     self.candidate_move[0] = self.left_click_down
-                    self.get_all_legal_moves(self.player_turn, self.left_click_down)
+                    self.legal_moves = self.list_legal_moves[self.candidate_move[0].bit_length()-1]
 
         """ 
         Click up :
@@ -129,6 +130,281 @@ class Game:
         #print(self.candidate_move, self.clicked_move, self.double_click)
 
 
+    def check_and_pins(self, color, square):
+        opposite_color = - ~color & 1
+        opposite_player = self.players[opposite_color]
+
+        index_square = square.bit_length() - 1
+
+        threats_pins_and_free_squares = []
+
+
+        # up
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(index_square//8):
+            studied_square = square >> (8 * (i+1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a rook
+                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat, potential_pin, free_squares))
+
+
+        # up-right
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(min(index_square//8, 7 - (index_square%8))):
+            studied_square = square >> (7 * (i + 1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a bishop
+                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                        threat = studied_square
+                    # if it's a pawn
+                    elif i == 0 and color == 0 and studied_square & opposite_player.pieces[0]:
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # right
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(7 - (index_square%8)):
+            studied_square = square << (i + 1)
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a rook
+                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # down-right
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(min(7 - (index_square//8), 7 - (index_square%8))):
+            studied_square = square << (9 * (i + 1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a bishop
+                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                        threat = studied_square
+                    # if it's a pawn
+                    elif i == 0 and color == 1 and studied_square & opposite_player.pieces[0]:
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # down
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(7 - (index_square//8)):
+            studied_square = square << (8 * (i + 1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a rook
+                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # down-left
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(min(7 - (index_square//8), index_square%8)):
+            studied_square = square << (7 * (i + 1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a bishop
+                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                        threat = studied_square
+                    # if it's a pawn
+                    elif i == 0 and color == 1 and studied_square & opposite_player.pieces[0]:
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # left
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(index_square%8):
+            studied_square = square >> (i + 1)
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a rook
+                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # up-left
+        threat = False
+        potential_pin = 0
+        free_squares = 0
+        for i in range(min(index_square//8, index_square%8)):
+            studied_square = square >> (9 * (i + 1))
+
+            if studied_square & self.total:
+                # if the encountered piece is friendly (ignore king)
+                if studied_square & (self.players[color].pieces_total ^ self.players[color].pieces[5]):
+                    if potential_pin: break
+                    potential_pin = studied_square
+
+                elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is a queen or a bishop
+                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                        threat = studied_square
+                    # if it's a pawn
+                    elif i == 0 and color == 0 and studied_square & opposite_player.pieces[0]:
+                        threat = studied_square
+
+                    break
+            free_squares |= studied_square
+        threats_pins_and_free_squares.append((threat,potential_pin,free_squares))
+
+
+        # knights
+        threat = False
+        moves = pieces.Piece().Knight(color).legal_moves(self.gestionary, square)
+        # if the last piece played is a knight
+        if opposite_player.last_piece_played[1] & opposite_player.pieces[1]:
+            # if it checks the king
+            if moves & opposite_player.last_piece_played[1]:
+                threat = opposite_player.last_piece_played[1]
+        elif moves & opposite_player.pieces[1]:
+            threat = True
+        threats_pins_and_free_squares.append((threat, 0, 0))
+
+        return threats_pins_and_free_squares
+
+
+    def get_all_legal_moves(self, color):
+        self.list_legal_moves = [0 for _ in range(64)]
+
+        a = self.check_and_pins(color, self.players[color].pieces[5])
+        nb_checks = 0
+        threat, pin, free_squares = 0, 0, 0
+        for a_threat, a_pin, a_free_squares in a:
+            if a_threat:
+                pin |= a_pin
+                free_squares = a_free_squares | a_threat
+                if not a_pin:
+                    nb_checks += 1
+
+            # if double_check
+            if nb_checks > 1: break
+
+        for j in range(6):
+            # if king
+            if j == 5:
+                square = self.players[color].pieces[5]
+                i = square.bit_length() - 1
+                legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
+                for move in board.split_bits(legal_moves):
+                    a = self.check_and_pins(color, move)
+                    for a_threat, a_pin, a_free_squares in a:
+                        if a_threat and not a_pin:
+                            legal_moves ^= move
+                            break
+
+                self.list_legal_moves[i] = legal_moves
+
+
+            else:
+                if nb_checks < 2:
+                    for square in board.split_bits(self.players[color].pieces[j]):
+                        i = square.bit_length() - 1
+                        legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
+
+
+                        if nb_checks == 1 or pin & square:
+                            self.list_legal_moves[i] = legal_moves & free_squares
+                        else:
+                            self.list_legal_moves[i] = legal_moves
+
+                else:
+                    for square in board.split_bits(self.players[color].pieces[j]):
+                        i = square.bit_length() - 1
+                        self.list_legal_moves[i] = 0
+
+
+        if all(move == 0 for move in self.list_legal_moves):
+            if nb_checks == 0: print("stalemate")
+            else: print("checkmate")
+
+
     def play_move(self, square_i, square_f, color):
         player = self.players[color]
         opposite_player = self.players[- ~color & 1]
@@ -148,13 +424,11 @@ class Game:
         # promotion
         elif True:
             pass
-    
+
         for i in range(6):
             # changing the moving piece
             if square_i & player.pieces[i]:
-                #print(bin(player.pieces[i]))
                 player.pieces[i] = player.pieces[i] ^ square_i | square_f
-                #print(bin(player.pieces[i]))
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
@@ -162,118 +436,16 @@ class Game:
         self.update_position()
 
 
-    def in_check(self, color):
-        opposite_color = - ~color & 1
-        #print(color, opposite_color, -~color & 1)
-        opposite_player = self.players[opposite_color]
-
-        k_pos = self.players[color].pieces[5]
-
-        # pawns
-        if not color: # white
-            # if the white king is at least on the 6th rank or less
-            if k_pos >> 16:
-                if const.NOT_H_FILE & k_pos and (k_pos >> 7) & opposite_player.pieces[0]:
-                    return True, 0
-                if const.NOT_A_FILE & k_pos and (k_pos >> 9) & opposite_player.pieces[0]:
-                    return True, 0
-        else: # black
-            # if the black king is on the 3rd rank or more
-            if not k_pos >> 48:
-                if const.NOT_H_FILE & k_pos and (k_pos << 9) & opposite_player.pieces[0]:
-                    return True, 0, None
-                if const.NOT_A_FILE & k_pos and (k_pos << 7) & opposite_player.pieces[0]:
-                    return True, 0, None
-
-        # knights
-        if opposite_player.pieces[1] & pieces.Piece().Knight(color).knight_moves[k_pos.bit_length()-1]:
-            return True, 1, None
-
-        # bishops (and queen)
-        if pieces.Piece().Bishop(color).legal_moves(self.gestionary, k_pos) & (opposite_player.pieces[2] | opposite_player.pieces[4]):
-            return True
-
-        # rooks (and queen)
-        if pieces.Piece().Rook(color).legal_moves(self.gestionary, k_pos) & (opposite_player.pieces[3] | opposite_player.pieces[4]):
-            return True
-
-        # opponent's king
-        pass
-
-        return False
-
-
-    def get_all_legal_moves(self, color, square):
-        legal_moves = []
-        illegal_moves = []
-        is_in_check = False, None
-
-        self.legal_moves = 0
-
-        if self.in_check(color):
-            self.legal_moves = 0
-
-        for j in range(6):
-            if square & self.players[color].pieces[j]:
-                self.legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
-
-
-
-        """                
-            else:
-                legal_moves.append(0)
-                illegal_moves.append(0)
-        for rank_f, col_f, specific in board.get_type(self.gestionary, rank, col).legal_moves(self.gestionary, rank, col):
-            k_move = False
-            specific_condition = True if specific is None else False
-
-            if isinstance(board.get_type(self.gestionary, rank, col), pieces.Piece.King):
-                k_move = True
-                if specific == "s_castle":
-                    if not self.gestionary.chess_game.in_check(self.player_turn):
-                        self.gestionary.chess_game.play_move(rank, col, rank, col+1, specific)
-                        exec(f"self.{self.player_turn}_player.king_pos = (rank, col+1)")
-                        if not self.gestionary.chess_game.in_check(self.player_turn):
-                            specific_condition = True
-
-                if specific == "l_castle":
-                    if not self.gestionary.chess_game.in_check(self.player_turn):
-                        self.gestionary.chess_game.play_move(rank, col, rank, col-1, specific)
-                        exec(f"self.{self.player_turn}_player.king_pos = (rank, col-1)")
-                        if not self.gestionary.chess_game.in_check(self.player_turn):
-                            specific_condition = True
-
-
-                exec(f"self.{self.player_turn}_player.king_pos = (rank_f, col_f)")
-
-
-
-
-            self.gestionary.chess_game.play_move(rank, col, rank_f, col_f, specific)
-
-            if not self.gestionary.chess_game.in_check(self.player_turn) and specific_condition:
-                legal_moves.append((rank_f, col_f, specific))
-            else:
-                illegal_moves.append((rank_f, col_f, specific))
-
-
-            if k_move: exec(f"self.{self.player_turn}_player.king_pos = (rank, col)")
-            self.position = [row[:] for row in actual_position]
-
-        self.legal_moves_list = legal_moves
-        self.illegal_moves_list = illegal_moves
-
-        """
-
-
     def update_position(self):
         self.left_click_down = 0
         self.left_click_up = 0
+        self.list_legal_moves = []
         self.legal_moves = 0
         self.illegal_moves_list = []
         self.total = 0
         for j in self.players:
             for i in j.pieces:
                 self.total |= i
+        self.players[self.player_turn].last_piece_played = self.candidate_move
         self.player_turn = self.index_position % 2
         for i in self.players: i.update_pos()
