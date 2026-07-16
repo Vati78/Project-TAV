@@ -414,7 +414,7 @@ class Game:
             else: print("checkmate")
 
 
-    def play_move(self, square_i, square_f, color):
+    def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
         opposite_player = self.players[- ~color & 1]
 
@@ -440,14 +440,22 @@ class Game:
                 for i in range(6):
                     if opposite_player.pieces[i] & (square_f >> 8): opposite_player.pieces[i] ^= square_f >> 8
 
-        # promotion
-        elif True:
-            pass
-
         for i in range(6):
             # changing the moving piece
             if square_i & player.pieces[i]:
-                player.pieces[i] = player.pieces[i] ^ square_i | square_f
+                player.pieces[i] ^= square_i
+
+                if promotion is True and i == 0:
+                    promotion = self.gestionary.promoting(int(player.color == "b"), (square_f.bit_length() - 1) % 8)
+                    if not promotion:
+                        player.pieces[i] |= square_i
+                        self.candidate_move[1] = 0
+                        self.clicked_move = True
+                        self.legal_moves = self.list_legal_moves[square_i.bit_length() - 1]
+                        return
+
+                if not promotion: player.pieces[i] |= square_f
+                else: player.pieces[promotion] |= square_f
 
                 # rooks
                 if i == 3:
@@ -456,7 +464,7 @@ class Game:
 
                     if not (player.a_rook_move or const.NOT_A_FILE & square_i):
                         player.a_rook_move = self.index_position
-                
+
                 # king
                 if i == 5:
                     if not player.king_move:
@@ -469,13 +477,15 @@ class Game:
 
 
 
-        self.index_position += 1
+
         self.update_position()
 
 
     def update_position(self):
+        self.index_position += 1
         self.left_click_down = 0
         self.left_click_up = 0
+        self.candidate_move = [0,0]
         self.list_legal_moves = []
         self.legal_moves = 0
         self.illegal_moves_list = []

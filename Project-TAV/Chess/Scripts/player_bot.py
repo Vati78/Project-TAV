@@ -48,9 +48,17 @@ class Item:
 
 class Player(Item):
     def move(self, gestionary):
-        square_i = gestionary.chess_game.candidate_move[0]
-        square_f = gestionary.chess_game.candidate_move[1]
-        gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"))
+        square_i, square_f = gestionary.chess_game.candidate_move
+
+        promotion = False
+
+        # promotion
+        if square_i & self.pieces[0] and (square_f & const.RANK or not (square_f << 8) & const.FULL_BOARD):
+            promotion = True
+
+        gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
+
+
         """
         rank_i = gestionary.chess_game.candidate_move[0]
         col_i = gestionary.chess_game.candidate_move[1]
@@ -100,9 +108,9 @@ class Player(Item):
                     # plays the sound
                     const.illegal_sound.play()
         """
-        gestionary.chess_game.candidate_move = [0,0]
-        gestionary.chess_game.legal_moves_list = []
-        gestionary.chess_game.illegal_moves_list = []
+
+        #gestionary.chess_game.legal_moves_list = []
+        #gestionary.chess_game.illegal_moves_list = []
 
 
 class Bot(Item):

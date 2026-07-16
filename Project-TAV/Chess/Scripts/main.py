@@ -17,8 +17,9 @@ os.chdir(os.path.dirname(__file__))
 class Gestionary:
     def __init__(self):
         pg.init()
-        self.win = pg.display.set_mode((const.WIDTH + 5 * const.SQUARE, const.HEIGHT))
         pg.display.set_caption("Chess")
+        pg.display.set_icon(pg.image.load("../Images/icon.png"))
+        self.win = pg.display.set_mode((const.WIDTH + 5 * const.SQUARE, const.HEIGHT))
         self.win.fill((50, 50, 50))
         self.chess_game = game.Game(self)
         self.mouse_pos = None
@@ -76,7 +77,6 @@ class Gestionary:
 
                 if self.chess_game.candidate_move[1]:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
-                    self.chess_game.update_position()
 
             else:
                 self.chess_game.players[self.chess_game.player_turn].return_move()
@@ -98,9 +98,48 @@ class Gestionary:
 
             if len(self.previous_mouse_pos) > 5: del self.previous_mouse_pos[0]
 
-        #menu.main_menu(gestionary)
+
+    def promoting(self, color, col):
+        board.draw_board(self)
+        board.draw_coor(self)
+        board.draw_pieces(self)
+
+        pg.draw.rect(gestionary.win, (255, 255, 255), (col * const.SQUARE, 4*color*const.SQUARE, const.SQUARE, 4 * const.SQUARE))
+
+        list_pieces = [4, 3, 1, 2]
+
+        for i, piece in enumerate(list_pieces):
+            if not color:
+                self.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[piece]}.png"),
+                    (const.SQUARE, const.SQUARE)),
+                    (col * const.SQUARE, i*const.SQUARE))
+
+            else:
+                self.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[piece]}.png"),
+                    (const.SQUARE, const.SQUARE)),
+                    (col * const.SQUARE, (7 - i)*const.SQUARE))
 
 
+        pg.display.update()
+
+        promote = True
+
+        while promote:
+            mouse_pos = pg.mouse.get_pos()
+
+            coor = mk.mouse_to_coor(mouse_pos).bit_length() - 1
+            x = coor%8
+            y = coor//8
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    return False
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if x == col:
+                        if not color and 0 <= y <= 3: return list_pieces[y]
+                        elif color and 4 <= y <= 7: return list_pieces[7-y]
+                    self.chess_game.left_click_down = 0
+                    return False
 
 
 
