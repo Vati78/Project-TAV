@@ -372,12 +372,21 @@ class Game:
                 square = self.players[color].pieces[5]
                 i = square.bit_length() - 1
                 legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
+
                 for move in board.split_bits(legal_moves):
                     a = self.check_and_pins(color, move)
                     for a_threat, a_pin, a_free_squares in a:
                         if a_threat and not a_pin:
                             legal_moves ^= move
                             break
+
+                # short castle
+                if (square << 2) & legal_moves and (nb_checks or not (square << 1) & legal_moves):
+                    legal_moves ^= square << 2
+
+                # long castle
+                if (square >> 2) & legal_moves and (nb_checks or not (square >> 1) & legal_moves):
+                    legal_moves ^= square >> 2
 
                 self.list_legal_moves[i] = legal_moves
 
@@ -412,10 +421,12 @@ class Game:
         # short castle
         if player.pieces[5] == square_i and square_f == square_i << 2:
             player.pieces[3] = player.pieces[3] ^ (square_f << 1) | (square_f >> 1)
+            player.h_rook_move = self.index_position
 
         # long castle
         elif player.pieces[5] == square_i and square_f == square_i >> 2:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
+            player.a_rook_move = self.index_position
 
         # en passant
         elif (player.pieces[0] & square_i
@@ -437,9 +448,25 @@ class Game:
             # changing the moving piece
             if square_i & player.pieces[i]:
                 player.pieces[i] = player.pieces[i] ^ square_i | square_f
+
+                # rooks
+                if i == 3:
+                    if not (player.h_rook_move or const.NOT_H_FILE & square_i):
+                        player.h_rook_move = self.index_position
+
+                    if not (player.a_rook_move or const.NOT_A_FILE & square_i):
+                        player.a_rook_move = self.index_position
+                
+                # king
+                if i == 5:
+                    if not player.king_move:
+                        player.king_move = self.index_position
+                        player.king_moved_yet = True
+
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
+
 
 
         self.index_position += 1
