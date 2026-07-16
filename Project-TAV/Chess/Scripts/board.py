@@ -117,21 +117,26 @@ def draw_selected_piece(gestionary):
 
                 break
 
-# checks if a specific square is occupied by a piece, if so : returns the color
-def color_and_occupied_square(gestionary, square):
+# checks if a specific square is occupied by a piece
+def occupied_square(gestionary, square):
     if gestionary.chess_game.total & square:
         return True
     return False
 
 # blits all legal moves
-def blit_legal_moves(gestionary):
-        for square in split_bits(gestionary.chess_game.legal_moves):
-            i = square.bit_length() - 1
-            if color_and_occupied_square(gestionary, square):
-                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
-                               const.SQUARE // 2 - 2, 3)
-            else:
-                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
+def blit_legal_moves(gestionary, color, square_i):
+    #print(bin(square_i))
+    for square in split_bits(gestionary.chess_game.legal_moves):
+        #print("     ", bin(square))
+        i = square.bit_length() - 1
+        #  capture                                  en passant 
+        if (occupied_square(gestionary, square) or (gestionary.chess_game.players[color].pieces[0] & square_i
+                                                    and square_i >> 16 and (square_i << 16) & const.FULL_BOARD
+                                                    and not ((square_i << 8) & square or (square_i >> 8) & square))):
+            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
+                           const.SQUARE // 2 - 2, 3)
+        else:
+            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
 
 # displays whose turn it is
 def write_player_turn(gestionary):

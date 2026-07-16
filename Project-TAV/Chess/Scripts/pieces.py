@@ -66,17 +66,31 @@ class Piece:
                         if square_i & (const.RANK << 48) and not square & gestionary.chess_game.total:
                             legal_moves |= square
 
-                    # capture right (if it is not on the h file and there is a piece to capture)
+                    # capture right (if it is not on the h file and there is a piece to capture) + en passant
                     square = square_i >> 7
-                    if const.NOT_H_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total:
+                    if (const.NOT_H_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total
+                            # if last piece played is a pawn
+                        or (gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & gestionary.chess_game.players[self.opposite_color].pieces[0]
+                            # started on 7th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[0] & (const.RANK << (1*8))
+                            # ended on 5th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & (const.RANK << (3*8)))
+                            # both pawn are next to each other
+                            and (square_i << 1) == gestionary.chess_game.players[self.opposite_color].last_piece_played[1]):
                         legal_moves |= square
 
-                    # capture left (if it is not on the a file and there is a piece to capture)
+                    # capture left (if it is not on the a file and there is a piece to capture) + en passant
                     square = square_i >> 9
-                    if const.NOT_A_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total:
+                    if (const.NOT_A_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total
+                                # if last piece played is a pawn
+                            or (gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & gestionary.chess_game.players[self.opposite_color].pieces[0]
+                                # started on 7th rank
+                                and gestionary.chess_game.players[self.opposite_color].last_piece_played[0] & (const.RANK << (1 * 8))
+                                # ended on 5th rank
+                                and gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & (const.RANK << (3 * 8)))
+                                # both pawn are next to each other
+                                and (square_i >> 1) == gestionary.chess_game.players[self.opposite_color].last_piece_played[1]):
                         legal_moves |= square
-
-                    # en passant
 
             # black pawns
             else:
@@ -92,18 +106,31 @@ class Piece:
                         if square_i & (const.RANK << 8) and not square & gestionary.chess_game.total:
                             legal_moves |= square
 
-                    # capture right (if it is not on the h file and there is a piece to capture)
+                    # capture right (if it is not on the h file and there is a piece to capture) + en passant
                     square = square_i << 9
-                    if const.NOT_H_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total:
+                    if (const.NOT_H_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total
+                            # if last piece played is a pawn
+                        or (gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & gestionary.chess_game.players[self.opposite_color].pieces[0]
+                            # started on 7th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[0] & (const.RANK << (6 * 8))
+                            # ended on 5th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & (const.RANK << (4 * 8)))
+                            # both pawn are next to each other
+                            and (square_i << 1) == gestionary.chess_game.players[self.opposite_color].last_piece_played[1]):
                         legal_moves |= square
 
-                    # capture left (if it is not on the a file and there is a piece to capture)
+                    # capture left (if it is not on the a file and there is a piece to capture) + en passant
                     square = square_i << 7
-                    if const.NOT_A_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total:
+                    if (const.NOT_A_FILE & square_i and square & gestionary.chess_game.players[self.opposite_color].pieces_total
+                            # if last piece played is a pawn
+                        or (gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & gestionary.chess_game.players[self.opposite_color].pieces[0]
+                            # started on 7th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[0] & (const.RANK << (6 * 8))
+                            # ended on 5th rank
+                            and gestionary.chess_game.players[self.opposite_color].last_piece_played[1] & (const.RANK << (4 * 8)))
+                            # both pawn are next to each other
+                            and (square_i >> 1) == gestionary.chess_game.players[self.opposite_color].last_piece_played[1]):
                         legal_moves |= square
-
-                    # en passant
-
 
             return legal_moves
 

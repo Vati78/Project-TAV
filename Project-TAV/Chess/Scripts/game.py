@@ -418,8 +418,16 @@ class Game:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
 
         # en passant
-        elif True:
-            pass
+        elif (player.pieces[0] & square_i
+            and not (square_f & self.total)
+            and not ((square_i << 8) & square_f or (square_i >> 8) & square_f)
+            and square_i >> 16 and (square_i << 16) & const.FULL_BOARD):
+            if not color:
+                for i in range(6):
+                    if opposite_player.pieces[i] & (square_f << 8): opposite_player.pieces[i] ^= square_f << 8
+            else:
+                for i in range(6):
+                    if opposite_player.pieces[i] & (square_f >> 8): opposite_player.pieces[i] ^= square_f >> 8
 
         # promotion
         elif True:
@@ -432,6 +440,8 @@ class Game:
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
+
+
         self.index_position += 1
         self.update_position()
 

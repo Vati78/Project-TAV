@@ -87,7 +87,7 @@ class Gestionary:
             board.draw_board(self)
             board.draw_coor(self)
             board.draw_pieces(self)
-            board.blit_legal_moves(self)
+            board.blit_legal_moves(self, self.chess_game.player_turn, self.chess_game.candidate_move[0])
             board.draw_selected_piece(self)
             board.write_player_turn(self)
 
