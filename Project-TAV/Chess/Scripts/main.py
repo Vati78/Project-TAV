@@ -10,7 +10,7 @@ import game
 import mouse_keys as mk
 import menu
 import player_bot as pb
-import pieces
+import copy
 
 os.chdir(os.path.dirname(__file__))
 
@@ -31,26 +31,59 @@ class Gestionary:
 
         const.start_sound.play()
         self.chess_game.left_click_up = [None,None,None,None,None]
+        cooldown = 0
+        changed_position = False
+
+        self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
 
 
         while running:
             self.mouse_pos = pg.mouse.get_pos()
             user_input = pg.key.get_pressed()
+            if cooldown > 0: cooldown -= 1
 
             if user_input[pg.K_a]:
-                board.theme_index = (board.theme_index+1)%const.NMB_THEMES
+                if not cooldown:
+                    board.theme_index = (board.theme_index+1)%const.NMB_THEMES
+                    cooldown = 30
 
             if user_input[pg.K_LEFT]:
-                pass
+                if not cooldown and self.chess_game.index_position:
+                    self.chess_game.index_position -= 1
+                    self.chess_game.player_turn ^= 1
+
+                    changed_position = True
 
             if user_input[pg.K_RIGHT]:
-                pass
+                if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
+                    self.chess_game.index_position += 1
+                    self.chess_game.player_turn ^= 1
+
+                    changed_position = True
 
             if user_input[pg.K_DOWN]:
-                pass
+                if not cooldown and self.chess_game.index_position:
+                    self.chess_game.index_position = 0
+                    self.chess_game.player_turn = 0
+
+                    changed_position = True
 
             if user_input[pg.K_UP]:
-                pass
+                if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
+                    self.chess_game.index_position = len(self.chess_game.list_position) - 1
+                    self.chess_game.player_turn = self.chess_game.index_position % 2
+
+                    changed_position = True
+
+            if changed_position:
+                self.chess_game.players = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][0])
+                self.chess_game.total = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][1])
+                self.chess_game.list_legal_moves = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][2])
+
+                cooldown = 30
+
+                changed_position = False
+
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:

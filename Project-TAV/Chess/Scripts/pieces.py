@@ -47,7 +47,7 @@ class Piece:
     class Pawn:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color & 1
+            self.opposite_color = self.color ^ 1
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
@@ -137,7 +137,7 @@ class Piece:
     class Rook:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color & 1
+            self.opposite_color = self.color ^ 1
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
@@ -190,7 +190,7 @@ class Piece:
     class Knight:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color & 1
+            self.opposite_color = self.color ^ 1
 
             self.knight_moves = self.get_knight_moves()
 
@@ -214,7 +214,7 @@ class Piece:
     class Bishop:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color & 1
+            self.opposite_color = self.color ^ 1
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
@@ -274,7 +274,7 @@ class Piece:
     class King:
         def __init__(self, color):
             self.color = color
-            self.opposite_color = - ~self.color & 1
+            self.opposite_color = self.color ^ 1
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
@@ -317,13 +317,13 @@ class Piece:
 
 
             # short castle
-            if not (gestionary.chess_game.players[self.color].king_moved_yet
+            if not (gestionary.chess_game.players[self.color].king_move
                     or gestionary.chess_game.players[self.color].h_rook_move
                     or 3 << (5 + 7*self.opposite_color*8) & gestionary.chess_game.total):
                 legal_moves |= 1 << (6 + 7*self.opposite_color*8)
 
             # long castle
-            if not (gestionary.chess_game.players[self.color].king_moved_yet
+            if not (gestionary.chess_game.players[self.color].king_move
                     or gestionary.chess_game.players[self.color].a_rook_move
                     or 7 << (1 + 7*self.opposite_color*8) & gestionary.chess_game.total):
                 legal_moves |= 1 << (2 + 7*self.opposite_color*8)

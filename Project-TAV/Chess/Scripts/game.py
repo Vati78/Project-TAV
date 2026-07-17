@@ -17,7 +17,7 @@ class Game:
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
-        self.list_position = [(self.players[0].pieces, self.players[1].pieces)]
+        self.list_position = [[copy.deepcopy(self.players), self.total, 0]]
         ################################################
         self.player_turn = self.index_position % 2
         ################################################
@@ -28,7 +28,6 @@ class Game:
         self.candidate_move = [0, 0]
         self.list_legal_moves = []
         self.legal_moves = 0
-        self.illegal_moves_list = []
 
 
     def input_to_candidate_move(self):
@@ -131,7 +130,7 @@ class Game:
 
 
     def check_and_pins(self, color, square):
-        opposite_color = - ~color & 1
+        opposite_color = color ^ 1
         opposite_player = self.players[opposite_color]
 
         index_square = square.bit_length() - 1
@@ -416,17 +415,17 @@ class Game:
 
     def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
-        opposite_player = self.players[- ~color & 1]
+        opposite_player = self.players[color ^ 1]
 
         # short castle
         if player.pieces[5] == square_i and square_f == square_i << 2:
             player.pieces[3] = player.pieces[3] ^ (square_f << 1) | (square_f >> 1)
-            player.h_rook_move = self.index_position
+            player.h_rook_move = True
 
         # long castle
         elif player.pieces[5] == square_i and square_f == square_i >> 2:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
-            player.a_rook_move = self.index_position
+            player.a_rook_move = True
 
         # en passant
         elif (player.pieces[0] & square_i
@@ -460,16 +459,15 @@ class Game:
                 # rooks
                 if i == 3:
                     if not (player.h_rook_move or const.NOT_H_FILE & square_i):
-                        player.h_rook_move = self.index_position
+                        player.h_rook_move = True
 
                     if not (player.a_rook_move or const.NOT_A_FILE & square_i):
-                        player.a_rook_move = self.index_position
+                        player.a_rook_move = True
 
                 # king
                 if i == 5:
                     if not player.king_move:
-                        player.king_move = self.index_position
-                        player.king_moved_yet = True
+                        player.king_move = True
 
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
@@ -482,17 +480,30 @@ class Game:
 
 
     def update_position(self):
-        self.index_position += 1
+        # if not already calculated
+        if self.index_position == len(self.list_position) - 1:
+            self.list_position[-1][2] = copy.deepcopy(self.list_legal_moves)
+
         self.players[self.player_turn].last_piece_played = self.candidate_move
+        for i in self.players: i.update_pos()
+        self.total = 0
+        for j in self.players:
+            for i in j.pieces:
+                self.total |= i
+
+        # if not "current" position and another move has been played
+        if self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played != self.list_position[self.index_position+1][0][self.player_turn].last_piece_played:
+            del self.list_position[self.index_position+1:]
+
+        # if "current" position or another move has been played
+        if not (self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played == self.list_position[self.index_position+1][0][self.player_turn].last_piece_played):
+            self.list_position.append([copy.deepcopy(self.players), self.total, 0])
+
+
         self.left_click_down = 0
         self.left_click_up = 0
         self.candidate_move = [0,0]
         self.list_legal_moves = []
         self.legal_moves = 0
-        self.illegal_moves_list = []
-        self.total = 0
-        for j in self.players:
-            for i in j.pieces:
-                self.total |= i
+        self.index_position += 1
         self.player_turn = self.index_position % 2
-        for i in self.players: i.update_pos()
