@@ -60,8 +60,6 @@ class Game:
             if not self.left_click_down & self.players[self.player_turn].pieces_total:
                 if self.candidate_move[0]:
                     if self.clicked_move:
-                        #print(self.legal_moves)
-                        #print(self.left_click_down & self.legal_moves)
                         if self.left_click_down & self.legal_moves:
                             self.candidate_move[1] = self.left_click_down
                             self.clicked_move = False
