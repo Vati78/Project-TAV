@@ -483,6 +483,7 @@ class Game:
 
     def update_position(self):
         self.index_position += 1
+        self.players[self.player_turn].last_piece_played = self.candidate_move
         self.left_click_down = 0
         self.left_click_up = 0
         self.candidate_move = [0,0]
@@ -493,6 +494,5 @@ class Game:
         for j in self.players:
             for i in j.pieces:
                 self.total |= i
-        self.players[self.player_turn].last_piece_played = self.candidate_move
         self.player_turn = self.index_position % 2
         for i in self.players: i.update_pos()
