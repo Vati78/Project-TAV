@@ -119,10 +119,14 @@ def occupied_square(gestionary, square):
 
 # blits all legal moves
 def blit_legal_moves(gestionary, color, square_i):
-    #print(bin(square_i))
+    m_pos = mk.mouse_to_coor(gestionary.mouse_pos)
     for square in split_bits(gestionary.chess_game.legal_moves):
-        #print("     ", bin(square))
         i = square.bit_length() - 1
+
+        facteur_grossissement = 1
+        if square == m_pos:
+            facteur_grossissement = 1.5
+
         #  capture                                  en passant
         if (occupied_square(gestionary, square) or (gestionary.chess_game.players[color].pieces[0] & square_i
                                                     and square_i >> 16 and (square_i << 16) & const.FULL_BOARD
@@ -130,7 +134,7 @@ def blit_legal_moves(gestionary, color, square_i):
             pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
                            const.SQUARE // 2 - 2, 3)
         else:
-            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10)
+            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10*facteur_grossissement)
 
 
 # displays whose turn it is
