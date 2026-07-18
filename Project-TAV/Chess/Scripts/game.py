@@ -536,7 +536,7 @@ class Game:
         if self.result is None:
             # 3-fold repetition
             nb_same_position = 1
-            for i, position in enumerate(self.list_position[:-1:2]):
+            for i, position in enumerate(self.list_position[self.index_position%2:-1:2]):
                 if (position[0][0].pieces == self.list_position[-1][0][0].pieces
                         and position[0][1].pieces == self.list_position[-1][0][1].pieces
                         and position[2] == self.list_legal_moves):
