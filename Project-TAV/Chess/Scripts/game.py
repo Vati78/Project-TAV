@@ -1,6 +1,7 @@
 """
 Toutes les fonctions qui gèrent le déroulement de la partie.
 """
+from itertools import count
 
 import const
 import pieces
@@ -14,6 +15,7 @@ class Game:
         self.gestionary = gestionary
 
         self.players = [pb.Player("w") if "w" in const.HUMAN else pb.Bot("w"), pb.Player("b") if "b" in const.HUMAN else pb.Bot("b")]
+        self.index_last_capture_or_pawn_move = 0
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
@@ -26,11 +28,14 @@ class Game:
         self.double_click = False
         self.left_click_down = 0
         self.left_click_up = 0
+        ################################################
         self.candidate_move = [0, 0]
         self.list_legal_moves = []
         self.legal_moves = 0
         #################################################
         self.sound_to_play = []
+        ################################################
+        self.result = None
 
     def input_to_candidate_move(self):
         """
@@ -365,6 +370,8 @@ class Game:
             # if double_check
             if nb_checks > 1: break
 
+        if nb_checks: self.sound_to_play.append("check")
+
         for j in range(6):
             # if king
             if j == 5:
@@ -408,13 +415,15 @@ class Game:
                         self.list_legal_moves[i] = 0
 
 
+        # checkmate and stalemate
         if all(move == 0 for move in self.list_legal_moves):
-            if nb_checks == 0: print("stalemate")
-            else: print("checkmate")
-
             self.sound_to_play.append("end")
-
-        elif nb_checks: self.sound_to_play.append("check")
+            if nb_checks == 0:
+                print("stalemate")
+                self.result =  0
+            else:
+                print("checkmate")
+                self.result = 1
 
 
     def play_move(self, square_i, square_f, color, promotion=False):
@@ -446,6 +455,7 @@ class Game:
                     if opposite_player.pieces[i] & (square_f >> 8): opposite_player.pieces[i] ^= square_f >> 8
 
             self.sound_to_play.append("capture")
+            self.index_last_capture_or_pawn_move = self.index_position
 
         for i in range(6):
             # changing the moving piece
@@ -465,6 +475,11 @@ class Game:
                 else:
                     player.pieces[promotion] |= square_f
                     self.sound_to_play.append("promotion")
+                    self.index_last_capture_or_pawn_move = self.index_position
+
+                # pawns
+                if i == 0:
+                    self.index_last_capture_or_pawn_move = self.index_position
 
                 # rooks
                 if i == 3:
@@ -483,6 +498,7 @@ class Game:
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
                 self.sound_to_play.append("capture")
+                self.index_last_capture_or_pawn_move = self.index_position
 
         self.update_position()
 
@@ -515,3 +531,20 @@ class Game:
         self.legal_moves = 0
         self.index_position += 1
         self.player_turn = self.index_position % 2
+
+        self.get_all_legal_moves(self.player_turn)
+        if self.result is None:
+            # 3-fold repetition
+            nb_same_position = 1
+            for i, position in enumerate(self.list_position[:-1:2]):
+                if (position[0][0].pieces == self.list_position[-1][0][0].pieces
+                        and position[0][1].pieces == self.list_position[-1][0][1].pieces
+                        and position[2] == self.list_legal_moves):
+                    nb_same_position += 1
+
+            if nb_same_position >= 3:
+                self.result = 0
+
+            # 50-move rule
+            if self.index_position - self.index_last_capture_or_pawn_move >= 100:
+                self.result = 0

@@ -103,19 +103,13 @@ class Gestionary:
 
 
             if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):
+                print(self.chess_game.result)
+
                 if self.input:
                     self.chess_game.input_to_candidate_move()
 
-                if not self.chess_game.list_legal_moves:
-                    self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
-
-                    sound.play_sound(self)
-                    if self.chess_game.list_position[self.chess_game.index_position][3] == 0:
-                        self.chess_game.list_position[self.chess_game.index_position][3] = copy.deepcopy(self.chess_game.sound_to_play)
-                    self.chess_game.sound_to_play.clear()
-
-                elif self.changed_position:
-                    sound.play_sound(self)
+                if self.changed_position:
+                    sound.play_sound(gestionary)
                     self.chess_game.sound_to_play.clear()
 
                 if self.chess_game.candidate_move[1]:

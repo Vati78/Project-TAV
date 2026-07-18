@@ -5,6 +5,8 @@ Classe joueur humain et bot
 import const
 import board
 import pieces
+import sound
+import copy
 
 class Item:
     def __init__(self, color):
@@ -36,6 +38,7 @@ class Item:
         self.a_rook_move = False
         self.h_rook_move = False
         self.last_piece_played = (0, 0)
+        self.last_capture_or_pawn_move_index = 0
 
     def update_pos(self):
         self.pieces_total = 0
@@ -53,6 +56,12 @@ class Player(Item):
             promotion = True
 
         gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
+
+        if not gestionary.chess_game.candidate_move[1]:
+            sound.play_sound(gestionary)
+            if gestionary.chess_game.list_position[gestionary.chess_game.index_position][3] == 0:
+                gestionary.chess_game.list_position[gestionary.chess_game.index_position][3] = copy.deepcopy(gestionary.chess_game.sound_to_play)
+            gestionary.chess_game.sound_to_play.clear()
 
 
         """
