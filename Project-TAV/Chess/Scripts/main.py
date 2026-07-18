@@ -10,6 +10,7 @@ import game
 import mouse_keys as mk
 import menu
 import player_bot as pb
+import sound
 import copy
 
 os.chdir(os.path.dirname(__file__))
@@ -25,6 +26,7 @@ class Gestionary:
         self.mouse_pos = None
         self.previous_mouse_pos = []
         self.input = False
+        self.changed_position = False
 
     def run(self):
         running = True
@@ -32,7 +34,7 @@ class Gestionary:
         const.start_sound.play()
         self.chess_game.left_click_up = [None,None,None,None,None]
         cooldown = 0
-        changed_position = False
+
 
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
 
@@ -52,37 +54,36 @@ class Gestionary:
                     self.chess_game.index_position -= 1
                     self.chess_game.player_turn ^= 1
 
-                    changed_position = True
+                    self.changed_position = True
 
             if user_input[pg.K_RIGHT]:
                 if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position += 1
                     self.chess_game.player_turn ^= 1
 
-                    changed_position = True
+                    self.changed_position = True
 
             if user_input[pg.K_DOWN]:
                 if not cooldown and self.chess_game.index_position:
                     self.chess_game.index_position = 0
                     self.chess_game.player_turn = 0
 
-                    changed_position = True
+                    self.changed_position = True
 
             if user_input[pg.K_UP]:
                 if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position = len(self.chess_game.list_position) - 1
                     self.chess_game.player_turn = self.chess_game.index_position % 2
 
-                    changed_position = True
+                    self.changed_position = True
 
-            if changed_position:
+            if self.changed_position:
                 self.chess_game.players = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][0])
                 self.chess_game.total = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][1])
                 self.chess_game.list_legal_moves = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][2])
+                self.chess_game.sound_to_play = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][3])
 
-                cooldown = 30
-
-                changed_position = False
+                cooldown = 20
 
 
             for event in pg.event.get():
@@ -108,6 +109,15 @@ class Gestionary:
                 if not self.chess_game.list_legal_moves:
                     self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
 
+                    sound.play_sound(self)
+                    if self.chess_game.list_position[self.chess_game.index_position][3] == 0:
+                        self.chess_game.list_position[self.chess_game.index_position][3] = copy.deepcopy(self.chess_game.sound_to_play)
+                    self.chess_game.sound_to_play.clear()
+
+                elif self.changed_position:
+                    sound.play_sound(self)
+                    self.chess_game.sound_to_play.clear()
+
                 if self.chess_game.candidate_move[1]:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
 
@@ -124,6 +134,7 @@ class Gestionary:
             pg.display.update()
 
             self.input = False
+            self.changed_position = False
             self.previous_mouse_pos.append(self.mouse_pos[0])
 
             if len(self.previous_mouse_pos) > 5: del self.previous_mouse_pos[0]

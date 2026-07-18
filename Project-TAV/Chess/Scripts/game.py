@@ -17,7 +17,8 @@ class Game:
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
-        self.list_position = [[copy.deepcopy(self.players), self.total, 0]]
+        #                      players                      total              legal_moves        sound
+        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                 []]]
         ################################################
         self.player_turn = self.index_position % 2
         ################################################
@@ -28,13 +29,14 @@ class Game:
         self.candidate_move = [0, 0]
         self.list_legal_moves = []
         self.legal_moves = 0
-
+        #################################################
+        self.sound_to_play = []
 
     def input_to_candidate_move(self):
         """
         transforms input into the move wanted by the user
-        :return: None
         """
+
         """
         Click down :
         if clicked not on right piece color
@@ -410,6 +412,10 @@ class Game:
             if nb_checks == 0: print("stalemate")
             else: print("checkmate")
 
+            self.sound_to_play.append("end")
+
+        elif nb_checks: self.sound_to_play.append("check")
+
 
     def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
@@ -419,11 +425,13 @@ class Game:
         if player.pieces[5] == square_i and square_f == square_i << 2:
             player.pieces[3] = player.pieces[3] ^ (square_f << 1) | (square_f >> 1)
             player.h_rook_move = True
+            self.sound_to_play.append("castle")
 
         # long castle
         elif player.pieces[5] == square_i and square_f == square_i >> 2:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
             player.a_rook_move = True
+            self.sound_to_play.append("castle")
 
         # en passant
         elif (player.pieces[0] & square_i
@@ -436,6 +444,8 @@ class Game:
             else:
                 for i in range(6):
                     if opposite_player.pieces[i] & (square_f >> 8): opposite_player.pieces[i] ^= square_f >> 8
+
+            self.sound_to_play.append("capture")
 
         for i in range(6):
             # changing the moving piece
@@ -452,7 +462,9 @@ class Game:
                         return
 
                 if not promotion: player.pieces[i] |= square_f
-                else: player.pieces[promotion] |= square_f
+                else:
+                    player.pieces[promotion] |= square_f
+                    self.sound_to_play.append("promotion")
 
                 # rooks
                 if i == 3:
@@ -470,9 +482,7 @@ class Game:
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
-
-
-
+                self.sound_to_play.append("capture")
 
         self.update_position()
 
@@ -495,7 +505,7 @@ class Game:
 
         # if "current" position or another move has been played
         if not (self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played == self.list_position[self.index_position+1][0][self.player_turn].last_piece_played):
-            self.list_position.append([copy.deepcopy(self.players), self.total, 0])
+            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0])
 
 
         self.left_click_down = 0
