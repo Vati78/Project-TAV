@@ -19,8 +19,8 @@ class Game:
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
-        #                      players                      total              legal_moves        sound
-        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                 []]]
+        #                      players                      total              list_legal_moves        check          sound
+        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         []]]
         ################################################
         self.player_turn = self.index_position % 2
         ################################################
@@ -30,8 +30,10 @@ class Game:
         self.left_click_up = 0
         ################################################
         self.candidate_move = [0, 0]
+        self.check = False
         self.list_legal_moves = []
         self.legal_moves = 0
+        self.illegal_move = False
         #################################################
         self.sound_to_play = []
         ################################################
@@ -119,6 +121,8 @@ class Game:
                     self.legal_moves = 0
                 else:
                     self.clicked_move = True
+                    if self.check:
+                        self.illegal_move = True
             else:
                 if self.double_click:
                     self.candidate_move = [0,0]
@@ -130,8 +134,6 @@ class Game:
 
         if self.left_click_up:
             self.left_click_up = 0
-
-        #print(self.candidate_move, self.clicked_move, self.double_click)
 
 
     def check_and_pins(self, color, square):
@@ -370,14 +372,16 @@ class Game:
             # if double_check
             if nb_checks > 1: break
 
-        if nb_checks: self.sound_to_play.append("check")
+        if nb_checks:
+            self.sound_to_play.append("check")
+            self.check = True
 
         for j in range(6):
             # if king
             if j == 5:
                 square = self.players[color].pieces[5]
                 i = square.bit_length() - 1
-                legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
+                legal_moves = pieces.Piece().King(color).legal_moves(self.gestionary, square)
 
                 for move in board.split_bits(legal_moves):
                     a = self.check_and_pins(color, move)
@@ -395,7 +399,6 @@ class Game:
                     legal_moves ^= square >> 2
 
                 self.list_legal_moves[i] = legal_moves
-
 
             else:
                 if nb_checks < 2:
@@ -504,9 +507,6 @@ class Game:
 
 
     def update_position(self):
-        # if not already calculated
-        if self.index_position == len(self.list_position) - 1:
-            self.list_position[-1][2] = copy.deepcopy(self.list_legal_moves)
 
         self.players[self.player_turn].last_piece_played = self.candidate_move
         for i in self.players: i.update_pos()
@@ -521,7 +521,7 @@ class Game:
 
         # if "current" position or another move has been played
         if not (self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played == self.list_position[self.index_position+1][0][self.player_turn].last_piece_played):
-            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0])
+            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0, 0])
 
 
         self.left_click_down = 0
@@ -529,10 +529,15 @@ class Game:
         self.candidate_move = [0,0]
         self.list_legal_moves = []
         self.legal_moves = 0
+        self.check = False
         self.index_position += 1
         self.player_turn = self.index_position % 2
 
+        # updates list_legal_moves and check
         self.get_all_legal_moves(self.player_turn)
+        self.list_position[-1][2] = copy.deepcopy(self.list_legal_moves)
+        self.list_position[-1][3] = self.check
+
         if self.result is None:
             # 3-fold repetition
             nb_same_position = 1

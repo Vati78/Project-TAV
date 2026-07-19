@@ -27,22 +27,26 @@ class Gestionary:
         self.previous_mouse_pos = []
         self.input = False
         self.changed_position = False
+        self.illegal_move_time = 0
 
     def run(self):
         running = True
 
         const.start_sound.play()
         self.chess_game.left_click_up = [None,None,None,None,None]
+
         cooldown = 0
 
-
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
+        self.chess_game.list_position[0][2] = copy.deepcopy(self.chess_game.list_legal_moves)
+        self.chess_game.list_position[0][3] = self.chess_game.check
 
 
         while running:
             self.mouse_pos = pg.mouse.get_pos()
             user_input = pg.key.get_pressed()
-            if cooldown > 0: cooldown -= 1
+            if cooldown: cooldown -= 1
+            if self.illegal_move_time: self.illegal_move_time -= 1
 
             if user_input[pg.K_a]:
                 if not cooldown:
@@ -78,10 +82,14 @@ class Gestionary:
                     self.changed_position = True
 
             if self.changed_position:
+                self.chess_game.candidate_move = [0, 0]
+                self.chess_game.legal_moves = 0
+
                 self.chess_game.players = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][0])
-                self.chess_game.total = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][1])
+                self.chess_game.total = self.chess_game.list_position[self.chess_game.index_position][1]
                 self.chess_game.list_legal_moves = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][2])
-                self.chess_game.sound_to_play = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][3])
+                self.chess_game.check = self.chess_game.list_position[self.chess_game.index_position][3]
+                self.chess_game.sound_to_play = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][4])
 
                 cooldown = 20
 
@@ -103,10 +111,14 @@ class Gestionary:
 
 
             if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):
-                print(self.chess_game.result)
-
                 if self.input:
                     self.chess_game.input_to_candidate_move()
+
+                if self.chess_game.illegal_move:
+                    const.illegal_sound.play()
+                    self.illegal_move_time = const.ILLEGAL_MOVE_DURATION
+
+                    self.chess_game.illegal_move = False
 
                 if self.changed_position:
                     sound.play_sound(gestionary)

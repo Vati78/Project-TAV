@@ -16,17 +16,30 @@ def draw_board(gestionary):
     for col in range(8):
         for rank in range(8):
             square = 1 << (8 * rank + col)
+
             if (col+rank)%2 == 0:
                 if square in gestionary.chess_game.players[gestionary.chess_game.player_turn ^ 1].last_piece_played or square == gestionary.chess_game.candidate_move[0]:
-                        pg.draw.rect(gestionary.win, const.LAST_MOVE_WHITE[theme_index], (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
+                    color = const.LAST_MOVE_WHITE[theme_index]
                 else:
-                    pg.draw.rect(gestionary.win, const.WHITE[theme_index], (col*const.SQUARE, rank*const.SQUARE, const.SQUARE, const.SQUARE))
+                    color = const.WHITE[theme_index]
+
             else:
                 if  square in gestionary.chess_game.players[gestionary.chess_game.player_turn ^ 1].last_piece_played or square == gestionary.chess_game.candidate_move[0]:
-                    pg.draw.rect(gestionary.win, const.LAST_MOVE_BLACK[theme_index], (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
+                    color = const.LAST_MOVE_BLACK[theme_index]
                 else:
-                    pg.draw.rect(gestionary.win, const.BLACK[theme_index], (col*const.SQUARE, rank*const.SQUARE, const.SQUARE, const.SQUARE))
+                    color = const.BLACK[theme_index]
 
+            # changes color for illegal move animation
+            if gestionary.illegal_move_time and square == gestionary.chess_game.players[gestionary.chess_game.player_turn].pieces[5]:
+                color = (const.ILLEGAL_MOVE_COLOR[0] + round((color[0] - const.ILLEGAL_MOVE_COLOR[0]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)),
+                         const.ILLEGAL_MOVE_COLOR[1] + round((color[1] - const.ILLEGAL_MOVE_COLOR[1]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)),
+                         const.ILLEGAL_MOVE_COLOR[2] + round((color[2] - const.ILLEGAL_MOVE_COLOR[2]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)))
+
+
+            pg.draw.rect(gestionary.win, color, (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
+
+
+            # highlight selected square
             if square & mk.mouse_to_coor(gestionary.mouse_pos):
                 if square & gestionary.chess_game.total or gestionary.chess_game.candidate_move[0]:
                     pg.draw.rect(gestionary.win, (255, 255, 255), (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE), 2)
