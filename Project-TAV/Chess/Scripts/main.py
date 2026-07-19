@@ -35,6 +35,7 @@ class Gestionary:
         const.start_sound.play()
         self.chess_game.left_click_up = [None,None,None,None,None]
 
+        active_key = None
         cooldown = 0
 
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
@@ -44,42 +45,71 @@ class Gestionary:
 
         while running:
             self.mouse_pos = pg.mouse.get_pos()
-            user_input = pg.key.get_pressed()
             if cooldown: cooldown -= 1
             if self.illegal_move_time: self.illegal_move_time -= 1
 
-            if user_input[pg.K_a]:
+            ################################
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_DOWN: active_key = pg.K_DOWN
+                    elif event.key == pg.K_UP: active_key = pg.K_UP
+                    elif event.key == pg.K_LEFT: active_key = pg.K_LEFT
+                    elif event.key == pg.K_RIGHT: active_key = pg.K_RIGHT
+                    elif event.key == pg.K_a: active_key = pg.K_a
+
+                elif event.type == pg.KEYUP:
+                    if event.key == active_key:
+                        active_key = None
+
+                elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                    self.chess_game.left_click_down = mk.mouse_to_coor(self.mouse_pos)
+                    self.input = True
+
+                elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                    self.chess_game.left_click_down = 0
+                    self.chess_game.left_click_up = mk.mouse_to_coor(self.mouse_pos)
+                    self.input = True
+
+            ################################
+
+            # change position or theme
+            if active_key == pg.K_a:
                 if not cooldown:
                     board.theme_index = (board.theme_index+1)%const.NMB_THEMES
                     cooldown = 30
 
-            if user_input[pg.K_LEFT]:
+            elif active_key == pg.K_LEFT:
                 if not cooldown and self.chess_game.index_position:
                     self.chess_game.index_position -= 1
                     self.chess_game.player_turn ^= 1
 
                     self.changed_position = True
 
-            if user_input[pg.K_RIGHT]:
+            elif active_key == pg.K_RIGHT:
                 if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position += 1
                     self.chess_game.player_turn ^= 1
 
                     self.changed_position = True
 
-            if user_input[pg.K_DOWN]:
+            elif active_key == pg.K_DOWN:
                 if not cooldown and self.chess_game.index_position:
                     self.chess_game.index_position = 0
                     self.chess_game.player_turn = 0
 
                     self.changed_position = True
 
-            if user_input[pg.K_UP]:
+            elif active_key == pg.K_UP:
                 if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position = len(self.chess_game.list_position) - 1
                     self.chess_game.player_turn = self.chess_game.index_position % 2
 
                     self.changed_position = True
+
 
             if self.changed_position:
                 self.chess_game.candidate_move = [0, 0]
@@ -93,22 +123,7 @@ class Gestionary:
 
                 cooldown = 20
 
-
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    running = False
-
-
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                    self.chess_game.left_click_down = mk.mouse_to_coor(self.mouse_pos)
-                    self.input = True
-
-
-                if event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                    self.chess_game.left_click_down = 0
-                    self.chess_game.left_click_up = mk.mouse_to_coor(self.mouse_pos)
-                    self.input = True
-
+            ################################
 
             if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):
                 if self.input:
