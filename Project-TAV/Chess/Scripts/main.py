@@ -12,6 +12,7 @@ import menu
 import player_bot as pb
 import sound
 import copy
+import time
 
 os.chdir(os.path.dirname(__file__))
 
@@ -80,7 +81,7 @@ class Gestionary:
             if active_key == pg.K_a:
                 if not cooldown:
                     board.theme_index = (board.theme_index+1)%const.NMB_THEMES
-                    cooldown = 30
+                    cooldown = 20
 
             elif active_key == pg.K_LEFT:
                 if not cooldown and self.chess_game.index_position:
@@ -121,7 +122,7 @@ class Gestionary:
                 self.chess_game.check = self.chess_game.list_position[self.chess_game.index_position][3]
                 self.chess_game.sound_to_play = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][4])
 
-                cooldown = 20
+                cooldown = 15
 
             ################################
 
@@ -143,7 +144,7 @@ class Gestionary:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
 
             else:
-                self.chess_game.players[self.chess_game.player_turn].return_move()
+                self.chess_game.players[self.chess_game.player_turn].return_move(self)
 
             self.win.fill((50, 50, 50))
             board.draw_board(self)
@@ -153,6 +154,11 @@ class Gestionary:
             board.write_player_turn(self)
 
             pg.display.update()
+
+            if self.chess_game.result:
+                print("game ended")
+                running = False
+                time.sleep(5)
 
             self.input = False
             self.changed_position = False

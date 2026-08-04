@@ -49,6 +49,8 @@ class Piece:
             self.color = color
             self.opposite_color = self.color ^ 1
 
+            self.value = 100
+
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
 
@@ -139,6 +141,8 @@ class Piece:
             self.color = color
             self.opposite_color = self.color ^ 1
 
+            self.value = 500
+
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
 
@@ -194,6 +198,8 @@ class Piece:
 
             self.knight_moves = self.get_knight_moves()
 
+            self.value = 300
+
         def get_knight_moves(self):
             moves = []
             directions = [(6, 1), (10, 1), (15, 2), (17, 2)]
@@ -215,6 +221,8 @@ class Piece:
         def __init__(self, color):
             self.color = color
             self.opposite_color = self.color ^ 1
+
+            self.value = 320
 
         def legal_moves(self, gestionary, square_i):
             legal_moves = 0
@@ -317,15 +325,11 @@ class Piece:
 
 
             # short castle
-            if not (gestionary.chess_game.players[self.color].king_move
-                    or gestionary.chess_game.players[self.color].h_rook_move
-                    or 3 << (5 + 7*self.opposite_color*8) & gestionary.chess_game.total):
+            if gestionary.chess_game.players[self.color].s_castling_right and not 3 << (5 + 7*self.opposite_color*8) & gestionary.chess_game.total:
                 legal_moves |= 1 << (6 + 7*self.opposite_color*8)
 
             # long castle
-            if not (gestionary.chess_game.players[self.color].king_move
-                    or gestionary.chess_game.players[self.color].a_rook_move
-                    or 7 << (1 + 7*self.opposite_color*8) & gestionary.chess_game.total):
+            if gestionary.chess_game.players[self.color].l_castling_right and not 7 << (1 + 7*self.opposite_color*8) & gestionary.chess_game.total:
                 legal_moves |= 1 << (2 + 7*self.opposite_color*8)
 
             return legal_moves
@@ -333,6 +337,8 @@ class Piece:
     class Queen:
         def __init__(self, color):
             self.color = color
+
+            self.value = 900
 
         def legal_moves(self, gestionary, square_i):
             return Piece.Rook(self.color).legal_moves(gestionary, square_i) | Piece.Bishop(self.color).legal_moves(gestionary, square_i)
