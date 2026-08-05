@@ -7,6 +7,7 @@ import board
 import pieces
 import sound
 import copy
+import random as rd
 
 class Item:
     def __init__(self, color):
@@ -65,5 +66,17 @@ class Player(Item):
 
 
 class Bot(Item):
-    def return_move(self):
-        pass
+    def return_move(self, gestionary):
+        """
+        /!\ temporaire
+        :param gestionary:
+        :return:
+        """
+        gestionary.chess_game.get_all_legal_moves(int(self.color == "b"))
+        lmoves=[]
+        for i, j in enumerate(gestionary.chess_game.list_legal_moves):
+            for b in board.split_bits(j):
+                lmoves.append([2**i,b])
+        if lmoves==[]:return
+        move = rd.choice(lmoves)
+        gestionary.chess_game.play_move(move[0], move[1], int(self.color == "b"), False)

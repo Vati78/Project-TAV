@@ -12,6 +12,7 @@ import menu
 import player_bot as pb
 import sound
 import copy
+from random import choice
 
 os.chdir(os.path.dirname(__file__))
 
@@ -29,7 +30,16 @@ class Gestionary:
         self.changed_position = False
         self.illegal_move_time = 0
 
-    def run(self):
+    def run(self, o):
+        """
+
+        :param o: nb of players, difficulty, color
+        :return:
+        """
+        if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
+        self.chess_game.players = [pb.Player("w") if o[0]==2 or o[2]=="w" else pb.Bot("w"), pb.Player("b") if o[0]==2 or o[2]=="b" else pb.Bot("b")]
+
+
         running = True
 
         const.start_sound.play()
@@ -143,7 +153,7 @@ class Gestionary:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
 
             else:
-                self.chess_game.players[self.chess_game.player_turn].return_move()
+                self.chess_game.players[self.chess_game.player_turn].return_move(self)
 
             self.win.fill((50, 50, 50))
             board.draw_board(self)
