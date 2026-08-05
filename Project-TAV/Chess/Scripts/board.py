@@ -156,7 +156,12 @@ def write_player_turn(gestionary):
     t += " is playing"
     police = pg.font.SysFont("Arial", int(const.SQUARE/3))
     texte = police.render(t, True, (255,255,255))
-    gestionary.win.blit(texte, (const.WIDTH + 30, 10))
+    gestionary.win.blit(texte, (const.WIDTH + 30, const.HEIGHT // 2 - 13))
+    
+
+# shows each player's legal time
+def draw_timer(gestionary,color):
+    pass
 
 
 # splits bits into seperated bits
