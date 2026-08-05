@@ -12,13 +12,26 @@ HEIGHT = 8*SQUARE
 
 # Bitboards
 FULL_BOARD = 0xFFFFFFFFFFFFFFFF
-NOT_A_FILE = 0xfefefefefefefefe
-NOT_H_FILE = 0x7f7f7f7f7f7f7f7f
 RANK = 0xFF
+FILE = 0x0101010101010101
+NOT_A_FILE = FULL_BOARD ^ FILE
+NOT_H_FILE = FULL_BOARD ^ (FILE << 7)
+
 
 # Coordinates
 COLS = ['a','b','c','d','e','f','g','h']
 RANKS = ['1','2','3','4','5','6','7','8']
+
+# Square value
+square_value = []
+for rank in range(8):
+    for file in range(8):
+        d = min(rank, 7-rank, file, 7-file)
+
+        if d == 3: square_value.append(50)
+        elif d == 2: square_value.append(25)
+        elif d == 1: square_value.append(10)
+        else: square_value.append(5)
 
 # Pieces
 PIECES = {0 : "Pawn",
@@ -40,7 +53,7 @@ ILLEGAL_MOVE_COLOR = (255,0,0)
 ILLEGAL_MOVE_DURATION = 60
 
 # Players
-HUMAN = "wb" #None
+HUMAN = "wb"
 
 #Sounds
 move_sound = pg.mixer.Sound("../Sounds/move.mp3")

@@ -1,13 +1,14 @@
 """
 Toutes les fonctions qui gèrent le déroulement de la partie.
 """
-from itertools import count
 
 import const
 import pieces
 import player_bot as pb
 import board
 import copy
+
+import math
 
 
 class Game:
@@ -38,6 +39,67 @@ class Game:
         self.sound_to_play = []
         ################################################
         self.result = None
+
+
+    def status_to_key(self):
+        return (self.players[0].pieces[0],
+                self.players[0].pieces[1],
+                self.players[0].pieces[2],
+                self.players[0].pieces[3],
+                self.players[0].pieces[4],
+                self.players[0].pieces[5],
+                self.players[0].pieces_total,
+                self.players[0].s_castling_right,
+                self.players[0].l_castling_right,
+                self.players[0].castled,
+                self.players[0].last_piece_played,
+                self.players[0].last_capture_or_pawn_move_index,
+                self.players[1].pieces[0],
+                self.players[1].pieces[1],
+                self.players[1].pieces[2],
+                self.players[1].pieces[3],
+                self.players[1].pieces[4],
+                self.players[1].pieces[5],
+                self.players[1].pieces_total,
+                self.players[1].s_castling_right,
+                self.players[1].l_castling_right,
+                self.players[1].castled,
+                self.players[1].last_piece_played,
+                self.players[1].last_capture_or_pawn_move_index,
+                self.total,
+                copy.deepcopy(self.list_legal_moves),
+                self.check)
+
+
+    def key_to_status(self, key):
+        self.players[0].pieces[0] = key[0]
+        self.players[0].pieces[1] = key[1]
+        self.players[0].pieces[2] = key[2]
+        self.players[0].pieces[3] = key[3]
+        self.players[0].pieces[4] = key[4]
+        self.players[0].pieces[5] = key[5]
+        self.players[0].pieces_total = key[6]
+        self.players[0].s_castling_right = key[7]
+        self.players[0].l_castling_right = key[8]
+        self.players[0].castled = key[9]
+        self.players[0].last_piece_played = key[10]
+        self.players[0].last_capture_or_pawn_move_index = key[11]
+        self.players[1].pieces[0] = key[12]
+        self.players[1].pieces[1] = key[13]
+        self.players[1].pieces[2] = key[14]
+        self.players[1].pieces[3] = key[15]
+        self.players[1].pieces[4] = key[16]
+        self.players[1].pieces[5] = key[17]
+        self.players[1].pieces_total = key[18]
+        self.players[1].s_castling_right = key[19]
+        self.players[1].l_castling_right = key[20]
+        self.players[1].castled = key[21]
+        self.players[1].last_piece_played = key[22]
+        self.players[1].last_capture_or_pawn_move_index = key[23]
+        self.total = key[24]
+        self.list_legal_moves = copy.deepcopy(key[25])
+        self.check = key[26]
+
 
     def input_to_candidate_move(self):
         """
@@ -422,11 +484,9 @@ class Game:
         if all(move == 0 for move in self.list_legal_moves):
             self.sound_to_play.append("end")
             if nb_checks == 0:
-                print("stalemate")
                 self.result =  0
             else:
-                print("checkmate")
-                self.result = 1
+                self.result = 2*self.player_turn - 1
 
 
     def play_move(self, square_i, square_f, color, promotion=False):
@@ -436,13 +496,15 @@ class Game:
         # short castle
         if player.pieces[5] == square_i and square_f == square_i << 2:
             player.pieces[3] = player.pieces[3] ^ (square_f << 1) | (square_f >> 1)
-            player.h_rook_move = True
+            player.s_castling_right = False
+            player.castled = True
             self.sound_to_play.append("castle")
 
         # long castle
         elif player.pieces[5] == square_i and square_f == square_i >> 2:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
-            player.a_rook_move = True
+            player.l_castling_right = False
+            player.castled = True
             self.sound_to_play.append("castle")
 
         # en passant
@@ -486,22 +548,23 @@ class Game:
 
                 # rooks
                 if i == 3:
-                    if not (player.h_rook_move or const.NOT_H_FILE & square_i):
-                        player.h_rook_move = True
+                    if not const.NOT_H_FILE & square_i:
+                        player.s_castling_right = False
 
-                    if not (player.a_rook_move or const.NOT_A_FILE & square_i):
-                        player.a_rook_move = True
+                    if not const.NOT_A_FILE & square_i:
+                        player.l_castling_right = False
 
                 # king
                 if i == 5:
-                    if not player.king_move:
-                        player.king_move = True
+                    player.s_castling_right = False
+                    player.l_castling_right = False
 
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
                 self.sound_to_play.append("capture")
                 self.index_last_capture_or_pawn_move = self.index_position
+
 
         self.update_position()
 
@@ -553,3 +616,127 @@ class Game:
             # 50-move rule
             if self.index_position - self.index_last_capture_or_pawn_move >= 100:
                 self.result = 0
+
+
+    def evaluation(self) -> int:
+        # game end
+        if self.result:
+            return self.result * math.inf
+
+        e = 0
+        """
+        isolated_pawns_p = 0
+        doubled_pawns_p = 0
+        material_p = 0
+        center_control_p = 0
+        center_control_legal_moves_p = 0
+        enemy_territory_control_p = 0
+        piece_development_p = 0
+        """
+
+        nb_pawns = [[], []]
+        for i in range(2):
+            for j in range(8):
+                nb_pawns[i].append((self.players[i].pieces[0] & (const.FILE << j)).bit_count())
+
+        isolated_pawns = [[False for _ in range(8)], [False for _ in range(8)]]
+        for i in range(2):
+            for j in range(8):
+                if j == 0:
+                    if not nb_pawns[i][1]: isolated_pawns[i][0] = True
+                elif j == 7:
+                    if not nb_pawns[i][6]: isolated_pawns[i][7] = True
+                else:
+                    if not (nb_pawns[i][j - 1] or nb_pawns[i][j + 1]): isolated_pawns[i][j] = True
+
+        for index in range(2):
+            player = self.players[index]
+            coeff = -2 * index + 1
+
+            # calculates legal moves for other player
+            if index != self.player_turn:
+                c_check = self.check
+                c_list_legal_moves = self.list_legal_moves
+                self.get_all_legal_moves(index)
+
+
+            for i in range(8):
+                if isolated_pawns[index][i]:
+                    # isolated pawns
+                    e -= coeff * 50
+
+                # doubled (or tripled) pawns
+                if nb_pawns[index][i] > 1:
+                    e -= coeff * 5 * (nb_pawns[index][i] ** 3)
+
+
+            for i in range(5):
+                player_pieces = player.pieces[i]
+
+                # material
+                e += coeff * player_pieces.bit_count() * pieces.get_type(i, index).value
+
+
+                for piece in board.split_bits(player_pieces):
+                    square_index = piece.bit_length() - 1
+
+                    # center control
+                    e += coeff * const.square_value[square_index]
+
+                    for move in board.split_bits(self.list_legal_moves[square_index]):
+                        move_index = move.bit_length() - 1
+
+                        # center control
+                        e += coeff * const.square_value[move_index]
+
+                        # enemy territory control
+                        d = abs(7*index - move_index//8)
+                        if d <= 3:
+                            e += coeff * (40 - 10*d)
+
+
+                    # except pawns
+                    if i:
+                        # piece development
+                        e += coeff * 10 * ((player_pieces ^ self.list_position[0][0][index].pieces[i]).bit_count()//2)
+
+                        # rook or queen
+                        if i in (3, 4):
+                            file = (piece.bit_length() - 1)%8
+                            if not player.pieces[0] & (const.FILE << file):
+                                nb_opposite_pawns = nb_pawns[index ^ 1][file]
+                                # attacks isolated pawns
+                                if isolated_pawns[index ^ 1][file]:
+                                    e += coeff * 75 * nb_opposite_pawns
+                                # (semi) open files
+                                elif nb_opposite_pawns < 2:
+                                    e += coeff * 60 * (2 >> nb_opposite_pawns)
+
+            # castle
+            if player.castled:
+                e += coeff * 150
+            elif not (player.s_castling_right or player.l_castling_right):
+                e -= coeff * 200
+
+            # re-changes variables to normal status
+            if index != self.player_turn:
+                self.check = c_check
+                self.list_legal_moves = c_list_legal_moves
+
+        """
+        print("Material :", material_p)
+        e += material_p
+        print("Isolated pawns :", isolated_pawns_p)
+        e += isolated_pawns_p
+        print("Doubled pawns :", doubled_pawns_p)
+        e += doubled_pawns_p
+        print("Center control :", center_control_p)
+        e += center_control_p
+        print("Center control legal moves :", center_control_legal_moves_p)
+        e += center_control_legal_moves_p
+        print("Enemy control legal moves :", enemy_territory_control_p)
+        e += enemy_territory_control_p
+        print("Piece development :", piece_development_p)
+        e += piece_development_p"""
+
+        return e
