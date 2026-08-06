@@ -73,7 +73,7 @@ def main_menu(gestionary):
                         sys.exit()
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
-                        o = options(gestionary, o)
+                        o = options(gestionary, o, timer )
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
                         pg.quit()
@@ -84,7 +84,7 @@ def main_menu(gestionary):
 
 
 
-def options(gestionary, o):
+def options(gestionary, o , timer):
     """
 
     :param gestionary:
@@ -100,6 +100,8 @@ def options(gestionary, o):
               Image(400,280,80,45,"min",False if o[0] == 1 else True),
               Image(700,280,70,45,"sec",False if o[0] == 1 else True),
               Image(300,20,350,100, "options")]
+    
+    
               
     buttons = [Button(20,420,300,86,"back"),
                Button(400,170,50,50,"1", "1_i"),
@@ -110,10 +112,10 @@ def options(gestionary, o):
                Button(225,310,104,50,"white", "white_i"),
                Button(440,310,100,50,"black", "black_i"),
                Button(641,310,146,50,"random", "random_i"),
-               Button(275,350,45,45,"-",None,False),
-               Button(325,350,45,45,"+",None,False),
-               Button(575,350,45,45,"-",None,False),
-               Button(625,350,45,45,"+",None,False)]
+               Button(275,350,45,45,"-",None,False if o[0] == 1 else True),
+               Button(325,350,45,45,"+",None,False if o[0] == 1 else True),
+               Button(575,350,45,45,"-",None,False if o[0] == 1 else True),
+               Button(625,350,45,45,"+",None,False if o[0] == 1 else True)]
     
     
     buttons[o[0]].invert()
@@ -124,9 +126,10 @@ def options(gestionary, o):
     for i in range(1,3):
         images[i].enabled = o[0]==1
 
-    ok = True
+    ok = True # mdr =)
+    fin_de_l_humanite = False
     
-    while ok:
+    while ok and not(fin_de_l_humanite): # tout va bien !! 
         pos = pg.mouse.get_pos()
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -136,6 +139,7 @@ def options(gestionary, o):
                 if event.button == 1:
                     if buttons[0].if_input(pos):
                         ok = False
+                        fin_de_l_humanite = True #=((((((
                         #main_menu(gestionary)
 
                     for i in range(1,3):
@@ -145,11 +149,9 @@ def options(gestionary, o):
                                 buttons[2].invert()
                                 for j in range(3,13):
                                     buttons[j].enabled = not buttons[j].enabled
-                                images[1].enabled = not images[1].enabled
-                                images[2].enabled = not images[2].enabled
-                                images[3].enabled = not images[3].enabled
-                                images[4].enabled = not images[4].enabled
-                                images[5].enabled = not images[5].enabled
+                                
+                                for j in range(1,6):
+                                    images[j].enabled = not images[j].enabled
                                 
                                 #print(images[1].enabled ,images[2].enabled, images[3].enabled)
 
@@ -166,6 +168,23 @@ def options(gestionary, o):
                                 for j in range(6,9):
                                     if buttons[j].is_invert: buttons[j].invert()
                                 buttons[i].invert()
+                                
+                    if buttons[9].if_input(pos):
+                        if timer[0] > 0:
+                            timer[0] -= 1
+                            
+                    if buttons[10].if_input(pos):
+                        if timer[0] < 20:
+                            timer[0] += 1
+                            
+                    if buttons[11].if_input(pos):
+                        if timer[1] > 0:
+                            timer[1] -= 1
+                            
+                    if buttons[12].if_input(pos):
+                        if timer[1] < 59:
+                            timer[1] += 1
+                        
 
         gestionary.win.fill((10,12,35))
         
@@ -173,9 +192,32 @@ def options(gestionary, o):
             button.draw(gestionary)
             #print(button.is_invert, end ="; ")
         #print()
+        
+        
         for image in images: image.draw(gestionary)
+        
+        if buttons[2].is_invert:
+            nb_min = str(timer[0])
+            nb_sec = str(timer[1])
+            
+            for indice_min in range(len(nb_min) - 1,-1,-1):
+                nom_chiffre = str(timer[0])[indice_min] + "_chiffre"
+                image_indice_min = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))              
+                gestionary.win.blit(image_indice_min, (330 - (len(str(timer[0])) - indice_min - 1) * 35 , 280))
+                      
+            for indice_sec in range(len(nb_sec) - 1,-1,-1):               
+                nom_chiffre = str(timer[1])[indice_sec] + "_chiffre"
+                image_indice_sec = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))
+                gestionary.win.blit(image_indice_sec, (630 - (len(str(timer[1])) - indice_sec - 1) * 35 , 280))
+                 
+        
         pg.display.update()
+        #print(timer)
 
         
-    return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")]
+    if buttons[1].is_invert:
+        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")]
+    else:
+        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")] #, timer
+            
 
