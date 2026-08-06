@@ -1,4 +1,5 @@
 import pygame as pg, sys
+import time
 from pygame.constants import MOUSEBUTTONDOWN
 
 
@@ -16,12 +17,12 @@ class Button:
 
     def draw(self,gestionary):
         if self.enabled: gestionary.win.blit(self.image, (self.x,self.y))
-        else: pg.draw.rect(gestionary.win, (10,12,35), (self.x,self.y,self.w,self.h))
+        #else: pg.draw.rect(gestionary.win, (10,12,35), (self.x,self.y,self.w,self.h))
 
     def if_input(self, pos):
         """if mouse is in the button"""
         x, y = pos
-        if self.x<=x<=self.x+self.w and self.y<=y<=self.y+self.h:
+        if self.x<=x<=self.x+self.w and self.y<=y<=self.y+self.h and self.enabled:
             return True
 
     def invert(self):
@@ -31,24 +32,34 @@ class Button:
             self.image = image
             self.is_invert = not self.is_invert
 class Image:
-    def __init__(self, x, y, w, h, image):
+    def __init__(self, x, y, w, h, image, enabled = True):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.image = pg.transform.scale(pg.image.load(f"../Images/{image}.png"), (self.w, self.h))
-        self.enabled = True
+        self.enabled = enabled
 
     def draw(self,gestionary):
-        if self.enabled: gestionary.win.blit(self.image, (self.x,self.y))
-        else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
+
+        if self.enabled: 
+            gestionary.win.blit(self.image, (self.x,self.y))
+
+        #else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
 def main_menu(gestionary):
     gestionary.win.fill((10, 12, 35))
     buttons = [Button(300,100,300,86,"play"),
                Button(300,230,300,86,"options"),
                Button(300,360,300,86,"exit")]
+    
+    
     o = [1,1,"r"]
+    
+    #since the time effect isn't already effective in the script, we seperate the time and other otpions for now
+    timer = [10,0] ## [Nb of min, Nb of seconds]
+    
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -71,18 +82,25 @@ def main_menu(gestionary):
         for button in buttons: button.draw(gestionary)
         pg.display.update()
 
+
+
 def options(gestionary, o):
     """
 
     :param gestionary:
     :param o: current options
-    :return: nb of players, difficulty (1-3), color (w,b,r)
+    :return: nb of players, difficulty (1-3), color (w,b,r), time [if 2 players else None] [nb of min, nb of sec]
     """
+    
     gestionary.win.fill((10, 12, 35))
     images = [Image(20, 170, 260, 50, "nb_player"),
               Image(20,240, 205, 50, "difficulty"),
               Image(20, 320, 115, 35, "color"),
+              Image(20,280, 125, 45, "time", False if o[0] == 1 else True),
+              Image(400,280,80,45,"min",False if o[0] == 1 else True),
+              Image(700,280,70,45,"sec",False if o[0] == 1 else True),
               Image(300,20,350,100, "options")]
+              
     buttons = [Button(20,420,300,86,"back"),
                Button(400,170,50,50,"1", "1_i"),
                Button(700,170,50,50,"2", "2_i"),
@@ -91,7 +109,13 @@ def options(gestionary, o):
                Button(730,240,127,50,"master", "master_i"),
                Button(225,310,104,50,"white", "white_i"),
                Button(440,310,100,50,"black", "black_i"),
-               Button(641,310,146,50,"random", "random_i")]
+               Button(641,310,146,50,"random", "random_i"),
+               Button(275,350,45,45,"-",None,False),
+               Button(325,350,45,45,"+",None,False),
+               Button(575,350,45,45,"-",None,False),
+               Button(625,350,45,45,"+",None,False)]
+    
+    
     buttons[o[0]].invert()
     buttons[2+o[1]].invert()
     buttons[6 if o[2]=="w" else (7 if o[2]=="b" else 8)].invert()
@@ -101,6 +125,7 @@ def options(gestionary, o):
         images[i].enabled = o[0]==1
 
     ok = True
+    
     while ok:
         pos = pg.mouse.get_pos()
         for event in pg.event.get():
@@ -118,10 +143,15 @@ def options(gestionary, o):
                             if not buttons[i].is_invert:
                                 buttons[1].invert()
                                 buttons[2].invert()
-                                for j in range(3,9):
+                                for j in range(3,13):
                                     buttons[j].enabled = not buttons[j].enabled
                                 images[1].enabled = not images[1].enabled
                                 images[2].enabled = not images[2].enabled
+                                images[3].enabled = not images[3].enabled
+                                images[4].enabled = not images[4].enabled
+                                images[5].enabled = not images[5].enabled
+                                
+                                #print(images[1].enabled ,images[2].enabled, images[3].enabled)
 
                     for i in range(3,6):
                         if buttons[i].if_input(pos):
@@ -137,11 +167,15 @@ def options(gestionary, o):
                                     if buttons[j].is_invert: buttons[j].invert()
                                 buttons[i].invert()
 
+        gestionary.win.fill((10,12,35))
+        
         for button in buttons:
             button.draw(gestionary)
-            print(button.is_invert, end ="; ")
-        print()
+            #print(button.is_invert, end ="; ")
+        #print()
         for image in images: image.draw(gestionary)
         pg.display.update()
+
+        
     return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")]
 
