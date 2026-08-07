@@ -8,7 +8,7 @@ import const
 import board
 import game
 import mouse_keys as mk
-import menu
+#import menu
 import player_bot as pb
 import sound
 import copy
@@ -220,7 +220,8 @@ class Gestionary:
                     return False
 
 
-
+"""
 if __name__ == "__main__":
     gestionary = Gestionary()
     menu.main_menu(gestionary)
+"""

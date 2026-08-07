@@ -1,5 +1,6 @@
 import pygame as pg, sys
 import time
+import main
 from pygame.constants import MOUSEBUTTONDOWN
 
 
@@ -47,7 +48,8 @@ class Image:
 
         #else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
-def main_menu(gestionary):
+def main_menu():
+    gestionary = main.Gestionary()
     gestionary.win.fill((10, 12, 35))
     buttons = [Button(300,100,300,86,"play"),
                Button(300,230,300,86,"options"),
@@ -59,8 +61,9 @@ def main_menu(gestionary):
     #since the time effect isn't already effective in the script, we seperate the time and other otpions for now
     timer = [10,0] ## [Nb of min, Nb of seconds]
     
+    cur_partie = True
     
-    while True:
+    while cur_partie:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -69,8 +72,8 @@ def main_menu(gestionary):
                 if event.button == 1:
                     if buttons[0].if_input(pg.mouse.get_pos()):
                         gestionary.run(o)
-                        pg.quit()
-                        sys.exit()
+                        cur_partie = False
+                        main_menu()
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
                         o = options(gestionary, o, timer )
@@ -221,3 +224,6 @@ def options(gestionary, o , timer):
         return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")] #, timer
             
 
+if __name__ == "__main__":
+
+    main_menu()
