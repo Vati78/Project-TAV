@@ -1,6 +1,7 @@
 """
 Tour de contrôle de tous les scripts.
 """
+import sys
 
 import pygame as pg
 import os
@@ -8,7 +9,7 @@ import const
 import board
 import game
 import mouse_keys as mk
-#import menu
+import menu
 import player_bot as pb
 import sound
 import copy
@@ -71,6 +72,7 @@ class Gestionary:
                     elif event.key == pg.K_LEFT: active_key = pg.K_LEFT
                     elif event.key == pg.K_RIGHT: active_key = pg.K_RIGHT
                     elif event.key == pg.K_a: active_key = pg.K_a
+                    else: active_key = event.key
 
                 elif event.type == pg.KEYUP:
                     if event.key == active_key:
@@ -121,6 +123,8 @@ class Gestionary:
 
                     self.changed_position = True
 
+            elif active_key == pg.K_q:
+                running = False
 
             if self.changed_position:
                 self.chess_game.candidate_move = [0, 0]
@@ -147,7 +151,7 @@ class Gestionary:
                     self.chess_game.illegal_move = False
 
                 if self.changed_position:
-                    sound.play_sound(gestionary)
+                    sound.play_sound(self)
                     self.chess_game.sound_to_play.clear()
 
                 if self.chess_game.candidate_move[1]:
@@ -182,7 +186,7 @@ class Gestionary:
         board.draw_coor(self)
         board.draw_pieces(self)
 
-        pg.draw.rect(gestionary.win, (255, 255, 255), (col * const.SQUARE, 4*color*const.SQUARE, const.SQUARE, 4 * const.SQUARE))
+        pg.draw.rect(self.win, (255, 255, 255), (col * const.SQUARE, 4*color*const.SQUARE, const.SQUARE, 4 * const.SQUARE))
 
         list_pieces = [4, 3, 1, 2]
 
@@ -220,8 +224,15 @@ class Gestionary:
                     return False
 
 
-"""
 if __name__ == "__main__":
-    gestionary = Gestionary()
-    menu.main_menu(gestionary)
-"""
+    o = None
+    while True:
+        c,o = menu.main_menu(o)
+        if c == 1: #play game
+            gestionary = Gestionary()
+            gestionary.run(o)
+        elif c == 2: #review preview game (not implemented)
+            pass
+        else: #quit
+            pg.quit()
+            sys.exit()

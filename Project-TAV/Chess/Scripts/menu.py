@@ -48,7 +48,11 @@ class Image:
 
         #else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
-def main_menu():
+def main_menu(o = None):
+    """
+    main menu of the game
+    :return: (exit: {0 : quit, 1 : play, 2 : review game}, options)
+    """
     gestionary = main.Gestionary()
     gestionary.win.fill((10, 12, 35))
     buttons = [Button(300,100,300,86,"play"),
@@ -56,7 +60,7 @@ def main_menu():
                Button(300,360,300,86,"exit")]
     
     
-    o = [1,1,"r"]
+    if o is None: o = [2,1,"r"]
     
     #since the time effect isn't already effective in the script, we seperate the time and other otpions for now
     timer = [10,0] ## [Nb of min, Nb of seconds]
@@ -71,16 +75,13 @@ def main_menu():
             elif event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if buttons[0].if_input(pg.mouse.get_pos()):
-                        gestionary.run(o)
-                        cur_partie = False
-                        main_menu()
+                        return 1, o #plays a game with o as options
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
                         o = options(gestionary, o, timer )
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
-                        pg.quit()
-                        sys.exit()
+                        return 0, o #quit the pygame window
         gestionary.win.fill((10, 12, 35))
         for button in buttons: button.draw(gestionary)
         pg.display.update()
@@ -92,6 +93,7 @@ def options(gestionary, o , timer):
 
     :param gestionary:
     :param o: current options
+    :param timer: temporary, will be integrated in o
     :return: nb of players, difficulty (1-3), color (w,b,r), time [if 2 players else None] [nb of min, nb of sec]
     """
     
@@ -229,7 +231,3 @@ def options(gestionary, o , timer):
     else:
         return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")] #, timer
             
-
-if __name__ == "__main__":
-
-    main_menu()
