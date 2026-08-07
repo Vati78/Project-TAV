@@ -181,12 +181,18 @@ def options(gestionary, o , timer):
                             timer[0] += 1
                             
                     if buttons[11].if_input(pos):
-                        if timer[1] > 0:
-                            timer[1] -= 1
+                        
+                        if timer[1] == 59:
+                            timer[1] = 55
+                        elif timer[1] > 0:
+                            timer[1] -= 5
                             
                     if buttons[12].if_input(pos):
-                        if timer[1] < 59:
-                            timer[1] += 1
+                        if timer[1] < 55:
+                            timer[1] += 5
+                            
+                        elif timer[1] == 55:
+                            timer[1] = 59
                         
 
         gestionary.win.fill((10,12,35))
