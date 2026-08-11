@@ -134,7 +134,7 @@ class Gestionary:
                 self.chess_game.total = self.chess_game.list_position[self.chess_game.index_position][1]
                 self.chess_game.list_legal_moves = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][2])
                 self.chess_game.check = self.chess_game.list_position[self.chess_game.index_position][3]
-                self.chess_game.sound_to_play = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][4])
+                self.chess_game.sound_to_play = self.chess_game.list_position[self.chess_game.index_position][4]
 
                 cooldown = 15
 
@@ -152,7 +152,7 @@ class Gestionary:
 
                 if self.changed_position:
                     sound.play_sound(self)
-                    self.chess_game.sound_to_play.clear()
+                    self.chess_game.sound_to_play = 0
 
                 if self.chess_game.candidate_move[1]:
                     self.chess_game.players[self.chess_game.player_turn].move(self)

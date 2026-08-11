@@ -60,11 +60,12 @@ class Player(Item):
 
         gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
 
+        # if a move was indeed made
         if not gestionary.chess_game.candidate_move[1]:
             sound.play_sound(gestionary)
-            if gestionary.chess_game.list_position[gestionary.chess_game.index_position][4] == 0:
-                gestionary.chess_game.list_position[gestionary.chess_game.index_position][4] = copy.deepcopy(gestionary.chess_game.sound_to_play)
-            gestionary.chess_game.sound_to_play.clear()
+            if gestionary.chess_game.list_position[gestionary.chess_game.index_position][4] is None:
+                gestionary.chess_game.list_position[gestionary.chess_game.index_position][4] = gestionary.chess_game.sound_to_play
+            gestionary.chess_game.sound_to_play = 0
 
 
 class Bot(Item):

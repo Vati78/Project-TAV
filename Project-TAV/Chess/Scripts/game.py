@@ -21,7 +21,7 @@ class Game:
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
         #                      players                      total              list_legal_moves        check          sound
-        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         []]]
+        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         0]]
         ################################################
         self.player_turn = self.index_position % 2
         ################################################
@@ -36,12 +36,15 @@ class Game:
         self.legal_moves = 0
         self.illegal_move = False
         #################################################
-        self.sound_to_play = []
+        self.sound_to_play = 0
         ################################################
         self.result = None
 
 
     def status_to_key(self):
+        # white
+        # black
+        # total, legal moves, check
         return (self.players[0].pieces[0],
                 self.players[0].pieces[1],
                 self.players[0].pieces[2],
@@ -435,7 +438,7 @@ class Game:
             if nb_checks > 1: break
 
         if nb_checks:
-            self.sound_to_play.append("check")
+            self.sound_to_play = 4
             self.check = True
 
         for j in range(6):
@@ -482,7 +485,7 @@ class Game:
 
         # checkmate and stalemate
         if all(move == 0 for move in self.list_legal_moves):
-            self.sound_to_play.append("end")
+            self.sound_to_play = 5
             if nb_checks == 0:
                 self.result =  0
             else:
@@ -498,14 +501,14 @@ class Game:
             player.pieces[3] = player.pieces[3] ^ (square_f << 1) | (square_f >> 1)
             player.s_castling_right = False
             player.castled = True
-            self.sound_to_play.append("castle")
+            self.sound_to_play = max(self.sound_to_play, 2)
 
         # long castle
         elif player.pieces[5] == square_i and square_f == square_i >> 2:
             player.pieces[3] = player.pieces[3] ^ (square_f >> 2) | (square_f << 1)
             player.l_castling_right = False
             player.castled = True
-            self.sound_to_play.append("castle")
+            self.sound_to_play = max(self.sound_to_play, 2)
 
         # en passant
         elif (player.pieces[0] & square_i
@@ -519,7 +522,7 @@ class Game:
                 for i in range(6):
                     if opposite_player.pieces[i] & (square_f >> 8): opposite_player.pieces[i] ^= square_f >> 8
 
-            self.sound_to_play.append("capture")
+            self.sound_to_play = max(self.sound_to_play, 1)
             self.index_last_capture_or_pawn_move = self.index_position
 
         for i in range(6):
@@ -539,7 +542,7 @@ class Game:
                 if not promotion: player.pieces[i] |= square_f
                 else:
                     player.pieces[promotion] |= square_f
-                    self.sound_to_play.append("promotion")
+                    self.sound_to_play = max(self.sound_to_play, 3)
                     self.index_last_capture_or_pawn_move = self.index_position
 
                 # pawns
@@ -562,7 +565,7 @@ class Game:
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
                 opposite_player.pieces[i] ^= square_f
-                self.sound_to_play.append("capture")
+                self.sound_to_play = max(self.sound_to_play, 1)
                 self.index_last_capture_or_pawn_move = self.index_position
 
 

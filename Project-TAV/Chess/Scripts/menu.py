@@ -48,6 +48,7 @@ class Image:
 
         #else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
+
 def main_menu(o = None):
     """
     main menu of the game
@@ -62,8 +63,10 @@ def main_menu(o = None):
     
     if o is None: o = [2,1,"r"]
     
-    #since the time effect isn't already effective in the script, we seperate the time and other otpions for now
-    timer = [10,0] ## [Nb of min, Nb of seconds]
+    # since the time effect isn't already effective in the script,
+    # we seperate the time and other otpions for now
+
+    timer = [10,0] # [Nb of min, Nb of seconds]
     
     cur_partie = True
     
@@ -75,17 +78,16 @@ def main_menu(o = None):
             elif event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if buttons[0].if_input(pg.mouse.get_pos()):
-                        return 1, o #plays a game with o as options
+                        return 1, o # plays a game with o as options
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
                         o = options(gestionary, o, timer )
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
-                        return 0, o #quit the pygame window
+                        return 0, o # quit the pygame window
         gestionary.win.fill((10, 12, 35))
         for button in buttons: button.draw(gestionary)
         pg.display.update()
-
 
 
 def options(gestionary, o , timer):

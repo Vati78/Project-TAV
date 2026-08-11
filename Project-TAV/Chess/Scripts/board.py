@@ -66,6 +66,7 @@ def draw_coor(gestionary):
 
 # draws the pieces
 def draw_pieces(gestionary):
+    selected_piece = None
     for square in split_bits(gestionary.chess_game.total):
         i = square.bit_length() - 1
         for k in range(6):
@@ -75,17 +76,8 @@ def draw_pieces(gestionary):
                         and not gestionary.chess_game.candidate_move[1]
                         and gestionary.chess_game.left_click_down
                         and not gestionary.chess_game.left_click_up):
-                    dx = sum(gestionary.previous_mouse_pos)//5 - gestionary.mouse_pos[0]
-                    dir = 0 if sum(gestionary.previous_mouse_pos)//5 == gestionary.mouse_pos[0] else abs(dx)//dx
-                    angle = dx if -30 < dx < 30 else 30 * dir
 
-                    gestionary.win.blit(
-                        pg.transform.rotate(
-                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
-                                               (const.SQUARE * 1.1, const.SQUARE * 1.1)),
-                            angle * 0.6),
-                        (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
-
+                    selected_piece = (0, k)
                     break
 
                 else:
@@ -102,17 +94,8 @@ def draw_pieces(gestionary):
                         and not gestionary.chess_game.candidate_move[1]
                         and gestionary.chess_game.left_click_down
                         and not gestionary.chess_game.left_click_up):
-                    dx = sum(gestionary.previous_mouse_pos) // 5 - gestionary.mouse_pos[0]
-                    dir = 0 if sum(gestionary.previous_mouse_pos) // 5 == gestionary.mouse_pos[0] else abs(dx) // dx
-                    angle = dx if -30 < dx < 30 else 30 * dir
 
-                    gestionary.win.blit(
-                        pg.transform.rotate(
-                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
-                                               (const.SQUARE * 1.1, const.SQUARE * 1.1)),
-                            angle * 0.6),
-                        (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
-
+                    selected_piece = (1, k)
                     break
 
                 else:
@@ -121,6 +104,33 @@ def draw_pieces(gestionary):
                         ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
 
                     break
+
+    # blit selected piece
+    if selected_piece is not None:
+        if selected_piece[0] == 0:
+            dx = sum(gestionary.previous_mouse_pos) // 5 - gestionary.mouse_pos[0]
+            dir = 0 if sum(gestionary.previous_mouse_pos) // 5 == gestionary.mouse_pos[0] else abs(dx) // dx
+            angle = dx if -30 < dx < 30 else 30 * dir
+
+            gestionary.win.blit(
+                pg.transform.rotate(
+                    pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[selected_piece[1]]}.png"),
+                                       (const.SQUARE * 1.1, const.SQUARE * 1.1)),
+                    angle * 0.6),
+                (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
+
+        else:
+            dx = sum(gestionary.previous_mouse_pos) // 5 - gestionary.mouse_pos[0]
+            dir = 0 if sum(gestionary.previous_mouse_pos) // 5 == gestionary.mouse_pos[0] else abs(dx) // dx
+            angle = dx if -30 < dx < 30 else 30 * dir
+
+            gestionary.win.blit(
+                pg.transform.rotate(
+                    pg.transform.scale(
+                        pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[selected_piece[1]]}.png"),
+                        (const.SQUARE * 1.1, const.SQUARE * 1.1)),
+                    angle * 0.6),
+                (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
 
 # checks if a specific square is occupied by a piece
@@ -160,7 +170,7 @@ def write_player_turn(gestionary):
     
 
 # shows each player's legal time
-def draw_timer(gestionary,color):
+def draw_timer(gestionary, color):
     pass
 
 
