@@ -50,8 +50,7 @@ class Gestionary:
         cooldown = 0
 
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
-        self.chess_game.list_position[0][2] = self.chess_game.list_legal_moves.copy()
-        self.chess_game.list_position[0][3] = self.chess_game.check
+        self.chess_game.list_position.append(self.chess_game.status_to_key())
 
 
         while running:
@@ -129,13 +128,9 @@ class Gestionary:
                 self.chess_game.candidate_move = [0, 0]
                 self.chess_game.legal_moves = 0
 
-                self.chess_game.players = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][0])
-                self.chess_game.total = self.chess_game.list_position[self.chess_game.index_position][1]
-                self.chess_game.list_legal_moves = self.chess_game.list_position[self.chess_game.index_position][2].copy()
-                self.chess_game.check = self.chess_game.list_position[self.chess_game.index_position][3]
-                self.chess_game.sound_to_play = self.chess_game.list_position[self.chess_game.index_position][4]
+                self.chess_game.key_to_status(self.chess_game.list_position[self.chess_game.index_position])
 
-                cooldown = 15
+                cooldown = 20
 
             ################################
 

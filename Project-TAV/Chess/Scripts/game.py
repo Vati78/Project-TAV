@@ -21,7 +21,8 @@ class Game:
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
         #                      players                      total              list_legal_moves        check          sound
-        self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         0]]
+        #self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         0]]
+        self.list_position = []
         ################################################
         self.player_turn = self.index_position % 2
         ################################################
@@ -71,7 +72,8 @@ class Game:
                 self.players[1].last_capture_or_pawn_move_index,
                 self.total,
                 self.list_legal_moves.copy(),
-                self.check)
+                self.check,
+                self.sound_to_play)
 
 
     def key_to_status(self, key):
@@ -102,6 +104,7 @@ class Game:
         self.total = key[24]
         self.list_legal_moves = key[25].copy()
         self.check = key[26]
+        self.sound_to_play = key[27]
 
 
     def input_to_candidate_move(self):
@@ -582,13 +585,8 @@ class Game:
                 self.total |= i
 
         # if not "current" position and another move has been played
-        if self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played != self.list_position[self.index_position+1][0][self.player_turn].last_piece_played:
+        if self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played != self.list_position[self.index_position+1][12*self.player_turn + 10]:
             del self.list_position[self.index_position+1:]
-
-        # if "current" position or another move has been played
-        if not (self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played == self.list_position[self.index_position+1][0][self.player_turn].last_piece_played):
-            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0, None])
-
 
         self.left_click_down = 0
         self.left_click_up = 0
@@ -601,16 +599,17 @@ class Game:
 
         # updates list_legal_moves and check
         self.get_all_legal_moves(self.player_turn)
-        self.list_position[-1][2] = self.list_legal_moves.copy()
-        self.list_position[-1][3] = self.check
+
+        self.list_position.append(self.status_to_key())
+
 
         if self.result is None:
             # 3-fold repetition
             nb_same_position = 1
             for i, position in enumerate(self.list_position[self.index_position%2:-1:2]):
-                if (position[0][0].pieces == self.list_position[-1][0][0].pieces
-                        and position[0][1].pieces == self.list_position[-1][0][1].pieces
-                        and position[2] == self.list_legal_moves):
+                if (position[:6] == self.list_position[-1][:6]
+                        and position[12:18] == self.list_position[-1][12:18]
+                        and position[25] == self.list_legal_moves):
                     nb_same_position += 1
 
             if nb_same_position >= 3:
