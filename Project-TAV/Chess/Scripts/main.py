@@ -34,7 +34,6 @@ class Gestionary:
 
     def run(self, o):
         """
-
         :param o: nb of players, difficulty, color
         :return:
         """
@@ -51,7 +50,7 @@ class Gestionary:
         cooldown = 0
 
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
-        self.chess_game.list_position[0][2] = copy.deepcopy(self.chess_game.list_legal_moves)
+        self.chess_game.list_position[0][2] = self.chess_game.list_legal_moves.copy()
         self.chess_game.list_position[0][3] = self.chess_game.check
 
 
@@ -132,7 +131,7 @@ class Gestionary:
 
                 self.chess_game.players = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][0])
                 self.chess_game.total = self.chess_game.list_position[self.chess_game.index_position][1]
-                self.chess_game.list_legal_moves = copy.deepcopy(self.chess_game.list_position[self.chess_game.index_position][2])
+                self.chess_game.list_legal_moves = self.chess_game.list_position[self.chess_game.index_position][2].copy()
                 self.chess_game.check = self.chess_game.list_position[self.chess_game.index_position][3]
                 self.chess_game.sound_to_play = self.chess_game.list_position[self.chess_game.index_position][4]
 
@@ -157,6 +156,9 @@ class Gestionary:
                 if self.chess_game.candidate_move[1]:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
 
+                    if self.chess_game.check:
+                        self.illegal_move_time = const.ILLEGAL_MOVE_DURATION
+
             else:
                 self.chess_game.players[self.chess_game.player_turn].return_move(self)
 
@@ -169,7 +171,7 @@ class Gestionary:
 
             pg.display.update()
 
-            if self.chess_game.result:
+            if self.chess_game.result is not None:
                 print("game ended")
                 running = False
                 time.sleep(5)

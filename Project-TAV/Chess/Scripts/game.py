@@ -70,7 +70,7 @@ class Game:
                 self.players[1].last_piece_played,
                 self.players[1].last_capture_or_pawn_move_index,
                 self.total,
-                copy.deepcopy(self.list_legal_moves),
+                self.list_legal_moves.copy(),
                 self.check)
 
 
@@ -100,7 +100,7 @@ class Game:
         self.players[1].last_piece_played = key[22]
         self.players[1].last_capture_or_pawn_move_index = key[23]
         self.total = key[24]
-        self.list_legal_moves = copy.deepcopy(key[25])
+        self.list_legal_moves = key[25].copy()
         self.check = key[26]
 
 
@@ -487,7 +487,7 @@ class Game:
         if all(move == 0 for move in self.list_legal_moves):
             self.sound_to_play = 5
             if nb_checks == 0:
-                self.result =  0
+                self.result = 0
             else:
                 self.result = 2*self.player_turn - 1
 
@@ -587,7 +587,7 @@ class Game:
 
         # if "current" position or another move has been played
         if not (self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played == self.list_position[self.index_position+1][0][self.player_turn].last_piece_played):
-            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0, 0])
+            self.list_position.append([copy.deepcopy(self.players), self.total, 0, 0, None])
 
 
         self.left_click_down = 0
@@ -601,7 +601,7 @@ class Game:
 
         # updates list_legal_moves and check
         self.get_all_legal_moves(self.player_turn)
-        self.list_position[-1][2] = copy.deepcopy(self.list_legal_moves)
+        self.list_position[-1][2] = self.list_legal_moves.copy()
         self.list_position[-1][3] = self.check
 
         if self.result is None:

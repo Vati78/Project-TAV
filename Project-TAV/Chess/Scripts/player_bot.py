@@ -91,7 +91,7 @@ class Bot(Item):
             "players": copy.deepcopy(gestionary.chess_game.players),
             "player_turn": gestionary.chess_game.player_turn,
             "check": gestionary.chess_game.check,
-            "list_legal_moves": copy.deepcopy(gestionary.chess_game.list_legal_moves),
+            "list_legal_moves": gestionary.chess_game.list_legal_moves.copy(),
             "index_last_capture_or_pawn_move": gestionary.chess_game.index_last_capture_or_pawn_move,
             "total": gestionary.chess_game.total,
         }
@@ -100,7 +100,7 @@ class Bot(Item):
             gestionary.chess_game.players = copy.deepcopy(status["players"])
             gestionary.chess_game.player_turn = status["player_turn"]
             gestionary.chess_game.check = status["check"]
-            gestionary.chess_game.list_legal_moves = copy.deepcopy(status["list_legal_moves"])
+            gestionary.chess_game.list_legal_moves = status["list_legal_moves"].copy()
             gestionary.chess_game.index_last_capture_or_pawn_move = status["index_last_capture_or_pawn_move"]
             gestionary.chess_game.total = status["total"]
             del gestionary.chess_game.list_position[-1]
