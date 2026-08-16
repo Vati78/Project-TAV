@@ -61,7 +61,7 @@ def main_menu(o = None):
                Button(300,360,300,86,"exit")]
     
     
-    if o is None: o = [2,1,"r"]
+    if o is None: o = [2,1,"r",False]
     
     # since the time effect isn't already effective in the script,
     # we seperate the time and other otpions for now
@@ -122,12 +122,21 @@ def options(gestionary, o , timer):
                Button(275,350,45,45,"-",None,False if o[0] == 1 else True),
                Button(325,350,45,45,"+",None,False if o[0] == 1 else True),
                Button(575,350,45,45,"-",None,False if o[0] == 1 else True),
-               Button(625,350,45,45,"+",None,False if o[0] == 1 else True)]
+               Button(625,350,45,45,"+",None,False if o[0] == 1 else True),
+               Button(25,350,28*5,45,"activated","activated_i",False if o[0] == 1 else True)]
     
     
     buttons[o[0]].invert()
     buttons[2+o[1]].invert()
     buttons[6 if o[2]=="w" else (7 if o[2]=="b" else 8)].invert()
+    
+    if o[3]:
+        for i in range(9,13):
+            buttons[i].enabled = False
+        buttons[13].invert()
+        images[4].enabled = False
+        images[5].enabled = False
+    
     for i in range(3, 9):
         buttons[i].enabled = o[0]==1
     for i in range(1,3):
@@ -154,11 +163,13 @@ def options(gestionary, o , timer):
                             if not buttons[i].is_invert:
                                 buttons[1].invert()
                                 buttons[2].invert()
-                                for j in range(3,13):
-                                    buttons[j].enabled = not buttons[j].enabled
+                                for j in range(3,14):
+                                    if not (( 9 <= j <= 12) and buttons[13].is_invert):
+                                        buttons[j].enabled = not buttons[j].enabled
                                 
                                 for j in range(1,6):
-                                    images[j].enabled = not images[j].enabled
+                                    if not (( 4 <= j <= 5) and buttons[13].is_invert):
+                                        images[j].enabled = not images[j].enabled
                                 
                                 #print(images[1].enabled ,images[2].enabled, images[3].enabled)
 
@@ -175,6 +186,17 @@ def options(gestionary, o , timer):
                                 for j in range(6,9):
                                     if buttons[j].is_invert: buttons[j].invert()
                                 buttons[i].invert()
+                                
+                    if buttons[13].if_input(pos):
+                        buttons[13].invert()
+                        
+                        for i in range(9,13):
+                            buttons[i].enabled = not buttons[i].enabled
+                            
+                        for i in range(4,6):
+                            images[i].enabled = not images[i].enabled
+                        
+                        
                                 
                     if buttons[9].if_input(pos):
                         if timer[0] > 0:
@@ -209,7 +231,7 @@ def options(gestionary, o , timer):
         
         for image in images: image.draw(gestionary)
         
-        if buttons[2].is_invert:
+        if buttons[2].is_invert and  not (buttons[13].is_invert):
             nb_min = str(timer[0])
             nb_sec = str(timer[1])
             
@@ -229,7 +251,15 @@ def options(gestionary, o , timer):
 
         
     if buttons[1].is_invert:
-        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")]
+        print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
     else:
-        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r")] #, timer
-            
+        if not buttons[13].is_invert:
+            print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+
+            return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert] #, timer
+        else:
+            print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+
+            return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
+
