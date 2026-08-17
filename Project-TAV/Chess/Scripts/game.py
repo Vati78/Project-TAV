@@ -427,13 +427,9 @@ class Game:
 
         a = self.check_and_pins(color, self.players[color].pieces[5])
         nb_checks = 0
-        threat, pin, free_squares = 0, 0, 0
         for a_threat, a_pin, a_free_squares in a:
-            if a_threat:
-                pin |= a_pin
-                free_squares |= a_free_squares | a_threat
-                if not a_pin:
-                    nb_checks += 1
+            if a_threat and not a_pin:
+                nb_checks += 1
 
             # if double_check
             if nb_checks > 1: break
@@ -450,9 +446,9 @@ class Game:
                 legal_moves = pieces.Piece().King(color).legal_moves(self.gestionary, square)
 
                 for move in board.split_bits(legal_moves):
-                    a = self.check_and_pins(color, move)
-                    for a_threat, a_pin, a_free_squares in a:
-                        if a_threat and not a_pin:
+                    b = self.check_and_pins(color, move)
+                    for b_threat, b_pin, b_free_squares in b:
+                        if b_threat and not b_pin:
                             legal_moves ^= move
                             break
 
@@ -472,11 +468,11 @@ class Game:
                         i = square.bit_length() - 1
                         legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
 
+                        self.list_legal_moves[i] = legal_moves
 
-                        if nb_checks == 1 or pin & square:
-                            self.list_legal_moves[i] = legal_moves & free_squares
-                        else:
-                            self.list_legal_moves[i] = legal_moves
+                        for a_threat, a_pin, a_free_squares in a:
+                            if (a_threat and not a_pin) or (a_threat and a_pin & square):
+                                self.list_legal_moves[i] &= (a_free_squares | a_threat)
 
                 else:
                     for square in board.split_bits(self.players[color].pieces[j]):
