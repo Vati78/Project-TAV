@@ -572,12 +572,12 @@ class Game:
                 self.index_last_capture_or_pawn_move = self.index_position
 
 
-        self.update_position()
+        self.update_position(square_i, square_f)
 
 
-    def update_position(self):
+    def update_position(self, square_i, square_f):
 
-        self.players[self.player_turn].last_piece_played = self.candidate_move
+        self.players[self.player_turn].last_piece_played = [square_i, square_f]
         for i in self.players: i.update_pos()
         self.total = 0
         for j in self.players:
@@ -595,7 +595,7 @@ class Game:
         self.legal_moves = 0
         self.check = False
         self.index_position += 1
-        self.player_turn = self.index_position % 2
+        self.player_turn ^= 1
 
         # updates list_legal_moves and check
         self.get_all_legal_moves(self.player_turn)
@@ -700,7 +700,7 @@ class Game:
                     # except pawns
                     if i:
                         # piece development
-                        e += coeff * 10 * ((player_pieces ^ self.list_position[0][0][index].pieces[i]).bit_count()//2)
+                        e += coeff * 10 * ((player_pieces ^ self.list_position[0][12*index+i]).bit_count()//2)
 
                         # rook or queen
                         if i in (3, 4):

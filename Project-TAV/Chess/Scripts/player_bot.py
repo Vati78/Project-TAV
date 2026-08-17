@@ -68,34 +68,31 @@ class Player(Item):
 
 class Bot(Item):
     def return_move(self, gestionary):
-        print(self.minimax_with_alpha_beta_pruning(gestionary, 3, -math.inf, math.inf, 1))
-        """
-        gestionary.chess_game.get_all_legal_moves(int(self.color == "b"))
-        lmoves = []
-        for i, j in enumerate(gestionary.chess_game.list_legal_moves):
-            for b in board.split_bits(j):
-                lmoves.append([2 ** i, b])
-        if lmoves == []: return
-        move = rd.choice(lmoves)
-        gestionary.chess_game.play_move(move[0], move[1], int(self.color == "b"), False)
-        """
-    def minimax_with_alpha_beta_pruning(self, gestionary, depth, alpha, beta, player):
-        print("Profondeur :", depth)
+        i, square_f, promotion = self.minimax_with_alpha_beta_pruning(gestionary, 2, -math.inf, math.inf, int(self.color == "b"), 2)
+        print()
+        gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
+        sound.play_sound(gestionary)
+        gestionary.chess_game.sound_to_play = 0
+
+    def minimax_with_alpha_beta_pruning(self, gestionary, depth, alpha, beta, player, depth_i):
+        best_move = None
+
+        #print("Profondeur :", depth)
         if depth == 0:
             evaluate = gestionary.chess_game.evaluation()
             return evaluate
 
-        status = {
+        """status = {
             "players": copy.deepcopy(gestionary.chess_game.players),
             "player_turn": gestionary.chess_game.player_turn,
             "check": gestionary.chess_game.check,
             "list_legal_moves": gestionary.chess_game.list_legal_moves.copy(),
             "index_last_capture_or_pawn_move": gestionary.chess_game.index_last_capture_or_pawn_move,
             "total": gestionary.chess_game.total,
-        }
-
+        }"""
+        status = gestionary.chess_game.status_to_key()
         def undo_move():
-            gestionary.chess_game.players = copy.deepcopy(status["players"])
+            """gestionary.chess_game.players = copy.deepcopy(status["players"])
             gestionary.chess_game.player_turn = status["player_turn"]
             gestionary.chess_game.check = status["check"]
             gestionary.chess_game.list_legal_moves = status["list_legal_moves"].copy()
@@ -105,6 +102,12 @@ class Bot(Item):
             gestionary.chess_game.index_position -= 1
             gestionary.chess_game.player_turn ^= 1
             gestionary.chess_game.result = None
+            """
+            del gestionary.chess_game.list_position[-1]
+            gestionary.chess_game.index_position -= 1
+            gestionary.chess_game.player_turn ^= 1
+            gestionary.chess_game.result = None
+            gestionary.chess_game.key_to_status(status)
 
         if player == 0:
             max_eval = -math.inf
@@ -112,32 +115,37 @@ class Bot(Item):
             for i, legal_moves in enumerate(gestionary.chess_game.list_legal_moves):
                 if legal_moves:
                     for move in board.split_bits(legal_moves):
-                        print(2*depth*"_", "Move :", i, "-->", move.bit_length()-1)
+                        #print(2*depth*"_", "Move :", i, "-->", move.bit_length()-1)
                         # promotion available
                         if (1 << i) & gestionary.chess_game.players[player].pieces[0] and i//8 == 1:
-                            print("Promotion")
+                            #print("Promotion")
                             for promoted_piece in range(1,5):
                                 gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1)
-                                print(2*depth*"_", "Evaluation :", child_eval)
+                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                undo_move()
+                                #print(2*depth*"_", "Evaluation :", child_eval)
+                                if max_eval < child_eval: best_move = (i, move, promoted_piece)
                                 max_eval = max(child_eval, max_eval)
                                 alpha = max(child_eval, alpha)
                                 if alpha >= beta:
                                     break
 
-                                undo_move()
-
                         else:
                             gestionary.chess_game.play_move(1 << i, move, player)
-                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth-1, alpha, beta, player^1)
-                            print(2*depth*"_", "Evaluation :", child_eval)
+                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth-1, alpha, beta, player^1, depth_i)
+                            #print((2*depth*"_", "Evaluation :", child_eval)
+                            undo_move()
+
+                            if max_eval < child_eval: best_move = (i, move, False)
                             max_eval = max(child_eval, max_eval)
                             alpha = max(child_eval, alpha)
                             if alpha >= beta:
                                 break
 
-                            undo_move()
 
+            if depth == depth_i:
+                print(best_move)
+                return best_move
             return max_eval
 
         else:
@@ -146,30 +154,38 @@ class Bot(Item):
             for i, legal_moves in enumerate(gestionary.chess_game.list_legal_moves):
                 if legal_moves:
                     for move in board.split_bits(legal_moves):
-                        print(2 * depth * "_", "Move :", i, "-->", move.bit_length() - 1)
+                        #print((2 * depth * "_", "Move :", i, "-->", move.bit_length() - 1)
                         # promotion available
                         if (1 << i) & gestionary.chess_game.players[player].pieces[0] and i//8 == 6:
-                            print("Promotion")
+                            #print(("Promotion")
                             for promoted_piece in range(1, 5):
                                 gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1)
-                                print(2*depth*"_", "Result :", child_eval)
+                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                undo_move()
+                                #print((2*depth*"_", "Result :", child_eval)
+                                if min_eval > child_eval: best_move = (i, move, promoted_piece)
                                 min_eval = min(child_eval, min_eval)
                                 beta = min(child_eval, beta)
                                 if alpha >= beta:
                                     break
 
-                                undo_move()
+
 
                         else:
                             gestionary.chess_game.play_move(1 << i, move, player)
-                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1)
-                            print(2*depth*"_", "Result :", child_eval)
+                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                            undo_move()
+                            #print((2*depth*"_", "Result :", child_eval)
+                            if min_eval > child_eval: best_move = (i, move, False)
                             min_eval = min(child_eval, min_eval)
                             beta = min(child_eval, beta)
                             if alpha >= beta:
                                 break
 
-                            undo_move()
+
+
+            if depth == depth_i:
+                print(best_move)
+                return best_move
 
             return min_eval

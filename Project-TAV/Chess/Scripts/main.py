@@ -12,7 +12,6 @@ import mouse_keys as mk
 import menu
 import player_bot as pb
 import sound
-import copy
 from random import choice
 import time
 
@@ -134,7 +133,7 @@ class Gestionary:
 
             ################################
 
-            if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):
+            if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player) or self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                 if self.input:
                     self.chess_game.input_to_candidate_move()
 
@@ -225,11 +224,11 @@ if __name__ == "__main__":
     o = None
     while True:
         c,o = menu.main_menu(o)
-        if c == 1: #play game
+        if c == 1: # play game
             gestionary = Gestionary()
             gestionary.run(o)
-        elif c == 2: #review preview game (not implemented)
+        elif c == 2: # review previous game (not implemented)
             pass
-        else: #quit
+        else: # quit
             pg.quit()
             sys.exit()
