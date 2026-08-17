@@ -57,7 +57,6 @@ class Game:
                 self.players[0].l_castling_right,
                 self.players[0].castled,
                 self.players[0].last_piece_played,
-                self.players[0].last_capture_or_pawn_move_index,
                 self.players[1].pieces[0],
                 self.players[1].pieces[1],
                 self.players[1].pieces[2],
@@ -69,10 +68,10 @@ class Game:
                 self.players[1].l_castling_right,
                 self.players[1].castled,
                 self.players[1].last_piece_played,
-                self.players[1].last_capture_or_pawn_move_index,
                 self.total,
                 self.list_legal_moves.copy(),
                 self.check,
+                self.index_last_capture_or_pawn_move,
                 self.sound_to_play)
 
 
@@ -88,23 +87,22 @@ class Game:
         self.players[0].l_castling_right = key[8]
         self.players[0].castled = key[9]
         self.players[0].last_piece_played = key[10]
-        self.players[0].last_capture_or_pawn_move_index = key[11]
-        self.players[1].pieces[0] = key[12]
-        self.players[1].pieces[1] = key[13]
-        self.players[1].pieces[2] = key[14]
-        self.players[1].pieces[3] = key[15]
-        self.players[1].pieces[4] = key[16]
-        self.players[1].pieces[5] = key[17]
-        self.players[1].pieces_total = key[18]
-        self.players[1].s_castling_right = key[19]
-        self.players[1].l_castling_right = key[20]
-        self.players[1].castled = key[21]
-        self.players[1].last_piece_played = key[22]
-        self.players[1].last_capture_or_pawn_move_index = key[23]
-        self.total = key[24]
-        self.list_legal_moves = key[25].copy()
-        self.check = key[26]
-        self.sound_to_play = key[27]
+        self.players[1].pieces[0] = key[11]
+        self.players[1].pieces[1] = key[12]
+        self.players[1].pieces[2] = key[13]
+        self.players[1].pieces[3] = key[14]
+        self.players[1].pieces[4] = key[15]
+        self.players[1].pieces[5] = key[16]
+        self.players[1].pieces_total = key[17]
+        self.players[1].s_castling_right = key[18]
+        self.players[1].l_castling_right = key[19]
+        self.players[1].castled = key[20]
+        self.players[1].last_piece_played = key[21]
+        self.total = key[22]
+        self.list_legal_moves = key[23].copy()
+        self.check = key[24]
+        self.index_last_capture_or_pawn_move = key[25]
+        self.sound_to_play = key[26]
 
 
     def input_to_candidate_move(self):
@@ -433,7 +431,7 @@ class Game:
         for a_threat, a_pin, a_free_squares in a:
             if a_threat:
                 pin |= a_pin
-                free_squares = a_free_squares | a_threat
+                free_squares |= a_free_squares | a_threat
                 if not a_pin:
                     nb_checks += 1
 
@@ -608,8 +606,8 @@ class Game:
             nb_same_position = 1
             for i, position in enumerate(self.list_position[self.index_position%2:-1:2]):
                 if (position[:6] == self.list_position[-1][:6]
-                        and position[12:18] == self.list_position[-1][12:18]
-                        and position[25] == self.list_legal_moves):
+                        and position[11:17] == self.list_position[-1][11:17]
+                        and position[23] == self.list_legal_moves):
                     nb_same_position += 1
 
             if nb_same_position >= 3:
@@ -658,7 +656,7 @@ class Game:
             # calculates legal moves for other player
             if index != self.player_turn:
                 c_check = self.check
-                c_list_legal_moves = self.list_legal_moves
+                c_list_legal_moves = self.list_legal_moves.copy()
                 self.get_all_legal_moves(index)
 
 
@@ -723,7 +721,7 @@ class Game:
             # re-changes variables to normal status
             if index != self.player_turn:
                 self.check = c_check
-                self.list_legal_moves = c_list_legal_moves
+                self.list_legal_moves = c_list_legal_moves.copy()
 
         """
         print("Material :", material_p)

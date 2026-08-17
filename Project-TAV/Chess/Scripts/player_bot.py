@@ -40,7 +40,6 @@ class Item:
         self.l_castling_right = True
         self.castled = False
         self.last_piece_played = (0, 0)
-        self.last_capture_or_pawn_move_index = 0
 
     def update_pos(self):
         self.pieces_total = 0
@@ -71,6 +70,7 @@ class Bot(Item):
         i, square_f, promotion = self.minimax_with_alpha_beta_pruning(gestionary, 2, -math.inf, math.inf, int(self.color == "b"), 2)
         print()
         gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
+        print(gestionary.chess_game.status_to_key())
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0
 
@@ -82,32 +82,12 @@ class Bot(Item):
             evaluate = gestionary.chess_game.evaluation()
             return evaluate
 
-        """status = {
-            "players": copy.deepcopy(gestionary.chess_game.players),
-            "player_turn": gestionary.chess_game.player_turn,
-            "check": gestionary.chess_game.check,
-            "list_legal_moves": gestionary.chess_game.list_legal_moves.copy(),
-            "index_last_capture_or_pawn_move": gestionary.chess_game.index_last_capture_or_pawn_move,
-            "total": gestionary.chess_game.total,
-        }"""
-        status = gestionary.chess_game.status_to_key()
         def undo_move():
-            """gestionary.chess_game.players = copy.deepcopy(status["players"])
-            gestionary.chess_game.player_turn = status["player_turn"]
-            gestionary.chess_game.check = status["check"]
-            gestionary.chess_game.list_legal_moves = status["list_legal_moves"].copy()
-            gestionary.chess_game.index_last_capture_or_pawn_move = status["index_last_capture_or_pawn_move"]
-            gestionary.chess_game.total = status["total"]
             del gestionary.chess_game.list_position[-1]
             gestionary.chess_game.index_position -= 1
             gestionary.chess_game.player_turn ^= 1
             gestionary.chess_game.result = None
-            """
-            del gestionary.chess_game.list_position[-1]
-            gestionary.chess_game.index_position -= 1
-            gestionary.chess_game.player_turn ^= 1
-            gestionary.chess_game.result = None
-            gestionary.chess_game.key_to_status(status)
+            gestionary.chess_game.key_to_status(gestionary.chess_game.list_position[-1])
 
         if player == 0:
             max_eval = -math.inf
