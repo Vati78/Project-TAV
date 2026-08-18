@@ -86,6 +86,7 @@ class Bot(Item):
             gestionary.chess_game.player_turn ^= 1
             gestionary.chess_game.result = None
             gestionary.chess_game.key_to_status(gestionary.chess_game.list_position[-1])
+            gestionary.chess_game.sound_to_play = 0
 
         if player == 0:
             max_eval = -math.inf

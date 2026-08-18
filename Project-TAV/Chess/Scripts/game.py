@@ -225,8 +225,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a rook
-                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
                         threat = studied_square
 
                     break
@@ -248,8 +251,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a bishop
-                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
                         threat = studied_square
                     # if it's a pawn
                     elif i == 0 and color == 0 and studied_square & opposite_player.pieces[0]:
@@ -274,8 +280,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a rook
-                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
                         threat = studied_square
 
                     break
@@ -297,8 +306,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a bishop
-                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
                         threat = studied_square
                     # if it's a pawn
                     elif i == 0 and color == 1 and studied_square & opposite_player.pieces[0]:
@@ -323,8 +335,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a rook
-                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
                         threat = studied_square
 
                     break
@@ -346,8 +361,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a bishop
-                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
                         threat = studied_square
                     # if it's a pawn
                     elif i == 0 and color == 1 and studied_square & opposite_player.pieces[0]:
@@ -372,8 +390,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a rook
-                    if studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[3] | opposite_player.pieces[4]):
                         threat = studied_square
 
                     break
@@ -395,8 +416,11 @@ class Game:
                     potential_pin = studied_square
 
                 elif studied_square & opposite_player.pieces_total:
+                    # if the opponent's piece is the opponent's king (directly next to the friendly king)
+                    if i == 0 and studied_square & opposite_player.pieces[5]:
+                        threat = studied_square
                     # if the opponent's piece is a queen or a bishop
-                    if studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
+                    elif studied_square & (opposite_player.pieces[2] | opposite_player.pieces[4]):
                         threat = studied_square
                     # if it's a pawn
                     elif i == 0 and color == 0 and studied_square & opposite_player.pieces[0]:
@@ -618,9 +642,12 @@ class Game:
         # game end
         if self.result:
             return self.result * math.inf
+        elif self.result == 0:
+            return 0
 
         e = 0
         """
+        # variables for control
         isolated_pawns_p = 0
         doubled_pawns_p = 0
         material_p = 0

@@ -30,10 +30,10 @@ def draw_board(gestionary):
                     color = const.BLACK[theme_index]
 
             # changes color for illegal move animation
-            if gestionary.illegal_move_time and square == gestionary.chess_game.players[gestionary.chess_game.player_turn].pieces[5]:
-                color = (const.ILLEGAL_MOVE_COLOR[0] + round((color[0] - const.ILLEGAL_MOVE_COLOR[0]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)),
-                         const.ILLEGAL_MOVE_COLOR[1] + round((color[1] - const.ILLEGAL_MOVE_COLOR[1]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)),
-                         const.ILLEGAL_MOVE_COLOR[2] + round((color[2] - const.ILLEGAL_MOVE_COLOR[2]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time)))
+            if gestionary.illegal_move_time[0] and square == gestionary.chess_game.players[gestionary.illegal_move_time[1]].pieces[5]:
+                color = (const.ILLEGAL_MOVE_COLOR[0] + round((color[0] - const.ILLEGAL_MOVE_COLOR[0]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time[0])),
+                         const.ILLEGAL_MOVE_COLOR[1] + round((color[1] - const.ILLEGAL_MOVE_COLOR[1]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time[0])),
+                         const.ILLEGAL_MOVE_COLOR[2] + round((color[2] - const.ILLEGAL_MOVE_COLOR[2]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time[0])))
 
 
             pg.draw.rect(gestionary.win, color, (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))

@@ -29,7 +29,7 @@ class Gestionary:
         self.previous_mouse_pos = []
         self.input = False
         self.changed_position = False
-        self.illegal_move_time = 0
+        self.illegal_move_time = [0, None]
 
     def run(self, o):
         """
@@ -55,7 +55,7 @@ class Gestionary:
         while running:
             self.mouse_pos = pg.mouse.get_pos()
             if cooldown: cooldown -= 1
-            if self.illegal_move_time: self.illegal_move_time -= 1
+            if self.illegal_move_time[0]: self.illegal_move_time[0] -= 1
 
             ################################
 
@@ -139,7 +139,7 @@ class Gestionary:
 
                 if self.chess_game.illegal_move:
                     const.illegal_sound.play()
-                    self.illegal_move_time = const.ILLEGAL_MOVE_DURATION
+                    self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
 
                     self.chess_game.illegal_move = False
 
@@ -151,10 +151,14 @@ class Gestionary:
                     self.chess_game.players[self.chess_game.player_turn].move(self)
 
                     if self.chess_game.check:
-                        self.illegal_move_time = const.ILLEGAL_MOVE_DURATION
+                        self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
+
+
 
             else:
                 self.chess_game.players[self.chess_game.player_turn].return_move(self)
+                if self.chess_game.check:
+                    self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
 
             self.win.fill((50, 50, 50))
             board.draw_board(self)
