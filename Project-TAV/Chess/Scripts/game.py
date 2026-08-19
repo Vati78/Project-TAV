@@ -434,13 +434,12 @@ class Game:
         # knights
         threat = False
         moves = pieces.Piece().Knight(color).legal_moves(self.gestionary, square)
-        # if the last piece played is a knight
-        if opposite_player.last_piece_played[1] & opposite_player.pieces[1]:
-            # if it checks the king
-            if moves & opposite_player.last_piece_played[1]:
-                threat = opposite_player.last_piece_played[1]
-        elif moves & opposite_player.pieces[1]:
+        # if a knight attacks the king
+        if moves & opposite_player.pieces[1]:
             threat = True
+            # if the last piece played is a knight and it checks
+            if opposite_player.last_piece_played[1] & opposite_player.pieces[1] and moves & opposite_player.last_piece_played[1]:
+                threat = opposite_player.last_piece_played[1]
         threats_pins_and_free_squares.append((threat, 0, 0))
 
         return threats_pins_and_free_squares
@@ -704,25 +703,26 @@ class Game:
                     square_index = piece.bit_length() - 1
 
                     # center control
-                    e += coeff * const.square_value[square_index]
+                    e += coeff * const.square_value[square_index] // 5
 
                     for move in board.split_bits(self.list_legal_moves[square_index]):
                         move_index = move.bit_length() - 1
 
                         # center control
-                        e += coeff * const.square_value[move_index]
-
+                        e += coeff * const.square_value[move_index] // 5
+                        """
                         # enemy territory control
                         d = abs(7*index - move_index//8)
                         if d <= 3:
                             e += coeff * (40 - 10*d)
+                        """
 
 
                     # except pawns
                     if i:
                         # piece development
                         e += coeff * 10 * ((player_pieces ^ self.list_position[0][12*index+i]).bit_count()//2)
-
+                        """
                         # rook or queen
                         if i in (3, 4):
                             file = (piece.bit_length() - 1)%8
@@ -734,12 +734,13 @@ class Game:
                                 # (semi) open files
                                 elif nb_opposite_pawns < 2:
                                     e += coeff * 60 * (2 >> nb_opposite_pawns)
+                        """
 
             # castle
             if player.castled:
                 e += coeff * 150
             elif not (player.s_castling_right or player.l_castling_right):
-                e -= coeff * 200
+                e -= coeff * 75
 
             # re-changes variables to normal status
             if index != self.player_turn:

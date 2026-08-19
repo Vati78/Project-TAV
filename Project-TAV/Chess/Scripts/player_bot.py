@@ -73,7 +73,8 @@ class Bot(Item):
         gestionary.chess_game.sound_to_play = 0
 
     def minimax_with_alpha_beta_pruning(self, gestionary, depth, alpha, beta, player, depth_i):
-        best_move = None
+        best_move = []
+        status = gestionary.chess_game.status_to_key()
 
         #print("Profondeur :", depth)
         if depth == 0:
@@ -100,10 +101,12 @@ class Bot(Item):
                             #print("Promotion")
                             for promoted_piece in range(1,5):
                                 gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
+                                else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
                                 undo_move()
                                 #print(2*depth*"_", "Evaluation :", child_eval)
-                                if max_eval < child_eval or best_move is None: best_move = (i, move, promoted_piece)
+                                if max_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
+                                elif max_eval > child_eval or best_move == []: best_move = [(i, move, promoted_piece)]
                                 max_eval = max(child_eval, max_eval)
                                 alpha = max(child_eval, alpha)
                                 if alpha >= beta:
@@ -111,11 +114,11 @@ class Bot(Item):
 
                         else:
                             gestionary.chess_game.play_move(1 << i, move, player)
-                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth-1, alpha, beta, player^1, depth_i)
-                            #print((2*depth*"_", "Evaluation :", child_eval)
+                            if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
+                            else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
                             undo_move()
-
-                            if max_eval < child_eval or best_move is None: best_move = (i, move, False)
+                            if max_eval == child_eval or best_move == []: best_move.append((i, move, False))
+                            elif max_eval < child_eval or best_move == []: best_move = [(i, move, False)]
                             max_eval = max(child_eval, max_eval)
                             alpha = max(child_eval, alpha)
                             if alpha >= beta:
@@ -123,7 +126,7 @@ class Bot(Item):
 
 
             if depth == depth_i:
-                return best_move
+                return rd.choice(best_move)
             return max_eval
 
         else:
@@ -138,10 +141,12 @@ class Bot(Item):
                             #print(("Promotion")
                             for promoted_piece in range(1, 5):
                                 gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
+                                else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
                                 undo_move()
                                 #print((2*depth*"_", "Result :", child_eval)
-                                if min_eval > child_eval or best_move is None: best_move = (i, move, promoted_piece)
+                                if min_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
+                                elif min_eval > child_eval or best_move == []: best_move = [(i, move, promoted_piece)]
                                 min_eval = min(child_eval, min_eval)
                                 beta = min(child_eval, beta)
                                 if alpha >= beta:
@@ -151,10 +156,12 @@ class Bot(Item):
 
                         else:
                             gestionary.chess_game.play_move(1 << i, move, player)
-                            child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                            if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
+                            else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
                             undo_move()
                             #print((2*depth*"_", "Result :", child_eval)
-                            if min_eval > child_eval or best_move is None: best_move = (i, move, False)
+                            if min_eval == child_eval or best_move == []: best_move.append((i, move, False))
+                            elif min_eval > child_eval or best_move == []: best_move = [(i, move, False)]
                             min_eval = min(child_eval, min_eval)
                             beta = min(child_eval, beta)
                             if alpha >= beta:
@@ -163,6 +170,6 @@ class Bot(Item):
 
 
             if depth == depth_i:
-                return best_move
+                return rd.choice(best_move)
 
             return min_eval

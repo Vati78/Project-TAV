@@ -251,15 +251,15 @@ def options(gestionary, o , timer):
 
         
     if buttons[1].is_invert:
-        print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+        #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
         return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
     else:
         if not buttons[13].is_invert:
-            print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+            #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
 
             return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert] #, timer
         else:
-            print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
+            #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
 
             return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
 
