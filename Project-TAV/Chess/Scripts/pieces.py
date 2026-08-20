@@ -196,26 +196,11 @@ class Piece:
             self.color = color
             self.opposite_color = self.color ^ 1
 
-            self.knight_moves = self.get_knight_moves()
-
             self.value = 300
-
-        def get_knight_moves(self):
-            moves = []
-            directions = [(6, 1), (10, 1), (15, 2), (17, 2)]
-            for i in range(64):
-                moves_per_square = 0
-                for direction, delta in directions:
-                    if 0 <= i + direction <= 63 and i // 8 == (i + direction) // 8 - delta:
-                        moves_per_square |= 1 << i + direction
-                    if 0 <= i - direction <= 63 and i // 8 == (i - direction) // 8 + delta:
-                        moves_per_square |= 1 << i - direction
-                moves.append(moves_per_square)
-            return moves
 
         def legal_moves(self, gestionary, square_i):
             # removes all friendly pieces from list
-            return self.knight_moves[square_i.bit_length()-1] & (~gestionary.chess_game.players[self.color].pieces_total & const.FULL_BOARD)
+            return const.KNIGHT_MOVES[square_i.bit_length()-1] & (~gestionary.chess_game.players[self.color].pieces_total & const.FULL_BOARD)
 
     class Bishop:
         def __init__(self, color):

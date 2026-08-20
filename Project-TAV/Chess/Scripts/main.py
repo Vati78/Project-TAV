@@ -159,7 +159,7 @@ class Gestionary:
 
 
             else:
-                self.chess_game.players[self.chess_game.player_turn].return_move(self)
+                self.chess_game.players[self.chess_game.player_turn].find_and_play_move(self)
                 if self.chess_game.check:
                     self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
 

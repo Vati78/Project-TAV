@@ -66,8 +66,9 @@ class Player(Item):
 
 
 class Bot(Item):
-    def return_move(self, gestionary):
-        i, square_f, promotion = self.minimax_with_alpha_beta_pruning(gestionary, 2, -math.inf, math.inf, int(self.color == "b"), 2)
+    def find_and_play_move(self, gestionary):
+        i, square_f, promotion = self.minimax_with_alpha_beta_pruning(gestionary, 2,
+                                        -math.inf, math.inf, int(self.color == "b"), 2)
         gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0

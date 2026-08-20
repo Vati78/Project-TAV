@@ -43,10 +43,22 @@ LAST_MOVE_BLACK = [(186,202,68), (209, 158, 5), (38, 175, 185)]
 GREY = (50, 50, 50)
 ILLEGAL_MOVE_COLOR = (255,0,0)
 
-ILLEGAL_MOVE_DURATION = 100
+ILLEGAL_MOVE_DURATION = 130
 
 # Players
 HUMAN = "wb"
+
+# Knight moves
+KNIGHT_MOVES = []
+directions = [(6, 1), (10, 1), (15, 2), (17, 2)]
+for i in range(64):
+    moves_per_square = 0
+    for direction, delta in directions:
+        if 0 <= i + direction <= 63 and i // 8 == (i + direction) // 8 - delta:
+            moves_per_square |= 1 << i + direction
+        if 0 <= i - direction <= 63 and i // 8 == (i - direction) // 8 + delta:
+            moves_per_square |= 1 << i - direction
+    KNIGHT_MOVES.append(moves_per_square)
 
 # Sounds
 move_sound = pg.mixer.Sound("../Sounds/move.mp3")
