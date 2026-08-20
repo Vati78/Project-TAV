@@ -11,6 +11,57 @@ theme_index = 1
 board_origin = (0, 0)
 font = pg.font.SysFont(None, 24)
 
+# /!\ .convert_alpha() needs a surface, so needs set_mode()
+WHITE_PIECES_UNSCALED = None
+BLACK_PIECES_UNSCALED = None
+WHITE_PIECES_SCALED = None
+BLACK_PIECES_SCALED = None
+
+
+# loads the sprites
+def load_sprites(gestionary):
+    global WHITE_PIECES_UNSCALED, BLACK_PIECES_UNSCALED, WHITE_PIECES_SCALED, BLACK_PIECES_SCALED
+
+    WHITE_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/whiteRook.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/whiteQueen.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win))
+
+    BLACK_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/blackBishop.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/blackRook.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
+                            pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win))
+
+    WHITE_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteRook.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteQueen.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)))
+
+    BLACK_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackBishop.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackRook.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)),
+                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win),
+                                              (const.SQUARE, const.SQUARE)))
+
 # draws the board
 def draw_board(gestionary):
     for col in range(8):
@@ -81,10 +132,7 @@ def draw_pieces(gestionary):
                     break
 
                 else:
-                    gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[k]}.png"),
-                        (const.SQUARE, const.SQUARE)),
-                        ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
-
+                    gestionary.win.blit(WHITE_PIECES_SCALED[k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
 
@@ -99,10 +147,7 @@ def draw_pieces(gestionary):
                     break
 
                 else:
-                    gestionary.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[k]}.png"),
-                        (const.SQUARE, const.SQUARE)),
-                        ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
-
+                    gestionary.win.blit(BLACK_PIECES_SCALED[k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
     # blit selected piece
@@ -114,8 +159,9 @@ def draw_pieces(gestionary):
 
             gestionary.win.blit(
                 pg.transform.rotate(
-                    pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[selected_piece[1]]}.png"),
-                                       (const.SQUARE * 1.1, const.SQUARE * 1.1)),
+                    pg.transform.scale(
+                        WHITE_PIECES_UNSCALED[selected_piece[1]],
+                        (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
@@ -127,7 +173,7 @@ def draw_pieces(gestionary):
             gestionary.win.blit(
                 pg.transform.rotate(
                     pg.transform.scale(
-                        pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[selected_piece[1]]}.png"),
+                        BLACK_PIECES_UNSCALED[selected_piece[1]],
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))

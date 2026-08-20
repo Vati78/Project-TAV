@@ -33,13 +33,6 @@ for rank in range(8):
         elif d == 1: square_value.append(10)
         else: square_value.append(5)
 
-# Pieces
-PIECES = {0 : "Pawn",
-          1 : "Knight",
-          2 : "Bishop",
-          3 : "Rook",
-          4 : "Queen",
-          5 : "King"}
 
 # Themes and colors
 NMB_THEMES = 3
@@ -50,12 +43,12 @@ LAST_MOVE_BLACK = [(186,202,68), (209, 158, 5), (38, 175, 185)]
 GREY = (50, 50, 50)
 ILLEGAL_MOVE_COLOR = (255,0,0)
 
-ILLEGAL_MOVE_DURATION = 60
+ILLEGAL_MOVE_DURATION = 100
 
 # Players
 HUMAN = "wb"
 
-#Sounds
+# Sounds
 move_sound = pg.mixer.Sound("../Sounds/move.mp3")
 illegal_sound = pg.mixer.Sound("../Sounds/illegal.mp3")
 check_sound = pg.mixer.Sound("../Sounds/check.mp3")

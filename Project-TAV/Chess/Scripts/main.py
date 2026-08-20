@@ -31,6 +31,9 @@ class Gestionary:
         self.changed_position = False
         self.illegal_move_time = [0, None]
 
+        board.load_sprites(self)
+
+
     def run(self, o):
         """
         :param o: nb of players, difficulty, color
@@ -192,13 +195,11 @@ class Gestionary:
 
         for i, piece in enumerate(list_pieces):
             if not color:
-                self.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/white{const.PIECES[piece]}.png"),
-                    (const.SQUARE, const.SQUARE)),
+                self.win.blit(board.WHITE_PIECES_SCALED[piece],
                     (col * const.SQUARE, i*const.SQUARE))
 
             else:
-                self.win.blit(pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/black{const.PIECES[piece]}.png"),
-                    (const.SQUARE, const.SQUARE)),
+                self.win.blit(board.BLACK_PIECES_SCALED,
                     (col * const.SQUARE, (7 - i)*const.SQUARE))
 
 
