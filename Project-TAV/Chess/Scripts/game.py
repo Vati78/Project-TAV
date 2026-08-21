@@ -584,6 +584,11 @@ class Game:
 
             # changing the opponent's piece if capture
             if square_f & opposite_player.pieces[i]:
+                # if either opponent's rook is taken
+                if i == 3 and square_f == (1 << (56 * color + 7)):
+                    opposite_player.s_castling_right = False
+                if i == 3 and square_f == (1 << (56 * color)):
+                    opposite_player.l_castling_right = False
                 opposite_player.pieces[i] ^= square_f
                 self.sound_to_play = max(self.sound_to_play, 1)
                 self.index_last_capture_or_pawn_move = self.index_position
