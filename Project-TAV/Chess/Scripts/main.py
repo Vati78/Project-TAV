@@ -22,7 +22,7 @@ class Gestionary:
         pg.init()
         pg.display.set_caption("Chess")
         pg.display.set_icon(pg.image.load("../Images/icon.png"))
-        self.win = pg.display.set_mode((const.WIDTH + 5 * const.SQUARE, const.HEIGHT))
+        self.win = pg.display.set_mode((910, 560), pg.RESIZABLE)
         self.win.fill((50, 50, 50))
         self.chess_game = game.Game(self)
         self.mouse_pos = None
@@ -30,6 +30,7 @@ class Gestionary:
         self.input = False
         self.changed_position = False
         self.illegal_move_time = [0, None]
+        self.invert_position = False
 
         board.load_sprites(self)
 
@@ -56,6 +57,7 @@ class Gestionary:
 
 
         while running:
+
             self.mouse_pos = pg.mouse.get_pos()
             if cooldown: cooldown -= 1
             if self.illegal_move_time[0]: self.illegal_move_time[0] -= 1
@@ -66,12 +68,27 @@ class Gestionary:
                 if event.type == pg.QUIT:
                     running = False
 
+                elif event.type == pg.VIDEORESIZE:
+                    width = event.w
+                    height = event.h
+
+                    if height < 560: height = 560
+                    if width < 960: width = 960
+
+                    self.win = pg.display.set_mode((width, height), pg.RESIZABLE)
+                    const.WIDTH = height
+                    const.HEIGHT = height
+                    const.SQUARE = height // 8
+
+                    board.load_sprites(self)
+
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_DOWN: active_key = pg.K_DOWN
                     elif event.key == pg.K_UP: active_key = pg.K_UP
                     elif event.key == pg.K_LEFT: active_key = pg.K_LEFT
                     elif event.key == pg.K_RIGHT: active_key = pg.K_RIGHT
                     elif event.key == pg.K_a: active_key = pg.K_a
+                    elif event.key == pg.K_x: active_key = pg.K_x
                     else: active_key = event.key
 
                 elif event.type == pg.KEYUP:
@@ -79,12 +96,12 @@ class Gestionary:
                         active_key = None
 
                 elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                    self.chess_game.left_click_down = mk.mouse_to_coor(self.mouse_pos)
+                    self.chess_game.left_click_down = mk.mouse_to_coor(self.mouse_pos, self.invert_position)
                     self.input = True
 
                 elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
                     self.chess_game.left_click_down = 0
-                    self.chess_game.left_click_up = mk.mouse_to_coor(self.mouse_pos)
+                    self.chess_game.left_click_up = mk.mouse_to_coor(self.mouse_pos, self.invert_position)
                     self.input = True
 
             ################################
@@ -93,7 +110,12 @@ class Gestionary:
             if active_key == pg.K_a:
                 if not cooldown:
                     board.theme_index = (board.theme_index+1)%const.NMB_THEMES
-                    cooldown = 20
+                    cooldown = 150
+
+            elif active_key == pg.K_x:
+                if not cooldown:
+                    self.invert_position = not self.invert_position
+                    cooldown = 150
 
             elif active_key == pg.K_LEFT:
                 if not cooldown and self.chess_game.index_position:
@@ -132,7 +154,7 @@ class Gestionary:
 
                 self.chess_game.key_to_status(self.chess_game.list_position[self.chess_game.index_position])
 
-                cooldown = 20
+                cooldown = 80
 
             ################################
 
@@ -195,11 +217,11 @@ class Gestionary:
 
         for i, piece in enumerate(list_pieces):
             if not color:
-                self.win.blit(board.WHITE_PIECES_SCALED[piece],
+                self.win.blit(const.WHITE_PIECES_SCALED[piece],
                     (col * const.SQUARE, i*const.SQUARE))
 
             else:
-                self.win.blit(board.BLACK_PIECES_SCALED,
+                self.win.blit(const.BLACK_PIECES_SCALED[piece],
                     (col * const.SQUARE, (7 - i)*const.SQUARE))
 
 

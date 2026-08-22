@@ -16,9 +16,9 @@ class Button:
         self.is_invert = False
         self.enabled = enabled
 
-    def draw(self,gestionary):
-        if self.enabled: gestionary.win.blit(self.image, (self.x,self.y))
-        #else: pg.draw.rect(gestionary.win, (10,12,35), (self.x,self.y,self.w,self.h))
+    def draw(self,win):
+        if self.enabled: win.blit(self.image, (self.x,self.y))
+        #else: pg.draw.rect(win.win, (10,12,35), (self.x,self.y,self.w,self.h))
 
     def if_input(self, pos):
         """if mouse is in the button"""
@@ -41,12 +41,12 @@ class Image:
         self.image = pg.transform.scale(pg.image.load(f"../Images/{image}.png"), (self.w, self.h))
         self.enabled = enabled
 
-    def draw(self,gestionary):
+    def draw(self,win):
 
         if self.enabled: 
-            gestionary.win.blit(self.image, (self.x,self.y))
+            win.blit(self.image, (self.x,self.y))
 
-        #else: pg.draw.rect(gestionary.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
+        #else: pg.draw.rect(win.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
 
 def main_menu(o = None):
@@ -54,8 +54,8 @@ def main_menu(o = None):
     main menu of the game
     :return: (exit: {0 : quit, 1 : play, 2 : review game}, options)
     """
-    gestionary = main.Gestionary()
-    gestionary.win.fill((10, 12, 35))
+    win = pg.display.set_mode((910, 560))
+    win.fill((10, 12, 35))
     buttons = [Button(300,100,300,86,"play"),
                Button(300,230,300,86,"options"),
                Button(300,360,300,86,"exit")]
@@ -64,7 +64,7 @@ def main_menu(o = None):
     if o is None: o = [2,1,"r",False]
     
     # since the time effect isn't already effective in the script,
-    # we seperate the time and other otpions for now
+    # we separate the time and other options for now
 
     timer = [10,0] # [Nb of min, Nb of seconds]
     
@@ -81,25 +81,25 @@ def main_menu(o = None):
                         return 1, o # plays a game with o as options
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
-                        o = options(gestionary, o, timer )
+                        o = options(win, o, timer )
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
                         return 0, o # quit the pygame window
-        gestionary.win.fill((10, 12, 35))
-        for button in buttons: button.draw(gestionary)
+        win.fill((10, 12, 35))
+        for button in buttons: button.draw(win)
         pg.display.update()
 
 
-def options(gestionary, o , timer):
+def options(win, o , timer):
     """
 
-    :param gestionary:
+    :param win:
     :param o: current options
     :param timer: temporary, will be integrated in o
     :return: nb of players, difficulty (1-3), color (w,b,r), time [if 2 players else None] [nb of min, nb of sec]
     """
     
-    gestionary.win.fill((10, 12, 35))
+    win.fill((10, 12, 35))
     images = [Image(20, 170, 260, 50, "nb_player"),
               Image(20,240, 205, 50, "difficulty"),
               Image(20, 320, 115, 35, "color"),
@@ -156,7 +156,7 @@ def options(gestionary, o , timer):
                     if buttons[0].if_input(pos):
                         ok = False
                         fin_de_l_humanite = True #=((((((
-                        #main_menu(gestionary)
+                        #main_menu(win)
 
                     for i in range(1,3):
                         if buttons[i].if_input(pos):
@@ -221,29 +221,29 @@ def options(gestionary, o , timer):
                             timer[1] = 59
                         
 
-        gestionary.win.fill((10,12,35))
+        win.fill((10,12,35))
         
         for button in buttons:
-            button.draw(gestionary)
+            button.draw(win)
             #print(button.is_invert, end ="; ")
         #print()
         
         
-        for image in images: image.draw(gestionary)
+        for image in images: image.draw(win)
         
-        if buttons[2].is_invert and  not (buttons[13].is_invert):
+        if buttons[2].is_invert and  not buttons[13].is_invert:
             nb_min = str(timer[0])
             nb_sec = str(timer[1])
             
             for indice_min in range(len(nb_min) - 1,-1,-1):
                 nom_chiffre = str(timer[0])[indice_min] + "_chiffre"
                 image_indice_min = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))              
-                gestionary.win.blit(image_indice_min, (330 - (len(str(timer[0])) - indice_min - 1) * 35 , 280))
+                win.blit(image_indice_min, (330 - (len(str(timer[0])) - indice_min - 1) * 35 , 280))
                       
             for indice_sec in range(len(nb_sec) - 1,-1,-1):               
                 nom_chiffre = str(timer[1])[indice_sec] + "_chiffre"
                 image_indice_sec = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))
-                gestionary.win.blit(image_indice_sec, (630 - (len(str(timer[1])) - indice_sec - 1) * 35 , 280))
+                win.blit(image_indice_sec, (630 - (len(str(timer[1])) - indice_sec - 1) * 35 , 280))
                  
         
         pg.display.update()

@@ -10,6 +10,14 @@ SQUARE = 70
 WIDTH = 8*SQUARE
 HEIGHT = 8*SQUARE
 
+
+# Sprites (.convert_alpha() needs a surface, so these constants will be changed after set_mode())
+WHITE_PIECES_UNSCALED = None
+BLACK_PIECES_UNSCALED = None
+WHITE_PIECES_SCALED = None
+BLACK_PIECES_SCALED = None
+
+
 # Bitboards
 FULL_BOARD = 0xFFFFFFFFFFFFFFFF
 RANK = 0xFF
@@ -21,6 +29,7 @@ NOT_H_FILE = FULL_BOARD ^ (FILE << 7)
 # Coordinates
 COLS = ['a','b','c','d','e','f','g','h']
 RANKS = ['1','2','3','4','5','6','7','8']
+
 
 # Square value
 square_value = []

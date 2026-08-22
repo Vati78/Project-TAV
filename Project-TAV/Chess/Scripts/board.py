@@ -11,32 +11,24 @@ theme_index = 1
 board_origin = (0, 0)
 font = pg.font.SysFont(None, 24)
 
-# /!\ .convert_alpha() needs a surface, so needs set_mode()
-WHITE_PIECES_UNSCALED = None
-BLACK_PIECES_UNSCALED = None
-WHITE_PIECES_SCALED = None
-BLACK_PIECES_SCALED = None
-
 
 # loads the sprites
 def load_sprites(gestionary):
-    global WHITE_PIECES_UNSCALED, BLACK_PIECES_UNSCALED, WHITE_PIECES_SCALED, BLACK_PIECES_SCALED
-
-    WHITE_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
+    const.WHITE_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteRook.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteQueen.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win))
 
-    BLACK_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
+    const.BLACK_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackBishop.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackRook.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win))
 
-    WHITE_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
+    const.WHITE_PIECES_SCALED  = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
@@ -49,7 +41,7 @@ def load_sprites(gestionary):
                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)))
 
-    BLACK_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
+    const.BLACK_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
@@ -62,8 +54,10 @@ def load_sprites(gestionary):
                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)))
 
+
 # draws the board
 def draw_board(gestionary):
+    # white down, black up
     for col in range(8):
         for rank in range(8):
             square = 1 << (8 * rank + col)
@@ -87,13 +81,25 @@ def draw_board(gestionary):
                          const.ILLEGAL_MOVE_COLOR[2] + round((color[2] - const.ILLEGAL_MOVE_COLOR[2]) / const.ILLEGAL_MOVE_DURATION * (const.ILLEGAL_MOVE_DURATION - gestionary.illegal_move_time[0])))
 
 
-            pg.draw.rect(gestionary.win, color, (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
+            if gestionary.invert_position:
+                pg.draw.rect(gestionary.win, color,
+                ((7 - col) * const.SQUARE, (7 - rank) * const.SQUARE, const.SQUARE, const.SQUARE))
+            else:
+                pg.draw.rect(gestionary.win, color,
+                (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE))
 
 
             # highlight selected square
-            if square & mk.mouse_to_coor(gestionary.mouse_pos):
-                if square & gestionary.chess_game.total or gestionary.chess_game.candidate_move[0]:
-                    pg.draw.rect(gestionary.win, (255, 255, 255), (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE), 2)
+            if square & mk.mouse_to_coor(gestionary.mouse_pos, gestionary.invert_position):
+                    if square & gestionary.chess_game.total or gestionary.chess_game.candidate_move[0]:
+                        if gestionary.invert_position:
+                            pg.draw.rect(gestionary.win, (255, 255, 255),
+                                         ((7-col) * const.SQUARE, (7-rank) * const.SQUARE, const.SQUARE, const.SQUARE),
+                                         2)
+                        else:
+                            pg.draw.rect(gestionary.win, (255, 255, 255),
+                            (col * const.SQUARE, rank * const.SQUARE, const.SQUARE, const.SQUARE),
+                            2)
 
 
 # draws the coordinates
@@ -107,10 +113,15 @@ def draw_coor(gestionary):
         gestionary.win.blit(text, (x, y))
 
     for i, rank in enumerate(const.RANKS[::-1]):
-        color = const.WHITE if i%2 == 1 else const.BLACK
-        text = font.render(rank, True, color[theme_index])
-        y = i*const.SQUARE + 5
         x = 5
+        if gestionary.invert_position:
+            y = (7-i) * const.SQUARE + 5
+            color = const.WHITE if i%2 == 0 else const.BLACK
+        else:
+            y = i*const.SQUARE + 5
+            color = const.WHITE if i%2 == 1 else const.BLACK
+
+        text = font.render(rank, True, color[theme_index])
 
         gestionary.win.blit(text, (x, y))
 
@@ -132,7 +143,10 @@ def draw_pieces(gestionary):
                     break
 
                 else:
-                    gestionary.win.blit(WHITE_PIECES_SCALED[k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
+                    if gestionary.invert_position:
+                        gestionary.win.blit(const.WHITE_PIECES_SCALED [k], ((7 - i%8)*const.SQUARE, (7 - i//8)*const.SQUARE))
+                    else:
+                        gestionary.win.blit(const.WHITE_PIECES_SCALED [k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
 
@@ -147,7 +161,10 @@ def draw_pieces(gestionary):
                     break
 
                 else:
-                    gestionary.win.blit(BLACK_PIECES_SCALED[k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
+                    if gestionary.invert_position:
+                        gestionary.win.blit(const.BLACK_PIECES_SCALED[k], ((7 - i%8)*const.SQUARE, (7 - i//8)*const.SQUARE))
+                    else:
+                        gestionary.win.blit(const.BLACK_PIECES_SCALED[k], ((i%8)*const.SQUARE, (i//8)*const.SQUARE))
                     break
 
     # blit selected piece
@@ -160,7 +177,7 @@ def draw_pieces(gestionary):
             gestionary.win.blit(
                 pg.transform.rotate(
                     pg.transform.scale(
-                        WHITE_PIECES_UNSCALED[selected_piece[1]],
+                        const.WHITE_PIECES_UNSCALED[selected_piece[1]],
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
@@ -173,7 +190,7 @@ def draw_pieces(gestionary):
             gestionary.win.blit(
                 pg.transform.rotate(
                     pg.transform.scale(
-                        BLACK_PIECES_UNSCALED[selected_piece[1]],
+                        const.BLACK_PIECES_UNSCALED[selected_piece[1]],
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
@@ -188,7 +205,7 @@ def occupied_square(gestionary, square):
 
 # blits all legal moves
 def blit_legal_moves(gestionary, color, square_i):
-    m_pos = mk.mouse_to_coor(gestionary.mouse_pos)
+    m_pos = mk.mouse_to_coor(gestionary.mouse_pos, gestionary.invert_position)
     for square in split_bits(gestionary.chess_game.legal_moves):
         i = square.bit_length() - 1
 
@@ -200,10 +217,18 @@ def blit_legal_moves(gestionary, color, square_i):
         if (occupied_square(gestionary, square) or (gestionary.chess_game.players[color].pieces[0] & square_i
                                                     and square_i >> 16 and (square_i << 16) & const.FULL_BOARD
                                                     and not ((square_i << 8) & square or (square_i >> 8) & square))):
-            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2),
-                           const.SQUARE // 2 - 2, 3)
+            if gestionary.invert_position:
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((7-i%8) * const.SQUARE + const.SQUARE // 2, (7-i//8) * const.SQUARE + const.SQUARE // 2),
+                               const.SQUARE // 2 - 2, 3)
+            else:
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i // 8) * const.SQUARE + const.SQUARE // 2),
+                               const.SQUARE // 2 - 2, 3)
         else:
-            pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i//8) * const.SQUARE + const.SQUARE // 2), 10*facteur_grossissement)
+            if gestionary.invert_position:
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((7-i%8) * const.SQUARE + const.SQUARE // 2, (7-i//8) * const.SQUARE + const.SQUARE // 2), 10*facteur_grossissement)
+            else:
+                pg.draw.circle(gestionary.win, (168, 168, 168), ((i%8) * const.SQUARE + const.SQUARE // 2, (i // 8) * const.SQUARE + const.SQUARE // 2),
+                               10 * facteur_grossissement)
 
 
 # displays whose turn it is
