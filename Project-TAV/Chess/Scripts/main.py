@@ -32,8 +32,8 @@ class Gestionary:
         self.illegal_move_time = [0, None]
         self.invert_position = False
 
-        board.load_sprites(self)
-
+        board.load_sprites_unscaled(self)
+        board.load_sprites_scaled(self)
 
     def run(self, o):
         """
@@ -80,16 +80,10 @@ class Gestionary:
                     const.HEIGHT = height
                     const.SQUARE = height // 8
 
-                    board.load_sprites(self)
+                    board.load_sprites_scaled(self)
 
                 elif event.type == pg.KEYDOWN:
-                    if event.key == pg.K_DOWN: active_key = pg.K_DOWN
-                    elif event.key == pg.K_UP: active_key = pg.K_UP
-                    elif event.key == pg.K_LEFT: active_key = pg.K_LEFT
-                    elif event.key == pg.K_RIGHT: active_key = pg.K_RIGHT
-                    elif event.key == pg.K_a: active_key = pg.K_a
-                    elif event.key == pg.K_x: active_key = pg.K_x
-                    else: active_key = event.key
+                    active_key = event.key
 
                 elif event.type == pg.KEYUP:
                     if event.key == active_key:

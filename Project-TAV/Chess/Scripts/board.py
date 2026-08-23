@@ -13,7 +13,7 @@ font = pg.font.SysFont(None, 24)
 
 
 # loads the sprites
-def load_sprites(gestionary):
+def load_sprites_unscaled(gestionary):
     const.WHITE_PIECES_UNSCALED = (pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
@@ -28,6 +28,7 @@ def load_sprites(gestionary):
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win))
 
+def load_sprites_scaled(gestionary):
     const.WHITE_PIECES_SCALED  = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
                            pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
