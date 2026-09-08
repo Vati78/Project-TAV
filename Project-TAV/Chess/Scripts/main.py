@@ -42,6 +42,7 @@ class Gestionary:
         """
         if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
         self.chess_game.players = [pb.Player("w") if o[0]==2 or o[2]=="w" else pb.Bot("w"), pb.Player("b") if o[0]==2 or o[2]=="b" else pb.Bot("b")]
+        # self.chess_game.players = [pb.Bot("w"), pb.Bot("b")]
 
 
         running = True
@@ -54,6 +55,9 @@ class Gestionary:
 
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
         self.chess_game.list_position.append(self.chess_game.status_to_key())
+
+
+
 
 
         while running:
@@ -178,6 +182,7 @@ class Gestionary:
                 self.chess_game.players[self.chess_game.player_turn].find_and_play_move(self)
                 if self.chess_game.check:
                     self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
+                time.sleep(0.2)
 
             self.win.fill((50, 50, 50))
             board.draw_board(self)
@@ -226,7 +231,7 @@ class Gestionary:
         while promote:
             mouse_pos = pg.mouse.get_pos()
 
-            coor = mk.mouse_to_coor(mouse_pos).bit_length() - 1
+            coor = mk.mouse_to_coor(mouse_pos, self.invert_position).bit_length() - 1
             x = coor%8
             y = coor//8
 
