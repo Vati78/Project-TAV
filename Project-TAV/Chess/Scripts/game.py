@@ -6,8 +6,6 @@ import const
 import pieces
 import player_bot as pb
 import board
-import copy
-
 import math
 
 

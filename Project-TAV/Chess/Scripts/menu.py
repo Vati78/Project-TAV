@@ -1,6 +1,4 @@
 import pygame as pg, sys
-import time
-import main
 from pygame.constants import MOUSEBUTTONDOWN
 
 

@@ -50,21 +50,16 @@ class Gestionary:
         const.start_sound.play()
         self.chess_game.left_click_up = [None,None,None,None,None]
 
-        active_key = None
-        cooldown = 0
-
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
         self.chess_game.list_position.append(self.chess_game.status_to_key())
 
-
-
-
+        pg.key.set_repeat(500,60)
 
         while running:
 
             self.mouse_pos = pg.mouse.get_pos()
-            if cooldown: cooldown -= 1
             if self.illegal_move_time[0]: self.illegal_move_time[0] -= 1
+            active_key = None
 
             ################################
 
@@ -106,38 +101,34 @@ class Gestionary:
 
             # change position or theme
             if active_key == pg.K_a:
-                if not cooldown:
-                    board.theme_index = (board.theme_index+1)%const.NMB_THEMES
-                    cooldown = 150
+                board.theme_index = (board.theme_index+1)%const.NMB_THEMES
 
             elif active_key == pg.K_x:
-                if not cooldown:
-                    self.invert_position = not self.invert_position
-                    cooldown = 150
+                self.invert_position = not self.invert_position
 
             elif active_key == pg.K_LEFT:
-                if not cooldown and self.chess_game.index_position:
+                if self.chess_game.index_position:
                     self.chess_game.index_position -= 1
                     self.chess_game.player_turn ^= 1
 
                     self.changed_position = True
 
             elif active_key == pg.K_RIGHT:
-                if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
+                if self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position += 1
                     self.chess_game.player_turn ^= 1
 
                     self.changed_position = True
 
             elif active_key == pg.K_DOWN:
-                if not cooldown and self.chess_game.index_position:
+                if self.chess_game.index_position:
                     self.chess_game.index_position = 0
                     self.chess_game.player_turn = 0
 
                     self.changed_position = True
 
             elif active_key == pg.K_UP:
-                if not cooldown and self.chess_game.index_position + 1 != len(self.chess_game.list_position):
+                if self.chess_game.index_position + 1 != len(self.chess_game.list_position):
                     self.chess_game.index_position = len(self.chess_game.list_position) - 1
                     self.chess_game.player_turn = self.chess_game.index_position % 2
 
@@ -151,8 +142,6 @@ class Gestionary:
                 self.chess_game.legal_moves = 0
 
                 self.chess_game.key_to_status(self.chess_game.list_position[self.chess_game.index_position])
-
-                cooldown = 80
 
             ################################
 

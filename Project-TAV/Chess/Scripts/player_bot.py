@@ -5,7 +5,6 @@ Classe joueur humain et bot
 import const
 import board
 import sound
-import copy
 import random as rd
 import math
 
@@ -107,7 +106,7 @@ class Bot(Item):
                                 undo_move()
                                 #print(2*depth*"_", "Evaluation :", child_eval)
                                 if max_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
-                                elif max_eval > child_eval or best_move == []: best_move = [(i, move, promoted_piece)]
+                                elif max_eval > child_eval: best_move = [(i, move, promoted_piece)]
                                 max_eval = max(child_eval, max_eval)
                                 alpha = max(child_eval, alpha)
                                 if alpha >= beta:
@@ -119,7 +118,7 @@ class Bot(Item):
                             else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
                             undo_move()
                             if max_eval == child_eval or best_move == []: best_move.append((i, move, False))
-                            elif max_eval < child_eval or best_move == []: best_move = [(i, move, False)]
+                            elif max_eval < child_eval: best_move = [(i, move, False)]
                             max_eval = max(child_eval, max_eval)
                             alpha = max(child_eval, alpha)
                             if alpha >= beta:
@@ -147,7 +146,7 @@ class Bot(Item):
                                 undo_move()
                                 #print((2*depth*"_", "Result :", child_eval)
                                 if min_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
-                                elif min_eval > child_eval or best_move == []: best_move = [(i, move, promoted_piece)]
+                                elif min_eval > child_eval: best_move = [(i, move, promoted_piece)]
                                 min_eval = min(child_eval, min_eval)
                                 beta = min(child_eval, beta)
                                 if alpha >= beta:
@@ -162,7 +161,7 @@ class Bot(Item):
                             undo_move()
                             #print((2*depth*"_", "Result :", child_eval)
                             if min_eval == child_eval or best_move == []: best_move.append((i, move, False))
-                            elif min_eval > child_eval or best_move == []: best_move = [(i, move, False)]
+                            elif min_eval > child_eval: best_move = [(i, move, False)]
                             min_eval = min(child_eval, min_eval)
                             beta = min(child_eval, beta)
                             if alpha >= beta:
