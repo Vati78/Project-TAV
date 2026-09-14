@@ -128,7 +128,10 @@ def draw_coor(gestionary):
 
 
 # draws the pieces
-def draw_pieces(gestionary):
+def draw_pieces(gestionary, saved_position):
+    if saved_position:
+        gestionary.chess_game.key_to_status(saved_position)
+
     selected_piece = None
     for square in split_bits(gestionary.chess_game.total):
         i = square.bit_length() - 1
@@ -196,6 +199,9 @@ def draw_pieces(gestionary):
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
+        if saved_position:
+            gestionary.chess_game.key_to_status(gestionary.chess_game.status_to_key())
+
 
 # checks if a specific square is occupied by a piece
 def occupied_square(gestionary, square):
@@ -241,7 +247,7 @@ def write_player_turn(gestionary):
     gestionary.win.blit(texte, (const.WIDTH + 30, const.HEIGHT // 2 - 13))
     
 
-# shows each player's legal time
+# shows each player's time
 def draw_timer(gestionary, color):
     pass
 

@@ -18,8 +18,6 @@ class Game:
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
         self.index_position = 0
-        #                      players                      total              list_legal_moves        check          sound
-        #self.list_position = [[copy.deepcopy(self.players), self.total,        0,                      False,         0]]
         self.list_position = []
         ################################################
         self.player_turn = self.index_position % 2
@@ -555,7 +553,7 @@ class Game:
                         self.candidate_move[1] = 0
                         self.clicked_move = True
                         self.legal_moves = self.list_legal_moves[square_i.bit_length() - 1]
-                        return
+                        return False
 
                 if not promotion: player.pieces[i] |= square_f
                 else:
@@ -594,6 +592,8 @@ class Game:
 
         self.update_position(square_i, square_f)
 
+        return True
+
 
     def update_position(self, square_i, square_f):
 
@@ -604,14 +604,9 @@ class Game:
             for i in j.pieces:
                 self.total |= i
 
-        # if not "current" position and another move has been played
-        if self.index_position != len(self.list_position) - 1 and self.players[self.player_turn].last_piece_played != self.list_position[self.index_position+1][12*self.player_turn + 10]:
-            del self.list_position[self.index_position+1:]
+        del self.list_position[self.index_position+1:]
 
-        self.left_click_down = 0
-        self.left_click_up = 0
-        self.candidate_move = [0,0]
-        self.list_legal_moves = []
+
         self.legal_moves = 0
         self.check = False
         self.index_position += 1

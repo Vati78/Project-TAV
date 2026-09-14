@@ -32,6 +32,9 @@ class Gestionary:
         self.illegal_move_time = [0, None]
         self.invert_position = False
 
+        self.saved_position = False
+        self.bot_calculating = False
+
         board.load_sprites_unscaled(self)
         board.load_sprites_scaled(self)
 
@@ -145,39 +148,49 @@ class Gestionary:
 
             ################################
 
-            if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player) or self.chess_game.index_position + 1 != len(self.chess_game.list_position):
-                if self.input:
-                    self.chess_game.input_to_candidate_move()
+            if self.bot_calculating:
+                pass
+            else:
+                if isinstance(self.chess_game.players[self.chess_game.player_turn], pb.Player):# or self.chess_game.index_position + 1 != len(self.chess_game.list_position):
+                    if self.input:
+                        self.chess_game.input_to_candidate_move()
 
-                if self.chess_game.illegal_move:
-                    const.illegal_sound.play()
-                    self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
-
-                    self.chess_game.illegal_move = False
-
-                if self.changed_position:
-                    sound.play_sound(self)
-                    self.chess_game.sound_to_play = 0
-
-                if self.chess_game.candidate_move[1]:
-                    self.chess_game.players[self.chess_game.player_turn].move(self)
-
-                    if self.chess_game.check:
+                    if self.chess_game.illegal_move:
+                        const.illegal_sound.play()
                         self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
 
+                        self.chess_game.illegal_move = False
+
+                    if self.changed_position:
+                        sound.play_sound(self)
+                        self.chess_game.sound_to_play = 0
+
+                    if self.chess_game.candidate_move[1]:
+                        self.chess_game.players[self.chess_game.player_turn].move(self)
+
+                        if self.chess_game.check:
+                            self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
 
 
-            else:
-                self.chess_game.players[self.chess_game.player_turn].find_and_play_move(self)
-                if self.chess_game.check:
-                    self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
-                time.sleep(0.2)
+
+                else:
+                    if self.chess_game.players[self.chess_game.player_turn].calculated_move is None:
+                        self.saved_position = self.chess_game.status_to_key()
+                        self.chess_game.players[self.chess_game.player_turn].find_move(self)
+                        self.bot_calculating = True
+
+                    else:
+                        self.saved_position = False
+                        self.chess_game.players[self.chess_game.player_turn].play_move(self)
+                        if self.chess_game.check:
+                            self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
+                        time.sleep(0.2)
 
             self.win.fill((50, 50, 50))
             board.draw_board(self)
             board.draw_coor(self)
             board.blit_legal_moves(self, self.chess_game.player_turn, self.chess_game.candidate_move[0])
-            board.draw_pieces(self)
+            board.draw_pieces(self, self.saved_position)
             board.write_player_turn(self)
 
             pg.display.update()

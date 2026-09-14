@@ -7,7 +7,7 @@ import board
 import sound
 import random as rd
 import math
-
+import threading as th
 
 class Item:
     def __init__(self, color):
@@ -40,6 +40,8 @@ class Item:
         self.castled = False
         self.last_piece_played = (0, 0)
 
+        self.time = 600
+
     def update_pos(self):
         self.pieces_total = 0
         for i in self.pieces:
@@ -56,25 +58,38 @@ class Player(Item):
         if square_i & self.pieces[0] and (square_f & const.RANK or not (square_f << 8) & const.FULL_BOARD):
             promotion = True
 
-        gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
+        move = gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
 
         # if a move was indeed made
-        if not gestionary.chess_game.candidate_move[1]:
+        if move:
             sound.play_sound(gestionary)
             gestionary.chess_game.sound_to_play = 0
 
+            gestionary.chess_game.left_click_down = 0
+            gestionary.chess_game.left_click_up = 0
+            gestionary.chess_game.candidate_move = [0, 0]
+
 
 class Bot(Item):
-    def find_and_play_move(self, gestionary):
-        i, square_f, promotion = self.minimax_with_alpha_beta_pruning(gestionary, 2,
-                                        -math.inf, math.inf, int(self.color == "b"), 2)
+    def __init__(self, color):
+        super().__init__(color)
+        self.calculated_move = None
+        self.depth = 3
+        self.chess_game = None
+
+    def find_move(self, gestionary):
+        th.Thread(target=self.minimax_with_alpha_beta_pruning,
+                  args=(gestionary, self.depth, -math.inf, math.inf, int(self.color == "b"), self.depth)).start()
+
+    def play_move(self, gestionary):
+        i, square_f, promotion = self.calculated_move
         gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0
+        self.calculated_move = None
 
     def minimax_with_alpha_beta_pruning(self, gestionary, depth, alpha, beta, player, depth_i):
         best_move = []
-        status = gestionary.chess_game.status_to_key()
 
         #print("Profondeur :", depth)
         if depth == 0:
@@ -126,7 +141,9 @@ class Bot(Item):
 
 
             if depth == depth_i:
-                return rd.choice(best_move)
+                self.calculated_move = rd.choice(best_move)
+                gestionary.bot_calculating = False
+                return
             return max_eval
 
         else:
@@ -170,6 +187,8 @@ class Bot(Item):
 
 
             if depth == depth_i:
-                return rd.choice(best_move)
+                self.calculated_move = rd.choice(best_move)
+                gestionary.bot_calculating = False
+                return
 
             return min_eval
