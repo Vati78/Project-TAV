@@ -41,6 +41,7 @@ class Item:
         self.last_piece_played = (0, 0)
 
         self.time = timer[0] if timer is not None else None
+        self.increment = timer[1] if timer is not None else None
 
     def update_pos(self):
         self.pieces_total = 0

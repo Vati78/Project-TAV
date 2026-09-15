@@ -9,6 +9,7 @@ import const
 import board
 import game
 import mouse_keys as mk
+import menu
 import time
 
 os.chdir(os.path.dirname(__file__))
