@@ -9,22 +9,22 @@ import const
 import board
 import game
 import mouse_keys as mk
-import menu
-import player_bot as pb
-import sound
-from random import choice
 import time
 
 os.chdir(os.path.dirname(__file__))
 
 class Gestionary:
-    def __init__(self):
+    def __init__(self, o):
+        """
+        :param o: nb of players, difficulty, color, timer.available, (time, increment)
+        :return:
+        """
         pg.init()
         pg.display.set_caption("Chess")
         pg.display.set_icon(pg.image.load("../Images/icon.png"))
         self.win = pg.display.set_mode((910, 560), pg.RESIZABLE)
         self.win.fill((50, 50, 50))
-        self.chess_game = game.Game(self)
+        self.chess_game = game.Game(self, o)
         self.mouse_pos = None
         self.previous_mouse_pos = []
         self.input = False
@@ -38,15 +38,8 @@ class Gestionary:
         board.load_sprites_unscaled(self)
         board.load_sprites_scaled(self)
 
-    def run(self, o):
-        """
-        :param o: nb of players, difficulty, color
-        :return:
-        """
-        if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
-        self.chess_game.players = [pb.Player("w") if o[0]==2 or o[2]=="w" else pb.Bot("w"), pb.Player("b") if o[0]==2 or o[2]=="b" else pb.Bot("b")]
+    def run(self):
         # self.chess_game.players = [pb.Bot("w"), pb.Bot("b")]
-
 
         running = True
 
@@ -253,8 +246,8 @@ if __name__ == "__main__":
     while True:
         c,o = menu.main_menu(o)
         if c == 1: # play game
-            gestionary = Gestionary()
-            gestionary.run(o)
+            gestionary = Gestionary(o)
+            gestionary.run()
         elif c == 2: # review previous game (not implemented)
             pass
         else: # quit

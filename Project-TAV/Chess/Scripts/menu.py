@@ -64,7 +64,6 @@ def main_menu(o = None):
     # since the time effect isn't already effective in the script,
     # we separate the time and other options for now
 
-    timer = [10,0] # [Nb of min, Nb of seconds]
     
     cur_partie = True
     
@@ -79,7 +78,7 @@ def main_menu(o = None):
                         return 1, o # plays a game with o as options
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
-                        o = options(win, o, timer )
+                        o = options(win, o)
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
                         return 0, o # quit the pygame window
@@ -88,12 +87,11 @@ def main_menu(o = None):
         pg.display.update()
 
 
-def options(win, o , timer):
+def options(win, o):
     """
 
     :param win:
-    :param o: current options
-    :param timer: temporary, will be integrated in o
+    :param o: current options: nb of players, difficulty, color, timer.available, [time, increment]
     :return: nb of players, difficulty (1-3), color (w,b,r), time [if 2 players else None] [nb of min, nb of sec]
     """
     
@@ -127,6 +125,7 @@ def options(win, o , timer):
     buttons[o[0]].invert()
     buttons[2+o[1]].invert()
     buttons[6 if o[2]=="w" else (7 if o[2]=="b" else 8)].invert()
+    timer = o[4]
     
     if o[3]:
         for i in range(9,13):
@@ -143,7 +142,7 @@ def options(win, o , timer):
     ok = True # mdr =)
     fin_de_l_humanite = False
     
-    while ok and not(fin_de_l_humanite): # tout va bien !! 
+    while ok and not fin_de_l_humanite: # tout va bien !!
         pos = pg.mouse.get_pos()
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -248,16 +247,9 @@ def options(win, o , timer):
         #print(timer)
 
         
-    if buttons[1].is_invert:
-        #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
-        return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
-    else:
-        if not buttons[13].is_invert:
-            #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
-
-            return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert] #, timer
-        else:
-            #print(1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert)
-
-            return [1 if buttons[1].is_invert else 2, 1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3), "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") , buttons[13].is_invert]
+    return [1 if buttons[1].is_invert else 2,
+            1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3),
+            "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") ,
+            buttons[13].is_invert,
+            timer]
 

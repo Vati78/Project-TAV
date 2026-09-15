@@ -10,7 +10,7 @@ import math
 import threading as th
 
 class Item:
-    def __init__(self, color):
+    def __init__(self, color, timer):
         self.color = color
         self.opposite_color = "w" if self.color == "b" else "b"
 
@@ -40,7 +40,7 @@ class Item:
         self.castled = False
         self.last_piece_played = (0, 0)
 
-        self.time = 600
+        self.time = timer[0] if timer is not None else None
 
     def update_pos(self):
         self.pieces_total = 0
@@ -71,8 +71,8 @@ class Player(Item):
 
 
 class Bot(Item):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, timer):
+        super().__init__(color, timer)
         self.calculated_move = None
         self.depth = 3
         self.chess_game = None

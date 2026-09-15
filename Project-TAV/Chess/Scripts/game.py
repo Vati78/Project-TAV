@@ -7,13 +7,19 @@ import pieces
 import player_bot as pb
 import board
 import math
+from random import choice
 
 
 class Game:
-    def __init__(self, gestionary):
+    def __init__(self, gestionary, o):
         self.gestionary = gestionary
+        #self.players = [pb.Player("w") if "w" in const.HUMAN else pb.Bot("w"),pb.Player("b") if "b" in const.HUMAN else pb.Bot("b")]
 
-        self.players = [pb.Player("w") if "w" in const.HUMAN else pb.Bot("w"), pb.Player("b") if "b" in const.HUMAN else pb.Bot("b")]
+        if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
+        t = o[4] if o[3] else None
+        self.players = [pb.Player("w", t) if o[0]==2 or o[2]=="w" else pb.Bot("w", t),
+                        pb.Player("b", t) if o[0]==2 or o[2]=="b" else pb.Bot("b", t)]
+
         self.index_last_capture_or_pawn_move = 0
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
