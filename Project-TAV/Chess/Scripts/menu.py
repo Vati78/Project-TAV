@@ -59,7 +59,7 @@ def main_menu(o = None):
                Button(300,360,300,86,"exit")]
     
     
-    if o is None: o = [2,1,"r",False,[10,1]]
+    if o is None: o = [2,1,"r",True,[10,1]]
     
     # since the time effect isn't already effective in the script,
     # we separate the time and other options for now
@@ -104,8 +104,7 @@ def options(win, o):
               Image(700,280,70,45,"sec",False if o[0] == 1 else True),
               Image(300,20,350,100, "options")]
     
-    
-              
+
     buttons = [Button(20,420,300,86,"back"),
                Button(400,170,50,50,"1", "1_i"),
                Button(700,170,50,50,"2", "2_i"),

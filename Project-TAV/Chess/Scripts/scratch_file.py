@@ -1,4 +1,3 @@
-
 # Niveau actuel (contre bot chess.com)
 #- Zach (100 elo) : Victoire avec les blancs
 #- Martin (250 elo) : Victoire avec les noirs
