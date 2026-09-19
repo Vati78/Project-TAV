@@ -207,7 +207,7 @@ def draw_time(gestionary):
     t = int(gestionary.chess_game.players[up].timer +
                (gestionary.chess_game.move_start - time.time() if gestionary.chess_game.player_turn == up else 0))
 
-    text = font.render(f"{t // 60} : {t % 60 : 02d}",
+    text = font.render(f"{t // 60} : {t % 60:02d}",
                        True, (255,255,255))
 
     gestionary.win.blit(text, (const.WIDTH + 30, const.HEIGHT - 100))
@@ -217,8 +217,9 @@ def draw_time(gestionary):
     t = int(gestionary.chess_game.players[1 ^ up].timer +
                (gestionary.chess_game.move_start - time.time() if gestionary.chess_game.player_turn != up else 0))
 
-    text = font.render(f"{t // 60} : {t % 60 : 02d}",
+    text = font.render(f"{t // 60} : {t % 60:02d}",
                        True, (255, 255, 255))
+    # if t//60 == 0
 
     gestionary.win.blit(text, (const.WIDTH + 30, 100))
 
