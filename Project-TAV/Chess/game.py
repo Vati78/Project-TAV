@@ -1,8 +1,9 @@
 """
 Toutes les fonctions qui gèrent le déroulement de la partie.
 """
-
+import asyncio
 import const
+
 import pieces
 import player_bot as pb
 import board
@@ -508,7 +509,7 @@ class Game:
                 self.result = 2*self.player_turn - 1
 
 
-    def play_move(self, square_i, square_f, color, promotion=False):
+    async def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
         opposite_player = self.players[color ^ 1]
 
@@ -547,7 +548,7 @@ class Game:
                 player.pieces[i] ^= square_i
 
                 if promotion is True and i == 0:
-                    promotion = self.gestionary.promoting(int(player.color == "b"), (square_f.bit_length() - 1) % 8)
+                    promotion =  await self.gestionary.promoting(int(player.color == "b"), (square_f.bit_length() - 1) % 8)
                     if not promotion:
                         player.pieces[i] |= square_i
                         self.candidate_move[1] = 0

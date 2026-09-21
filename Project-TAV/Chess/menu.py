@@ -1,5 +1,6 @@
 import pygame as pg, sys
 from pygame.constants import MOUSEBUTTONDOWN
+import asyncio
 
 
 class Button:
@@ -8,9 +9,9 @@ class Button:
         self.y = y
         self.w = w
         self.h = h
-        self.image = pg.transform.scale(pg.image.load(f"../Images/{image}.png"), (self.w,self.h))
+        self.image = pg.transform.scale(pg.image.load(f"Images/{image}.png"), (self.w,self.h))
         if image_i:
-            self.image_i = pg.transform.scale(pg.image.load(f"../Images/{image_i}.png"), (self.w,self.h))
+            self.image_i = pg.transform.scale(pg.image.load(f"Images/{image_i}.png"), (self.w,self.h))
         self.is_invert = False
         self.enabled = enabled
 
@@ -36,7 +37,7 @@ class Image:
         self.y = y
         self.w = w
         self.h = h
-        self.image = pg.transform.scale(pg.image.load(f"../Images/{image}.png"), (self.w, self.h))
+        self.image = pg.transform.scale(pg.image.load(f"Images/{image}.png"), (self.w, self.h))
         self.enabled = enabled
 
     def draw(self,win):
@@ -47,7 +48,7 @@ class Image:
         #else: pg.draw.rect(win.win, (10, 12, 35), (self.x, self.y, self.w, self.h))
 
 
-def main_menu(o = None):
+async def main_menu(o = None):
     """
     main menu of the game
     :return: (exit: {0 : quit, 1 : play, 2 : review game}, options)
@@ -59,7 +60,7 @@ def main_menu(o = None):
                Button(300,360,300,86,"exit")]
     
     
-    if o is None: o = [2,1,"r",False]
+    if o is None:  o = [2,1,"r",False]
     
     # since the time effect isn't already effective in the script,
     # we separate the time and other options for now
@@ -79,16 +80,18 @@ def main_menu(o = None):
                         return 1, o # plays a game with o as options
 
                     if buttons[1].if_input(pg.mouse.get_pos()):
-                        o = options(win, o, timer )
+                        o = await options(win, o, timer )
 
                     if buttons[2].if_input(pg.mouse.get_pos()):
                         return 0, o # quit the pygame window
         win.fill((10, 12, 35))
         for button in buttons: button.draw(win)
         pg.display.update()
+        
+        await asyncio.sleep(0)
 
 
-def options(win, o , timer):
+async def options(win, o , timer):
     """
 
     :param win:
@@ -235,16 +238,18 @@ def options(win, o , timer):
             
             for indice_min in range(len(nb_min) - 1,-1,-1):
                 nom_chiffre = str(timer[0])[indice_min] + "_chiffre"
-                image_indice_min = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))              
+                image_indice_min = pg.transform.scale(pg.image.load(f"Images/{nom_chiffre}.png"), (30, 45))              
                 win.blit(image_indice_min, (330 - (len(str(timer[0])) - indice_min - 1) * 35 , 280))
                       
             for indice_sec in range(len(nb_sec) - 1,-1,-1):               
                 nom_chiffre = str(timer[1])[indice_sec] + "_chiffre"
-                image_indice_sec = pg.transform.scale(pg.image.load(f"../Images/{nom_chiffre}.png"), (30, 45))
+                image_indice_sec = pg.transform.scale(pg.image.load(f"Images/{nom_chiffre}.png"), (30, 45))
                 win.blit(image_indice_sec, (630 - (len(str(timer[1])) - indice_sec - 1) * 35 , 280))
                  
         
         pg.display.update()
+        
+        await asyncio.sleep(0)
         #print(timer)
 
         

@@ -49,7 +49,7 @@ class Item:
 
 
 class Player(Item):
-    def move(self, gestionary):
+    async def move(self, gestionary):
         square_i, square_f = gestionary.chess_game.candidate_move
 
         promotion = False
@@ -58,7 +58,7 @@ class Player(Item):
         if square_i & self.pieces[0] and (square_f & const.RANK or not (square_f << 8) & const.FULL_BOARD):
             promotion = True
 
-        move = gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
+        move = await gestionary.chess_game.play_move(square_i, square_f, int(self.color=="b"), promotion)
 
         # if a move was indeed made
         if move:
@@ -81,9 +81,9 @@ class Bot(Item):
         th.Thread(target=self.minimax_with_alpha_beta_pruning,
                   args=(gestionary, self.depth, -math.inf, math.inf, int(self.color == "b"), self.depth)).start()
 
-    def play_move(self, gestionary):
+    async def play_move(self, gestionary):
         i, square_f, promotion = self.calculated_move
-        gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
+        await gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0
         self.calculated_move = None

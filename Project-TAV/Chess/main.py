@@ -2,6 +2,7 @@
 Tour de contrôle de tous les scripts.
 """
 import sys
+import asyncio
 
 import pygame as pg
 import os
@@ -21,7 +22,7 @@ class Gestionary:
     def __init__(self):
         pg.init()
         pg.display.set_caption("Chess")
-        pg.display.set_icon(pg.image.load("../Images/icon.png"))
+        pg.display.set_icon(pg.image.load("Images/icon.png"))
         self.win = pg.display.set_mode((910, 560), pg.RESIZABLE)
         self.win.fill((50, 50, 50))
         self.chess_game = game.Game(self)
@@ -38,12 +39,12 @@ class Gestionary:
         board.load_sprites_unscaled(self)
         board.load_sprites_scaled(self)
 
-    def run(self, o):
+    async def run(self, o):
         """
         :param o: nb of players, difficulty, color
         :return:
         """
-        if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
+        if  o[2] not in ["w","b"]: o[2] = choice(["w","b"])
         self.chess_game.players = [pb.Player("w") if o[0]==2 or o[2]=="w" else pb.Bot("w"), pb.Player("b") if o[0]==2 or o[2]=="b" else pb.Bot("b")]
         # self.chess_game.players = [pb.Bot("w"), pb.Bot("b")]
 
@@ -166,7 +167,7 @@ class Gestionary:
                         self.chess_game.sound_to_play = 0
 
                     if self.chess_game.candidate_move[1]:
-                        self.chess_game.players[self.chess_game.player_turn].move(self)
+                        await self.chess_game.players[self.chess_game.player_turn].move(self)
 
                         if self.chess_game.check:
                             self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
@@ -181,7 +182,7 @@ class Gestionary:
 
                     else:
                         self.saved_position = False
-                        self.chess_game.players[self.chess_game.player_turn].play_move(self)
+                        await self.chess_game.players[self.chess_game.player_turn].play_move(self)
                         if self.chess_game.check:
                             self.illegal_move_time = [const.ILLEGAL_MOVE_DURATION, self.chess_game.player_turn]
                         time.sleep(0.2)
@@ -205,12 +206,14 @@ class Gestionary:
             self.previous_mouse_pos.append(self.mouse_pos[0])
 
             if len(self.previous_mouse_pos) > 5: del self.previous_mouse_pos[0]
+            
+            await asyncio.sleep(0)
 
 
-    def promoting(self, color, col):
+    async def promoting(self, color, col):
         board.draw_board(self)
         board.draw_coor(self)
-        board.draw_pieces(self)
+        board.draw_pieces(self,False)
 
         pg.draw.rect(self.win, (255, 255, 255), (col * const.SQUARE, 4*color*const.SQUARE, const.SQUARE, 4 * const.SQUARE))
 
@@ -246,15 +249,17 @@ class Gestionary:
                         elif color and 4 <= y <= 7: return list_pieces[7-y]
                     self.chess_game.left_click_down = 0
                     return False
+                
+            await asyncio.sleep(0)
 
 
 if __name__ == "__main__":
     o = None
     while True:
-        c,o = menu.main_menu(o)
+        c,o = asyncio.run(menu.main_menu(o))
         if c == 1: # play game
             gestionary = Gestionary()
-            gestionary.run(o)
+            asyncio.run(gestionary.run(o))
         elif c == 2: # review previous game (not implemented)
             pass
         else: # quit
