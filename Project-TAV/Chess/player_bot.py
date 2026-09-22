@@ -10,7 +10,7 @@ import math
 import threading as th
 
 class Item:
-    def __init__(self, color):
+    def __init__(self, color, timer):
         self.color = color
         self.opposite_color = "w" if self.color == "b" else "b"
 
@@ -40,12 +40,14 @@ class Item:
         self.castled = False
         self.last_piece_played = (0, 0)
 
-        self.time = 600
+        self.timer = timer[0] * 60 if timer is not None else None
+        self.increment = timer[1] if timer is not None else None
 
     def update_pos(self):
         self.pieces_total = 0
         for i in self.pieces:
             self.pieces_total |= i
+
 
 
 class Player(Item):
@@ -70,16 +72,29 @@ class Player(Item):
             gestionary.chess_game.candidate_move = [0, 0]
 
 
+
 class Bot(Item):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, timer, virtual_environment):
+        super().__init__(color, timer)
         self.calculated_move = None
-        self.depth = 3
-        self.chess_game = None
+        self.bot_calculating = False
+        self.depth = 4
+
+        self.virtual_environment = virtual_environment
 
     def find_move(self, gestionary):
+        self.bot_calculating = True
+
+        status = gestionary.chess_game.status_to_key()
+        self.virtual_environment.chess_game.key_to_status(status)
+
+        self.virtual_environment.chess_game.player_turn = int(self.color == "b")
+        self.virtual_environment.chess_game.index_position = 0
+
+        self.virtual_environment.chess_game.list_position = [status]
+
         th.Thread(target=self.minimax_with_alpha_beta_pruning,
-                  args=(gestionary, self.depth, -math.inf, math.inf, int(self.color == "b"), self.depth)).start()
+                  args=(self.depth, -math.inf, math.inf, int(self.color == "b"), self.depth)).start()
 
     async def play_move(self, gestionary):
         i, square_f, promotion = self.calculated_move
@@ -87,50 +102,51 @@ class Bot(Item):
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0
         self.calculated_move = None
+        self.bot_calculating = False
 
-    def minimax_with_alpha_beta_pruning(self, gestionary, depth, alpha, beta, player, depth_i):
+    def minimax_with_alpha_beta_pruning(self, depth, alpha, beta, player, depth_i):
         best_move = []
 
         #print("Profondeur :", depth)
         if depth == 0:
-            evaluate = gestionary.chess_game.evaluation()
+            evaluate = self.virtual_environment.chess_game.evaluation()
             return evaluate
 
         def undo_move():
-            del gestionary.chess_game.list_position[-1]
-            gestionary.chess_game.index_position -= 1
-            gestionary.chess_game.player_turn ^= 1
-            gestionary.chess_game.result = None
-            gestionary.chess_game.key_to_status(gestionary.chess_game.list_position[-1])
-            gestionary.chess_game.sound_to_play = 0
+            del self.virtual_environment.chess_game.list_position[-1]
+            self.virtual_environment.chess_game.index_position -= 1
+            self.virtual_environment.chess_game.player_turn ^= 1
+            self.virtual_environment.chess_game.result = None
+            self.virtual_environment.chess_game.key_to_status(self.virtual_environment.chess_game.list_position[-1])
+            self.virtual_environment.chess_game.sound_to_play = 0
 
         if player == 0:
             max_eval = -math.inf
 
-            for i, legal_moves in enumerate(gestionary.chess_game.list_legal_moves):
+            for i, legal_moves in enumerate(self.virtual_environment.chess_game.list_legal_moves):
                 if legal_moves:
                     for move in board.split_bits(legal_moves):
                         #print(2*depth*"_", "Move :", i, "-->", move.bit_length()-1)
                         # promotion available
-                        if (1 << i) & gestionary.chess_game.players[player].pieces[0] and i//8 == 1:
+                        if (1 << i) & self.virtual_environment.chess_game.players[player].pieces[0] and i//8 == 1:
                             #print("Promotion")
                             for promoted_piece in range(1,5):
-                                gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
-                                else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                self.virtual_environment.chess_game.play_move(1 << i, move, player, promoted_piece)
+                                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
                                 undo_move()
                                 #print(2*depth*"_", "Evaluation :", child_eval)
                                 if max_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
-                                elif max_eval > child_eval: best_move = [(i, move, promoted_piece)]
+                                elif max_eval < child_eval: best_move = [(i, move, promoted_piece)]
                                 max_eval = max(child_eval, max_eval)
                                 alpha = max(child_eval, alpha)
                                 if alpha >= beta:
                                     break
 
                         else:
-                            gestionary.chess_game.play_move(1 << i, move, player)
-                            if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
-                            else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                            self.virtual_environment.chess_game.play_move(1 << i, move, player)
+                            if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                            else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
                             undo_move()
                             if max_eval == child_eval or best_move == []: best_move.append((i, move, False))
                             elif max_eval < child_eval: best_move = [(i, move, False)]
@@ -142,24 +158,23 @@ class Bot(Item):
 
             if depth == depth_i:
                 self.calculated_move = rd.choice(best_move)
-                gestionary.bot_calculating = False
                 return
             return max_eval
 
         else:
             min_eval = math.inf
 
-            for i, legal_moves in enumerate(gestionary.chess_game.list_legal_moves):
+            for i, legal_moves in enumerate(self.virtual_environment.chess_game.list_legal_moves):
                 if legal_moves:
                     for move in board.split_bits(legal_moves):
                         #print((2 * depth * "_", "Move :", i, "-->", move.bit_length() - 1)
                         # promotion available
-                        if (1 << i) & gestionary.chess_game.players[player].pieces[0] and i//8 == 6:
+                        if (1 << i) & self.virtual_environment.chess_game.players[player].pieces[0] and i//8 == 6:
                             #print(("Promotion")
                             for promoted_piece in range(1, 5):
-                                gestionary.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
-                                else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                                self.virtual_environment.chess_game.play_move(1 << i, move, player, promoted_piece)
+                                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
                                 undo_move()
                                 #print((2*depth*"_", "Result :", child_eval)
                                 if min_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
@@ -172,9 +187,9 @@ class Bot(Item):
 
 
                         else:
-                            gestionary.chess_game.play_move(1 << i, move, player)
-                            if gestionary.chess_game.result is not None: child_eval = gestionary.chess_game.evaluation()
-                            else: child_eval = self.minimax_with_alpha_beta_pruning(gestionary, depth - 1, alpha, beta, player ^ 1, depth_i)
+                            self.virtual_environment.chess_game.play_move(1 << i, move, player)
+                            if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                            else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
                             undo_move()
                             #print((2*depth*"_", "Result :", child_eval)
                             if min_eval == child_eval or best_move == []: best_move.append((i, move, False))
@@ -188,7 +203,6 @@ class Bot(Item):
 
             if depth == depth_i:
                 self.calculated_move = rd.choice(best_move)
-                gestionary.bot_calculating = False
                 return
 
             return min_eval
