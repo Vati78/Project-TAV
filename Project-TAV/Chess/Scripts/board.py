@@ -5,6 +5,8 @@ Toutes les fonctions en rapport avec le plateau de jeu
 import pygame as pg
 import const
 import mouse_keys as mk
+import time
+import math
 
 pg.init()
 theme_index = 1
@@ -128,10 +130,7 @@ def draw_coor(gestionary):
 
 
 # draws the pieces
-def draw_pieces(gestionary, saved_position):
-    if saved_position:
-        gestionary.chess_game.key_to_status(saved_position)
-
+def draw_pieces(gestionary):
     selected_piece = None
     for square in split_bits(gestionary.chess_game.total):
         i = square.bit_length() - 1
@@ -199,8 +198,30 @@ def draw_pieces(gestionary, saved_position):
                     angle * 0.6),
                 (gestionary.mouse_pos[0] - const.SQUARE // 2, gestionary.mouse_pos[1] - const.SQUARE // 2))
 
-        if saved_position:
-            gestionary.chess_game.key_to_status(gestionary.chess_game.status_to_key())
+
+def draw_time(gestionary):
+    up = 1 if gestionary.invert_position else 0
+
+
+
+    t = int(gestionary.chess_game.players[up].timer +
+               (gestionary.chess_game.move_start - time.time() if gestionary.chess_game.player_turn == up else 0))
+
+    text = font.render(f"{t // 60} : {t % 60:02d}",
+                       True, (255,255,255))
+
+    gestionary.win.blit(text, (const.WIDTH + 30, const.HEIGHT - 100))
+
+
+
+    t = int(gestionary.chess_game.players[1 ^ up].timer +
+               (gestionary.chess_game.move_start - time.time() if gestionary.chess_game.player_turn != up else 0))
+
+    text = font.render(f"{t // 60} : {t % 60:02d}",
+                       True, (255, 255, 255))
+    # if t//60 == 0
+
+    gestionary.win.blit(text, (const.WIDTH + 30, 100))
 
 
 # checks if a specific square is occupied by a piece

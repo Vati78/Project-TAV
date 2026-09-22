@@ -7,13 +7,20 @@ import pieces
 import player_bot as pb
 import board
 import math
+from random import choice
+import time
+
 
 
 class Game:
-    def __init__(self, gestionary):
+    def __init__(self, gestionary, o, venv=None):
         self.gestionary = gestionary
 
-        self.players = [pb.Player("w") if "w" in const.HUMAN else pb.Bot("w"), pb.Player("b") if "b" in const.HUMAN else pb.Bot("b")]
+        if o[2] not in ["w","b"]: o[2] = choice(["w","b"])
+        t = o[4] if o[3] else None
+        self.players = [pb.Player("w", t) if o[0]==2 or o[2]=="w" else pb.Bot("w", t, venv),
+                        pb.Player("b", t) if o[0]==2 or o[2]=="b" else pb.Bot("b", t, venv)]
+
         self.index_last_capture_or_pawn_move = 0
         ################################################
         self.total = self.players[0].pieces_total|self.players[1].pieces_total
@@ -36,6 +43,7 @@ class Game:
         self.sound_to_play = 0
         ################################################
         self.result = None
+        self.move_start = time.time()
 
 
     def status_to_key(self):
@@ -511,6 +519,10 @@ class Game:
     def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
         opposite_player = self.players[color ^ 1]
+
+        if player.timer is not None:
+            player.timer += self.move_start - time.time() + player.increment
+            self.move_start = time.time()
 
         # short castle
         if player.pieces[5] == square_i and square_f == square_i << 2:
