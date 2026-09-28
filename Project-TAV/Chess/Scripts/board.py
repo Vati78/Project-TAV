@@ -31,30 +31,30 @@ def load_sprites_unscaled(gestionary):
                             pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win))
 
 def load_sprites_scaled(gestionary):
-    const.WHITE_PIECES_SCALED  = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
+    const.WHITE_PIECES_SCALED  = (pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whitePawn.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKnight.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteBishop.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteRook.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteRook.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteQueen.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteQueen.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/whiteKing.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)))
 
-    const.BLACK_PIECES_SCALED = (pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
+    const.BLACK_PIECES_SCALED = (pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackPawn.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKnight.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackBishop.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackBishop.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackRook.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackRook.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackQueen.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)),
-                           pg.transform.scale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win),
+                           pg.transform.smoothscale(pg.image.load(f"../Sprites/Pieces_bitboards/blackKing.png").convert_alpha(gestionary.win),
                                               (const.SQUARE, const.SQUARE)))
 
 
@@ -179,7 +179,7 @@ def draw_pieces(gestionary):
 
             gestionary.win.blit(
                 pg.transform.rotate(
-                    pg.transform.scale(
+                    pg.transform.smoothscale(
                         const.WHITE_PIECES_UNSCALED[selected_piece[1]],
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
@@ -192,7 +192,7 @@ def draw_pieces(gestionary):
 
             gestionary.win.blit(
                 pg.transform.rotate(
-                    pg.transform.scale(
+                    pg.transform.smoothscale(
                         const.BLACK_PIECES_UNSCALED[selected_piece[1]],
                         (const.SQUARE * 1.1, const.SQUARE * 1.1)),
                     angle * 0.6),
