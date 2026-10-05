@@ -129,7 +129,7 @@ def options(win, o):
     buttons[6 if o[2]=="w" else (7 if o[2]=="b" else 8)].invert()
     timer = o[4]
     
-    if o[3]:
+    if o[3] is False:
         for i in range(9,13):
             buttons[i].enabled = False
         buttons[13].invert()
@@ -195,8 +195,6 @@ def options(win, o):
                         for i in range(4,6):
                             images[i].enabled = not images[i].enabled
                         
-                        
-                                
                     if buttons[9].if_input(pos):
                         if timer[0] > 0:
                             timer[0] -= 1
@@ -206,18 +204,14 @@ def options(win, o):
                             timer[0] += 1
                             
                     if buttons[11].if_input(pos):
-                        
                         if timer[1] == 59:
                             timer[1] = 55
                         elif timer[1] > 0:
-                            timer[1] -= 5
+                            timer[1] -= 1
                             
                     if buttons[12].if_input(pos):
-                        if timer[1] < 55:
-                            timer[1] += 5
-                            
-                        elif timer[1] == 55:
-                            timer[1] = 59
+                        if timer[1] < 120:
+                            timer[1] += 1
                         
 
         win.fill((10,12,35))
@@ -252,6 +246,6 @@ def options(win, o):
     return [1 if buttons[1].is_invert else 2,
             1 if buttons[3].is_invert else (2 if buttons[4].is_invert else 3),
             "w" if buttons[6].is_invert else ("b" if buttons[7].is_invert else "r") ,
-            buttons[13].is_invert,
+            not buttons[13].is_invert,
             timer]
 
