@@ -52,6 +52,9 @@ def main_menu(o = None):
     main menu of the game
     :return: (exit: {0 : quit, 1 : play, 2 : review game}, options)
     """
+    import os
+    os.environ["SDL_VIDEO_CENTERED"] = "1"
+
     win = pg.display.set_mode((910, 560))
     win.fill((10, 12, 35))
     buttons = [Button(300,100,300,86,"play"),

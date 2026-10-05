@@ -78,7 +78,7 @@ class Bot(Item):
         super().__init__(color, timer)
         self.calculated_move = None
         self.bot_calculating = False
-        self.depth = 4
+        self.depth = 2
 
         self.virtual_environment = virtual_environment
 

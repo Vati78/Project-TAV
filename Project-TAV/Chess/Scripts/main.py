@@ -40,7 +40,6 @@ class Gestionary:
         board.load_sprites_scaled(self)
 
         self.timer_enabled = o[3]
-        print(self.timer_enabled)
 
     def run(self):
         # self.chess_game.players = [pb.Bot("w"), pb.Bot("b")]
