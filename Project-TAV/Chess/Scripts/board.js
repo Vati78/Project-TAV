@@ -5,7 +5,7 @@ function afficher() {
         for (let c = 0; c < 8; c++) {
             const div = document.createElement("div");
             div.className = "case " + ((r + c) % 2 ? "black" : "white");
-            if (!(board[r][c] === null)) {
+            if (!(board[r][c] === "")) {
                 let img = document.createElement("img");
                 switch (board[r][c]){
                     case "br": img.src = "../Sprites/Pieces_bitboards/blackRook.png"; break;
@@ -34,19 +34,25 @@ function afficher() {
             el.appendChild(div);
         }
     }
+    document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
 function clic(r,c){
-    if (first_click !== null){
-        if(r !== first_click[0] || c !== first_click[1]){
-            board[r][c] = board[first_click[0]][first_click[1]];
-            board[first_click[0]][first_click[1]] = null;
+    if (first_click !== "" && (board[r][c][0] !== board[first_click[0]][first_click[1]][0])){
+        console.log(board[r][c][0] !== board[first_click[0]][first_click[1]][0]);
+        if (r !== first_click[0] || c !== first_click[1]){
+            if (board[r][c][0] !== player) {
+                board[r][c] = board[first_click[0]][first_click[1]];
+                board[first_click[0]][first_click[1]] = "";
+                player = player === "w" ? "b" : "w";
+                first_click = ""
+            }
         }
-        first_click = null
         afficher();
     }
     else{
-        if (board[r][c]) {
+        if (board[r][c][0] === player) {
             first_click = [r, c];
+            afficher();
             const div = getCase(r, c);
             div.classList.add("first_click");
         }
@@ -61,14 +67,15 @@ function getCase(r, c) {
 let board = [
     ["br","bn","bb","bq","bk","bb","bn","br"],
     ["bp","bp","bp","bp","bp","bp","bp","bp"],
-    [null,null,null,null,null,null,null,null],
-    [null,null,null,null,null,null,null,null],
-    [null,null,null,null,null,null,null,null],
-    [null,null,null,null,null,null,null,null],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
     ["wp","wp","wp","wp","wp","wp","wp","wp"],
     ["wr","wn","wb","wq","wk","wb","wn","wr"]
     // ...
 ];
-let first_click = null;
+let first_click = "";
+let player = "w";
 afficher();
 
