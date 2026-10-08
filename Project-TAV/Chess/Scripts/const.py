@@ -31,6 +31,10 @@ COLS = ['a','b','c','d','e','f','g','h']
 RANKS = ['1','2','3','4','5','6','7','8']
 
 
+# Pieces value
+piece_value = [100, 300, 330, 500, 900] # king has no value
+
+
 # Square value
 square_value = []
 for rank in range(8):
@@ -79,3 +83,15 @@ promote_sound = pg.mixer.Sound("../Sounds/promote.mp3")
 start_sound = pg.mixer.Sound("../Sounds/start.mp3")
 end_sound = pg.mixer.Sound("../Sounds/end.mp3")
 low_time_sound = pg.mixer.Sound("../Sounds/tenseconds.mp3")
+
+
+# splits bits into seperated bits
+def split_bits(n):
+    parts = []
+    while n:
+        # isolates the lowest bit
+        bit = n & -n
+        parts.append(bit)
+        # removes the lowest bit
+        n &= n - 1
+    return parts

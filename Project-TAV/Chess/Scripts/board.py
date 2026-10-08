@@ -6,7 +6,7 @@ import pygame as pg
 import const
 import mouse_keys as mk
 import time
-import math
+
 
 pg.init()
 theme_index = 1
@@ -132,7 +132,7 @@ def draw_coor(gestionary):
 # draws the pieces
 def draw_pieces(gestionary):
     selected_piece = None
-    for square in split_bits(gestionary.chess_game.total):
+    for square in const.split_bits(gestionary.chess_game.total):
         i = square.bit_length() - 1
         for k in range(6):
             if gestionary.chess_game.players[0].pieces[k] & square:
@@ -234,7 +234,7 @@ def occupied_square(gestionary, square):
 # blits all legal moves
 def blit_legal_moves(gestionary, color, square_i):
     m_pos = mk.mouse_to_coor(gestionary.mouse_pos, gestionary.invert_position)
-    for square in split_bits(gestionary.chess_game.legal_moves):
+    for square in const.split_bits(gestionary.chess_game.legal_moves):
         i = square.bit_length() - 1
 
         facteur_grossissement = 1
@@ -266,21 +266,4 @@ def write_player_turn(gestionary):
     police = pg.font.SysFont("Arial", int(const.SQUARE/3))
     texte = police.render(t, True, (255,255,255))
     gestionary.win.blit(texte, (const.WIDTH + 30, const.HEIGHT // 2 - 13))
-    
-
-# shows each player's time
-def draw_timer(gestionary, color):
-    pass
-
-
-# splits bits into seperated bits
-def split_bits(n):
-    parts = []
-    while n:
-        # isolates the lowest bit
-        bit = n & -n
-        parts.append(bit)
-        # removes the lowest bit
-        n &= n - 1
-    return parts
 

@@ -5,7 +5,6 @@ Toutes les fonctions qui gèrent le déroulement de la partie.
 import const
 import pieces
 import player_bot as pb
-import board
 import math
 from random import choice
 import time
@@ -45,7 +44,7 @@ class Game:
         self.result = None
         self.move_start = time.time()
 
-
+    ################# key - status #################
     def status_to_key(self):
         # white
         # black
@@ -78,7 +77,6 @@ class Game:
                 self.index_last_capture_or_pawn_move,
                 self.sound_to_play)
 
-
     def key_to_status(self, key):
         self.players[0].pieces[0] = key[0]
         self.players[0].pieces[1] = key[1]
@@ -109,6 +107,7 @@ class Game:
         self.sound_to_play = key[26]
 
 
+    ################# move check #################
     def input_to_candidate_move(self):
         """
         transforms input into the move wanted by the user
@@ -204,7 +203,6 @@ class Game:
 
         if self.left_click_up:
             self.left_click_up = 0
-
 
     def check_and_pins(self, color, square):
         opposite_color = color ^ 1
@@ -448,7 +446,6 @@ class Game:
 
         return threats_pins_and_free_squares
 
-
     def get_all_legal_moves(self, color):
         self.list_legal_moves = [0 for _ in range(64)]
 
@@ -472,7 +469,7 @@ class Game:
                 i = square.bit_length() - 1
                 legal_moves = pieces.Piece().King(color).legal_moves(self.gestionary, square)
 
-                for move in board.split_bits(legal_moves):
+                for move in const.split_bits(legal_moves):
                     b = self.check_and_pins(color, move)
                     for b_threat, b_pin, b_free_squares in b:
                         if b_threat and not b_pin:
@@ -491,7 +488,7 @@ class Game:
 
             else:
                 if nb_checks < 2:
-                    for square in board.split_bits(self.players[color].pieces[j]):
+                    for square in const.split_bits(self.players[color].pieces[j]):
                         i = square.bit_length() - 1
                         legal_moves = pieces.get_type(j, color).legal_moves(self.gestionary, square)
 
@@ -502,7 +499,7 @@ class Game:
                                 self.list_legal_moves[i] &= (a_free_squares | a_threat)
 
                 else:
-                    for square in board.split_bits(self.players[color].pieces[j]):
+                    for square in const.split_bits(self.players[color].pieces[j]):
                         i = square.bit_length() - 1
                         self.list_legal_moves[i] = 0
 
@@ -515,7 +512,36 @@ class Game:
             else:
                 self.result = 2*self.player_turn - 1
 
+    ################# move ordering #################
+    def move_ordering(self):
+        square_value = {}
+        for color in range(2):
+            for i in range(5):
+                for square in const.split_bits(self.players[color].pieces[i]):
+                    square_value[square] = const.piece_value[i]
 
+        def move_value(move):
+            move_i, move_f, promotion = move
+            return 10 * square_value.get(move_f, 0) - square_value.get(move_i, 900)
+
+        list_moves = []
+
+        for i, legal_moves in enumerate(self.list_legal_moves):
+            if legal_moves:
+                for move in const.split_bits(legal_moves):
+                    if ((1<<i) & (self.players[0].pieces[0] | self.players[1].pieces[0])
+                        and move & (const.RANK | (const.RANK << 7*8))):
+                        list_moves.append((1 << i, move, 1))
+                        list_moves.append((1 << i, move, 2))
+                        list_moves.append((1 << i, move, 3))
+                        list_moves.append((1 << i, move, 4))
+                    else:
+                        list_moves.append((1 << i, move, False))
+
+        return sorted(list_moves, key=move_value, reverse=True)
+
+
+    ################# move play #################
     def play_move(self, square_i, square_f, color, promotion=False):
         player = self.players[color]
         opposite_player = self.players[color ^ 1]
@@ -606,7 +632,6 @@ class Game:
 
         return True
 
-
     def update_position(self, square_i, square_f):
 
         self.players[self.player_turn].last_piece_played = [square_i, square_f]
@@ -647,6 +672,7 @@ class Game:
                 self.result = 0
 
 
+    ################# evaluation #################
     def evaluation(self) -> int:
         # game end
         if self.result:
@@ -709,13 +735,13 @@ class Game:
                 e += coeff * player_pieces.bit_count() * pieces.get_type(i, index).value
 
 
-                for piece in board.split_bits(player_pieces):
+                for piece in const.split_bits(player_pieces):
                     square_index = piece.bit_length() - 1
 
                     # center control
                     e += coeff * const.square_value[square_index] // 5
 
-                    for move in board.split_bits(self.list_legal_moves[square_index]):
+                    for move in const.split_bits(self.list_legal_moves[square_index]):
                         move_index = move.bit_length() - 1
 
                         # center control
@@ -774,3 +800,5 @@ class Game:
         e += piece_development_p"""
 
         return e
+
+

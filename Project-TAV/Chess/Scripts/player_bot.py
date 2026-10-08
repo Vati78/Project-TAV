@@ -3,7 +3,6 @@ Classe joueur humain et bot
 """
 
 import const
-import board
 import sound
 import random as rd
 import math
@@ -78,7 +77,7 @@ class Bot(Item):
         super().__init__(color, timer)
         self.calculated_move = None
         self.bot_calculating = False
-        self.depth = 2
+        self.depth = 4
 
         self.virtual_environment = virtual_environment
 
@@ -97,8 +96,8 @@ class Bot(Item):
                   args=(self.depth, -math.inf, math.inf, int(self.color == "b"), self.depth)).start()
 
     def play_move(self, gestionary):
-        i, square_f, promotion = self.calculated_move
-        gestionary.chess_game.play_move(1 << i, square_f, int(self.color == "b"), promotion)
+        move_i, move_f, promotion = self.calculated_move
+        gestionary.chess_game.play_move(move_i, move_f, int(self.color == "b"), promotion)
         sound.play_sound(gestionary)
         gestionary.chess_game.sound_to_play = 0
         self.calculated_move = None
@@ -107,7 +106,6 @@ class Bot(Item):
     def minimax_with_alpha_beta_pruning(self, depth, alpha, beta, player, depth_i):
         best_move = []
 
-        #print("Profondeur :", depth)
         if depth == 0:
             evaluate = self.virtual_environment.chess_game.evaluation()
             return evaluate
@@ -123,83 +121,39 @@ class Bot(Item):
         if player == 0:
             max_eval = -math.inf
 
-            for i, legal_moves in enumerate(self.virtual_environment.chess_game.list_legal_moves):
-                if legal_moves:
-                    for move in board.split_bits(legal_moves):
-                        #print(2*depth*"_", "Move :", i, "-->", move.bit_length()-1)
-                        # promotion available
-                        if (1 << i) & self.virtual_environment.chess_game.players[player].pieces[0] and i//8 == 1:
-                            #print("Promotion")
-                            for promoted_piece in range(1,5):
-                                self.virtual_environment.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
-                                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
-                                undo_move()
-                                #print(2*depth*"_", "Evaluation :", child_eval)
-                                if max_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
-                                elif max_eval < child_eval: best_move = [(i, move, promoted_piece)]
-                                max_eval = max(child_eval, max_eval)
-                                alpha = max(child_eval, alpha)
-                                if alpha >= beta:
-                                    break
-
-                        else:
-                            self.virtual_environment.chess_game.play_move(1 << i, move, player)
-                            if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
-                            else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
-                            undo_move()
-                            if max_eval == child_eval or best_move == []: best_move.append((i, move, False))
-                            elif max_eval < child_eval: best_move = [(i, move, False)]
-                            max_eval = max(child_eval, max_eval)
-                            alpha = max(child_eval, alpha)
-                            if alpha >= beta:
-                                break
-
+            for move_i, move_f, promotion in self.virtual_environment.chess_game.move_ordering():
+                self.virtual_environment.chess_game.play_move(move_i, move_f, player, promotion)
+                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
+                undo_move()
+                if max_eval == child_eval or best_move == []: best_move.append((move_i, move_f, promotion))
+                elif max_eval < child_eval: best_move = [(move_i, move_f, promotion)]
+                max_eval = max(child_eval, max_eval)
+                alpha = max(child_eval, alpha)
+                if alpha >= beta:
+                    break
 
             if depth == depth_i:
                 self.calculated_move = rd.choice(best_move)
                 return
             return max_eval
 
+
+
         else:
             min_eval = math.inf
 
-            for i, legal_moves in enumerate(self.virtual_environment.chess_game.list_legal_moves):
-                if legal_moves:
-                    for move in board.split_bits(legal_moves):
-                        #print((2 * depth * "_", "Move :", i, "-->", move.bit_length() - 1)
-                        # promotion available
-                        if (1 << i) & self.virtual_environment.chess_game.players[player].pieces[0] and i//8 == 6:
-                            #print(("Promotion")
-                            for promoted_piece in range(1, 5):
-                                self.virtual_environment.chess_game.play_move(1 << i, move, player, promoted_piece)
-                                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
-                                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
-                                undo_move()
-                                #print((2*depth*"_", "Result :", child_eval)
-                                if min_eval == child_eval or best_move == []: best_move.append((i, move, promoted_piece))
-                                elif min_eval > child_eval: best_move = [(i, move, promoted_piece)]
-                                min_eval = min(child_eval, min_eval)
-                                beta = min(child_eval, beta)
-                                if alpha >= beta:
-                                    break
-
-
-
-                        else:
-                            self.virtual_environment.chess_game.play_move(1 << i, move, player)
-                            if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
-                            else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
-                            undo_move()
-                            #print((2*depth*"_", "Result :", child_eval)
-                            if min_eval == child_eval or best_move == []: best_move.append((i, move, False))
-                            elif min_eval > child_eval: best_move = [(i, move, False)]
-                            min_eval = min(child_eval, min_eval)
-                            beta = min(child_eval, beta)
-                            if alpha >= beta:
-                                break
-
-
+            for move_i, move_f, promotion in self.virtual_environment.chess_game.move_ordering():
+                self.virtual_environment.chess_game.play_move(move_i, move_f, player, promotion)
+                if self.virtual_environment.chess_game.result is not None: child_eval = self.virtual_environment.chess_game.evaluation()
+                else: child_eval = self.minimax_with_alpha_beta_pruning(depth - 1, alpha, beta, player ^ 1, depth_i)
+                undo_move()
+                if min_eval == child_eval or best_move == []: best_move.append((move_i, move_f, promotion))
+                elif min_eval > child_eval: best_move = [(move_i, move_f, promotion)]
+                min_eval = min(child_eval, min_eval)
+                beta = min(child_eval, beta)
+                if alpha >= beta:
+                    break
 
             if depth == depth_i:
                 self.calculated_move = rd.choice(best_move)
