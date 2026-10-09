@@ -1,5 +1,5 @@
+const el = document.getElementById("board");
 function afficher() {
-    const el = document.getElementById("board");
     el.innerHTML = "";
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -22,10 +22,16 @@ function afficher() {
                     case "wp": img.src = "../Sprites/Pieces_bitboards/whitePawn.png"; break;
                     default: img.src = "../Sprites/Pieces_bitboards/"; break;
                 }
-                //img.src = "../Sprites/Pieces_bitboards/";
-                /*img.height = 100%;
-                img.width = 100%;*/
+                //img.draggable = true;
+                img.addEventListener("pointermove", () => {
+                    if(start[0] == r && start[1] == c) {
+                        img.style.position = "relative";
+                        img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
+                    }
+                });
                 img.alt = board[r][c];
+                img.dataset.r = r;
+                img.dataset.c = c;
                 div.appendChild(img);
             }
             div.dataset.r = r;
@@ -34,11 +40,13 @@ function afficher() {
             el.appendChild(div);
         }
     }
+
     document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
 function clic(r,c){
+    start = "";
+    console.log("clic");
     if (first_click !== "" && (board[r][c][0] !== board[first_click[0]][first_click[1]][0])){
-        console.log(board[r][c][0] !== board[first_click[0]][first_click[1]][0]);
         if (r !== first_click[0] || c !== first_click[1]){
             if (board[r][c][0] !== player) {
                 board[r][c] = board[first_click[0]][first_click[1]];
@@ -59,8 +67,27 @@ function clic(r,c){
     }
 }
 
+function play_move(i,e){
+    if ((e[0] !== i[0] || e[1] !== i[1]) && board[e[0]][e[1]][0] !== player && board[i[0]][i[1]][0] === player) {
+        board[e[0]][e[1]] = board[i[0]][i[1]];
+        board[i[0]][i[1]] = "";
+        player = player === "w" ? "b" : "w";
+        start = ""; first_click = "";
+    }
+    afficher();
+}
+
 function getCase(r, c) {
     return document.querySelector(`.case[data-r="${r}"][data-c="${c}"]`);
+}
+function getImg(c) {
+    return document.querySelector(`img[data-r="${c[0]}"][data-c="${c[1]}"]`);
+}
+
+function getCoor(e){
+    const cible = document.elementFromPoint(e.clientX, e.clientY).closest(".case");
+    console.log(cible);
+    return [parseInt(cible.dataset.r,10), parseInt(cible.dataset.c,10)];
 }
 
 
@@ -76,6 +103,36 @@ let board = [
     // ...
 ];
 let first_click = "";
+let drag_start = "";
+let start = "";
 let player = "w";
+
+
+document.getElementById("board").addEventListener("pointerdown", () => {
+    console.log(event);
+    let c = getCoor(event);
+    console.log(board[c[0]][c[1]], player);
+    if (board[c[0]][c[1]][0] === player || first_click !== ""){
+        event.preventDefault();
+        getImg(c).setPointerCapture(event.pointerId);
+        start = c;
+        drag_start = [event.clientX, event.clientY];
+        console.log("start", start);
+    }
+});
+el.addEventListener("pointerup", () => mouse_up(event));
+el.addEventListener("pointercancel", () => mouse_up(event));
+function mouse_up(e) {
+    if ((drag_start[0] - e.clientX) ** 2 + (drag_start[1] - e.clientY) ** 2 > 25){
+        console.log(e);
+        getImg(start).style.visibility = "hidden";
+        c = getCoor(e);
+        getImg(start).style.visibility = "";
+        getImg(start).releasePointerCapture(e.pointerId);
+        play_move(start, c);
+        start = "";
+    }
+}
+
 afficher();
 
