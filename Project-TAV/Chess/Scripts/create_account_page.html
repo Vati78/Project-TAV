@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="create_account_page.css"/>
+    <title>Create Account</title>
+</head>
+<body>
+    <header></header>
+    <main>
+        <div >Userbutton</div>
+        <img id="createAccountButton" src="../Images/create_account.png" alt="Create Account">
+        <a href="homepage.html"> <img id = "exitButton" src="../Images/exit.png"></a>
+
+        <input type="username" id="userBox" placeholder="Please create username.">
+        <input type="password" id="passwordBox" placeholder="Please create password.">
+        <img id="createButton" src="../Images/create.png" alt="Create">
+        <p id="message"></p>
+
+        <script>
+        const ws = new WebSocket("ws://localhost:8765");
+        const message = document.getElementById("message");
+
+        document.getElementById("createButton").addEventListener("click", () => {
+            ws.send(JSON.stringify({
+                action: "creation",
+                nom: document.getElementById("userBox").value.trim(),
+                mdp: document.getElementById("passwordBox").value
+            }));
+        });
+
+        ws.onmessage = (event) => {
+            const reponse = JSON.parse(event.data);
+            message.textContent = reponse.message;
+            message.style.color = reponse.ok ? "green" : "red";
+
+            if (reponse.ok) {
+                setTimeout(() => window.location.href = "log_in_page.html", 1500);
+            }
+        };
+    </script>
+
+    </main>
+    <footer></footer>
+
+</body>
+</html>

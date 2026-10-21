@@ -1,0 +1,38 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: rgb(10, 12, 35); /* #0a0c23 */
+}
+
+#logInButton{
+  width: 600px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top: 400px;      /* distance depuis le haut */
+  right: 650px;
+}
+
+#logInButton:hover {
+  transform: scale(1.1);
+}
+
+#createAccountButton{
+  width: 700px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top:700px;      /* distance depuis le haut */
+  right: 600px;
+
+}
+
+#createAccountButton:hover {
+  transform: scale(1.1);
+}
+
+#homepage_image{
+  width: 475px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top: 100px;      /* distance depuis le haut */
+  right: 700px;
+}

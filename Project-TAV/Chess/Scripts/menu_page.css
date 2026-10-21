@@ -1,0 +1,41 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: rgb(10, 12, 35); /* #0a0c23 */
+}
+
+#gameButton{
+  width: 475px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top: 125px;      /* distance depuis le haut */
+  right: 700px;
+}
+
+#gameButton:hover {
+  transform: scale(1.1);
+}
+
+#optionsButton{
+  width: 475px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top: 375px;      /* distance depuis le haut */
+  right: 700px;
+}
+
+#optionsButton:hover {
+  transform: scale(1.1);
+}
+
+#exitButton{
+  width: 475px;      /* largeur fixe, la hauteur s'adapte */
+  height: auto;
+  position: absolute;
+  top: 700px;      /* distance depuis le haut */
+  right: 700px;
+}
+
+#exitButton:hover {
+  transform: scale(1.1);
+}
