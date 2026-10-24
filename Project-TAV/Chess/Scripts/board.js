@@ -46,7 +46,10 @@ function afficher() {
             div.dataset.r = r;
             div.dataset.c = c;
             if (r === first_click[0] && c === first_click[1]) div.className += " first_click";
-            //if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)) div.className += " legal_move";
+            if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)){
+                if (board[r][c] === "") div.className += " legal_move";
+                else div.className += " capturable";
+            }
             div.addEventListener("click", () => clic(r, c));
             div.addEventListener("keyup", () => {
                 switch (event.key){
@@ -81,15 +84,19 @@ function clic(r,c){
 
 function play_move(i,e){
     if ((e[0] !== i[0] || e[1] !== i[1]) && board[e[0]][e[1]][0] !== player && board[i[0]][i[1]][0] === player) {
-        //if (legal_moves.includes([i[0],i[1],e[0],e[1]])) {
+        if (legal_moves.some(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1])) {
         //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
         board[e[0]][e[1]] = board[i[0]][i[1]];
         board[i[0]][i[1]] = "";
         player = player === "w" ? "b" : "w";
         start = ""; first_click = "";
+        }
+        else {
+            console.log("illegal move");
+            start = ""; first_click = "";
+        }
     }
     afficher();
-    console.log(getCase(e[0],e[1]));
     getCase(e[0],e[1]).focus();
 }
 
@@ -122,7 +129,7 @@ let drag_start = "";
 let start = "";
 let player = "w";
 let local_player = "";
-let legal_moves = [];
+let legal_moves = [[0,1,2,2],[0,1,2,0],[0,1,1,3],[0,1,1,5],[0,1,0,4],[0,1,0,6],[0,1,0,7],[6,4,4,4],[6,4,5,3],[6,4,5,5],[6,4,6,3],[6,4,6,5],[6,4,7,4],[7,1,5,0],[7,1,5,2],[7,1,6,3],[7,1,7,3],[7,1,7,2],[7,1,7,0]];
 
 
 document.getElementById("board").addEventListener("pointerdown", () => {

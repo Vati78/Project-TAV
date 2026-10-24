@@ -38,6 +38,7 @@ aside{
     align-items: center;
     justify-content: center;
     /*font-size: min(8vw, 50px);*/
+    position: relative;
 }
 
 .case img {cursor: pointer; }
@@ -52,8 +53,22 @@ aside{
     outline-offset: -3px;
 }
 
-/*.possible::after { content: ""; width: 30%; height: 30%;
-                   background: rgba(0,0,0,.25); border-radius: 50%; }*/
+.case.legal_move::after{
+    content: "";
+    width: 30%;
+    height: 30%;
+    background: #0006;
+    border-radius: 50%;
+}
+.case.capturable::after {
+  content: "";
+  position: absolute;
+  inset: 4%;                 /* marges autour*/
+  border: 4px solid #0006; 
+  border-radius: 50%;
+  /*box-sizing: border-box;*/
+  pointer-events: none;
+}
 .case img{
     width: 100%;
     height: 100%;
