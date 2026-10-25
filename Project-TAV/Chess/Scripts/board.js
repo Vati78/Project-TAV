@@ -45,9 +45,13 @@ function afficher() {
             }
             div.dataset.r = r;
             div.dataset.c = c;
+            if(c==0){let coor = document.createElement("p");coor.innerHTML=8-r;coor.className=" lcoor"; div.appendChild(coor);}
+            if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[c];coor.className=" bcoor"; div.appendChild(coor);}
             if (r === first_click[0] && c === first_click[1]) div.className += " first_click";
             if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)){
-                if (board[r][c] === "") div.className += " legal_move";
+                let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c);
+                console.log(a);
+                if (board[r][c] === "" && a[4] !== 2) div.className += " legal_move";
                 else div.className += " capturable";
             }
             div.addEventListener("click", () => clic(r, c));
@@ -86,8 +90,15 @@ function play_move(i,e){
     if ((e[0] !== i[0] || e[1] !== i[1]) && board[e[0]][e[1]][0] !== player && board[i[0]][i[1]][0] === player) {
         if (legal_moves.some(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1])) {
         //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
+        let move = legal_moves.find(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1]);
         board[e[0]][e[1]] = board[i[0]][i[1]];
         board[i[0]][i[1]] = "";
+        switch (move[4]){
+            case 0: break;
+            case 2: board[e[0]+1][e[1]] = ""; break;
+            case 3: promote(); break;
+        }
+
         player = player === "w" ? "b" : "w";
         start = ""; first_click = "";
         }
@@ -129,7 +140,11 @@ let drag_start = "";
 let start = "";
 let player = "w";
 let local_player = "";
-let legal_moves = [[0,1,2,2],[0,1,2,0],[0,1,1,3],[0,1,1,5],[0,1,0,4],[0,1,0,6],[0,1,0,7],[6,4,4,4],[6,4,5,3],[6,4,5,5],[6,4,6,3],[6,4,6,5],[6,4,7,4],[7,1,5,0],[7,1,5,2],[7,1,6,3],[7,1,7,3],[7,1,7,2],[7,1,7,0]];
+let legal_moves = [[0,1,2,2,0],[0,1,2,0,0],[0,1,1,3,0],[0,1,0,7,0],[6,4,4,4,0],[6,4,5,3,0],[6,4,5,5,0],[6,4,3,4,0],[6,4,0,4,3],[1,5,3,5,0],[3,4,2,5,2],[7,1,5,0,0],[7,1,5,2,0],[7,1,6,3,0],[7,1,7,3,0],[7,1,7,2,0],[7,1,7,0,0]];
+                //[ligne départ, colonne départ, ligne arrivée, colonne arrivée, spécial]
+                //spécial: {0:rien, 1:roque, 2:en passant, 3:promote}
+
+let coor_letter = ["a","b","c","d","e","f","g","h"];
 
 
 document.getElementById("board").addEventListener("pointerdown", () => {
@@ -156,6 +171,30 @@ function mouse_up(e) {
         play_move(start, c);
         start = "";
     }
+}
+function promote(player, c){
+    afficher;
+    d = player === "w" ? 1 : -1;
+    r = player === "w" ? 0 : 7;
+    for (let i=r; i<4; i++){
+        console.log("hello");
+        const div = getCase(r + d*i,c);
+        div.innerHTML = "";
+        let img = document.createElement("img");
+        let img_name; let text;
+        switch (i){
+            case 0: img_name = "Queen"; text = "q"; break;
+            case 1: img_name = "Rook"; text = "r"; break;
+            case 2: img_name = "Bishop"; text = "b"; break;
+            case 3: img_name = "Knight"; text = "n"; break;
+        }
+        img.src = `../Sprites/Pieces_bitboards/${player==="w"?"white":"black"}${img_name}.png`
+        img.alt = text;
+        img.dataset.index = i;
+        div.appendChild(img);
+        div.className = "case promote";
+    }
+    while (true); 
 }
 
 afficher();
