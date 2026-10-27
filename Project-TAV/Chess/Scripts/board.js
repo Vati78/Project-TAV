@@ -6,54 +6,51 @@ function stateUpdate(msg){
     //if premove exists and is in legal_moves, play it here
     afficher();
 }
-
-function afficher() {
-    el.innerHTML = "";
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            const div = document.createElement("div");
-            div.className = "case " + ((r + c) % 2 ? "black" : "white");
-            div.tabIndex = 0;
-            if (!(board[r][c] === "")) {
-                let img = document.createElement("img");
-                switch (board[r][c]){
-                    case "br": img.src = "../Sprites/Pieces_bitboards/blackRook.png"; break;
-                    case "bn": img.src = "../Sprites/Pieces_bitboards/blackKnight.png"; break;
-                    case "bb": img.src = "../Sprites/Pieces_bitboards/blackBishop.png"; break;
-                    case "bq": img.src = "../Sprites/Pieces_bitboards/blackQueen.png"; break;
-                    case "bk": img.src = "../Sprites/Pieces_bitboards/blackKing.png"; break;
-                    case "bp": img.src = "../Sprites/Pieces_bitboards/blackPawn.png"; break;
-                    case "wr": img.src = "../Sprites/Pieces_bitboards/whiteRook.png"; break;
-                    case "wn": img.src = "../Sprites/Pieces_bitboards/whiteKnight.png"; break;
-                    case "wb": img.src = "../Sprites/Pieces_bitboards/whiteBishop.png"; break;
-                    case "wq": img.src = "../Sprites/Pieces_bitboards/whiteQueen.png"; break;
-                    case "wk": img.src = "../Sprites/Pieces_bitboards/whiteKing.png"; break;
-                    case "wp": img.src = "../Sprites/Pieces_bitboards/whitePawn.png"; break;
-                    default: img.src = "../Sprites/Pieces_bitboards/"; break;
+function affiche_div(r,c,to_click=true){
+        const div = document.createElement("div");
+        div.className = "case " + ((r + c) % 2 ? "black" : "white");
+        div.tabIndex = 0;
+        if (!(board[r][c] === "")) {
+            let img = document.createElement("img");
+            switch (board[r][c]){
+                case "br": img.src = "../Sprites/Pieces_bitboards/blackRook.png"; break;
+                case "bn": img.src = "../Sprites/Pieces_bitboards/blackKnight.png"; break;
+                case "bb": img.src = "../Sprites/Pieces_bitboards/blackBishop.png"; break;
+                case "bq": img.src = "../Sprites/Pieces_bitboards/blackQueen.png"; break;
+                case "bk": img.src = "../Sprites/Pieces_bitboards/blackKing.png"; break;
+                case "bp": img.src = "../Sprites/Pieces_bitboards/blackPawn.png"; break;
+                case "wr": img.src = "../Sprites/Pieces_bitboards/whiteRook.png"; break;
+                case "wn": img.src = "../Sprites/Pieces_bitboards/whiteKnight.png"; break;
+                case "wb": img.src = "../Sprites/Pieces_bitboards/whiteBishop.png"; break;
+                case "wq": img.src = "../Sprites/Pieces_bitboards/whiteQueen.png"; break;
+                case "wk": img.src = "../Sprites/Pieces_bitboards/whiteKing.png"; break;
+                case "wp": img.src = "../Sprites/Pieces_bitboards/whitePawn.png"; break;
+                default: img.src = "../Sprites/Pieces_bitboards/"; break;
+            }
+            //img.draggable = true;
+            img.addEventListener("pointermove", () => {
+                if(start[0] == r && start[1] == c) {
+                    img.style.position = "relative";
+                    img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
                 }
-                //img.draggable = true;
-                img.addEventListener("pointermove", () => {
-                    if(start[0] == r && start[1] == c) {
-                        img.style.position = "relative";
-                        img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
-                    }
-                });
-                img.alt = board[r][c];
-                img.dataset.r = r;
-                img.dataset.c = c;
-                div.appendChild(img);
-            }
-            div.dataset.r = r;
-            div.dataset.c = c;
-            if(c==0){let coor = document.createElement("p");coor.innerHTML=8-r;coor.className=" lcoor"; div.appendChild(coor);}
-            if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[c];coor.className=" bcoor"; div.appendChild(coor);}
-            if (r === first_click[0] && c === first_click[1]) div.className += " first_click";
-            if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)){
-                let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c);
-                console.log(a);
-                if (board[r][c] === "" && a[4] !== 2) div.className += " legal_move";
-                else div.className += " capturable";
-            }
+            });
+            img.alt = board[r][c];
+            img.dataset.r = r;
+            img.dataset.c = c;
+            div.appendChild(img);
+        }
+        div.dataset.r = r;
+        div.dataset.c = c;
+        if(c==0){let coor = document.createElement("p");coor.innerHTML=8-r;coor.className=" lcoor"; div.appendChild(coor);}
+        if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[c];coor.className=" bcoor"; div.appendChild(coor);}
+        if (r === first_click[0] && c === first_click[1]) div.className += " first_click";
+        if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)){
+            let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c);
+            console.log(a);
+            if (board[r][c] === "" && a[4] !== 2) div.className += " legal_move";
+            else div.className += " capturable";
+        }
+        if (to_click){
             div.addEventListener("click", () => clic(r, c));
             div.addEventListener("keyup", () => {
                 switch (event.key){
@@ -62,10 +59,18 @@ function afficher() {
                     case "ArrowUp": getCase(r-1,c).focus();break;
                     case "ArrowRight": getCase(r+(c===7?1:0),(c+1)%8).focus();break;
                     case "ArrowLeft": getCase(r-(c===0?1:0),(c+7)%8).focus();break;
-                }});
-            el.appendChild(div);
+                }
+        });}
+    return div;
+}
+function afficher() {
+    el.innerHTML = "";
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            el.appendChild(affiche_div(r,c));
         }
     }
+    //console.error(new Error("affiche"));
 
     document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
@@ -87,27 +92,28 @@ function clic(r,c){
 }
 
 function play_move(i,e){
+    let promotion = false;
     if ((e[0] !== i[0] || e[1] !== i[1]) && board[e[0]][e[1]][0] !== player && board[i[0]][i[1]][0] === player) {
         if (legal_moves.some(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1])) {
         //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
         let move = legal_moves.find(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1]);
         board[e[0]][e[1]] = board[i[0]][i[1]];
         board[i[0]][i[1]] = "";
+        start = ""; first_click = "";
         switch (move[4]){
             case 0: break;
             case 2: board[e[0]+1][e[1]] = ""; break;
-            case 3: promote(); break;
+            case 3: promote(player, e[1]); promotion = true; break;
         }
-
         player = player === "w" ? "b" : "w";
-        start = ""; first_click = "";
+        
         }
         else {
             console.log("illegal move");
             start = ""; first_click = "";
         }
     }
-    afficher();
+    if(!promotion) afficher();
     getCase(e[0],e[1]).focus();
 }
 
@@ -173,28 +179,37 @@ function mouse_up(e) {
     }
 }
 function promote(player, c){
-    afficher;
     d = player === "w" ? 1 : -1;
     r = player === "w" ? 0 : 7;
-    for (let i=r; i<4; i++){
-        console.log("hello");
-        const div = getCase(r + d*i,c);
-        div.innerHTML = "";
-        let img = document.createElement("img");
-        let img_name; let text;
-        switch (i){
-            case 0: img_name = "Queen"; text = "q"; break;
-            case 1: img_name = "Rook"; text = "r"; break;
-            case 2: img_name = "Bishop"; text = "b"; break;
-            case 3: img_name = "Knight"; text = "n"; break;
+    //for (let i=r; i<4; i++){
+    el.innerHTML = "";
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+            let div = affiche_div(x,y,false);
+            if (y === c && x < 4){
+                console.log("hello");
+                div.innerHTML = "";
+                let img = document.createElement("img");
+                let img_name; let text;
+                switch (x){
+                    case 0: img_name = "Queen"; text = "q"; break;
+                    case 1: img_name = "Rook"; text = "r"; break;
+                    case 2: img_name = "Bishop"; text = "b"; break;
+                    case 3: img_name = "Knight"; text = "n"; break;
+                }
+                img.src = `../Sprites/Pieces_bitboards/${player==="w"?"white":"black"}${img_name}.png`
+                img.alt = text;
+                img.dataset.index = x;
+                div.appendChild(img);
+                div.className = "case promote";
+                div.addEventListener("click",() => {
+                    board[0][c] = `${player}${text}`;
+                    afficher();
+                });
+            }
+            el.appendChild(div);
         }
-        img.src = `../Sprites/Pieces_bitboards/${player==="w"?"white":"black"}${img_name}.png`
-        img.alt = text;
-        img.dataset.index = i;
-        div.appendChild(img);
-        div.className = "case promote";
     }
-    while (true); 
 }
 
 afficher();
