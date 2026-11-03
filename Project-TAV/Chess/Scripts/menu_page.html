@@ -10,9 +10,22 @@
 <body>
     <header></header>
     <main>
+
         <img class="button" id ="gameButton" src = "../Images/play.png" alt = "Play">   
         <img class="button" id ="optionsButton" src = "../Images/options.png" alt = "Options">
         <a href="homepage.html"> <img class="button" id = "exitButton" src="../Images/exit.png"></a>
+        
+    <script>
+        const ws = new WebSocket("ws://localhost:8765");
+
+        document.getElementById("gameButton").addEventListener("click", () => {
+            ws.send(JSON.stringify({
+            action: "attente_partie",
+            }));
+        });
+        
+
+    </script>
     </main>
     <footer></footer>
 
