@@ -5,6 +5,7 @@ import os
 import websockets
 
 FICHIER = "users.csv"
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def lire_utilisateurs():
     if not os.path.exists(FICHIER):
@@ -44,6 +45,7 @@ async def handler(ws):
 
 async def main():
     async with websockets.serve(handler, "localhost", 8765):
+        print("Server started on ws://localhost:8765")
         await asyncio.Future()
 
 asyncio.run(main())
