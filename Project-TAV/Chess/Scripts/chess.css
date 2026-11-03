@@ -51,6 +51,10 @@ aside{
     outline: 1.5px solid white;
     outline-offset: -1.5px;
 }
+.promote:hover, .promote:focus{
+    outline: 1.5px solid #000;
+    outline-offset: -1.5px;
+}
 .case.first_click{
     outline: 3px solid gold;
     outline-offset: -3px;
