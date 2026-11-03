@@ -3,8 +3,31 @@ import csv
 import json
 import os
 import websockets
+#from websockets.asyncio.server import serve
 
 FICHIER = "users.csv"
+
+clients = set()
+
+parties = [] # [[client_1,client_2], [client_3,client_4]]
+
+clients_en_attente = []
+
+
+def recevoir_coup():
+    pass
+
+def envoyer_coup():
+    pass
+
+def creer_partie(client):
+    if len(clients_en_attente) == 0:
+        clients_en_attente.append(client)
+
+    else:
+        clients_en_attente.append(client)
+        parties.append(clients_en_attente)
+        clients_en_attente = []    
 
 def lire_utilisateurs():
     if not os.path.exists(FICHIER):
@@ -31,6 +54,8 @@ def creer(nom, mdp):
     return True, "Account created!"
 
 async def handler(ws):
+    clients.add(ws)
+
     async for message in ws:
         d = json.loads(message)
 
@@ -42,8 +67,16 @@ async def handler(ws):
             ok, msg = creer(d["nom"], d["mdp"])
             await ws.send(json.dumps({"action": "creation", "ok": ok, "message": msg}))
 
+        elif d["action"] == "attente_partie":
+            creer_partie(ws)
+            print(parties)
+
+
+    
+
 async def main():
     async with websockets.serve(handler, "localhost", 8765):
+        print("Serveur lancé sur le port 8765")
         await asyncio.Future()
 
 asyncio.run(main())
