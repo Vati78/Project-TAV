@@ -42,13 +42,21 @@ aside{
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .case img {cursor: pointer; }
-.white { background: #f0d9b5; }
-.black { background: #b58863; }
+.white{ background: #f0d9b5; }
+.black{ background: #b58863; }
+.promote{background: #fff;}
+.black .lcoor, .black .bcoor{color: #f0d9b5;}
+.white .lcoor, .white .bcoor{color: #b58863;}
 .case:hover, .case:focus{
     outline: 1.5px solid white;
+    outline-offset: -1.5px;
+}
+.promote:hover, .promote:focus{
+    outline: 1.5px solid #000;
     outline-offset: -1.5px;
 }
 .case.first_click{
@@ -56,15 +64,45 @@ aside{
     outline-offset: -3px;
 }
 
-/*.possible::after { content: ""; width: 30%; height: 30%;
-                   background: rgba(0,0,0,.25); border-radius: 50%; }*/
+.case.legal_move::after{
+    content: "";
+    width: 30%;
+    height: 30%;
+    background: #0006;
+    border-radius: 50%;
+}
+.case.capturable::after {
+    content: "";
+    position: absolute;
+    inset: 4%;                 /* marges autour*/
+    border: 4px solid #0006; 
+    border-radius: 50%;
+    /*box-sizing: border-box;*/
+    pointer-events: none;
+}
 .case img{
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     touch-action: none;
     user-select: none;
     -webkit-user-drag: none;
+    justify-self: center;
+    z-index: 1;
 }
+.case .lcoor{
+    position: absolute;
+    inset: 4%;
+    top: -20%;
+    pointer-events: none;
+}
+.case .bcoor{
+    position: absolute;
+    inset: 4%;
+    top: 45%;
+    left: 80%;
+    pointer-events: none;
+}
+
 header, footer{
     height: 5%;
     background-color: darkblue;
