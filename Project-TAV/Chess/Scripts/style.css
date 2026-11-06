@@ -36,6 +36,7 @@ main{height: 80%;}
     width: 600px;
     height: auto;
     cursor: pointer;
+    transition: 0.1s;
 }
 #homepage_image, #createAccountImage, #logInImage{
     width: 60%;

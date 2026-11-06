@@ -1,4 +1,5 @@
 const el = document.getElementById("board");
+const timer = [document.getElementById("timer0"), document.getElementById("timer1")];
 el.addEventListener("pointerup", () => mouse_up(event));
 el.addEventListener("pointercancel", () => mouse_up(event));
 let board = [
@@ -16,35 +17,40 @@ let first_click = "";
 let drag_start = "";
 let start = "";
 let player = "w";
-let local_player = "";
+let local_player = "w";
 let legal_moves = [[0,1,2,2,0],[0,1,2,0,0],[0,1,1,3,0],[0,1,0,7,0],[6,4,4,4,0],[6,4,5,3,0],[6,4,5,5,0],[6,4,3,4,0],[6,4,0,4,3],[1,5,3,5,0],[3,4,2,5,2],[7,1,5,0,0],[7,1,5,2,0],[7,1,6,3,0],[7,1,7,3,0],[7,1,7,2,0],[7,1,7,0,0]];
                 //[ligne départ, colonne départ, ligne arrivée, colonne arrivée, spécial]
                 //spécial: {0:rien, 1:roque, 2:en passant, 3:promote}
 
 let coor_letter = ["a","b","c","d","e","f","g","h"];
+let date_move_start = new Date();
+let time_move_start = [600, 600];
 
 function stateUpdate(msg){
     board = msg.board;
     player = msg.turn;
     legal_moves = msg.legal_moves;
+    //time_move_start = msg.time_move_start;
     //if premove exists and is in legal_moves, play it here
-    afficher();
+    draw();
 }
 
-function clic(r,c){
+function clic(ar,ac){
+    let r = local_player === "w" ? ar : 7 - ar;
+    let c = local_player === "w" ? ac : 7 - ac;
     start = "";
     console.log("clic");
     if (first_click !== "" && (board[r][c][0] !== board[first_click[0]][first_click[1]][0])){
         if (r !== first_click[0] || c !== first_click[1]){
             if (board[r][c][0] !== player) {
                 play_move(first_click, [r,c]);
-            }else afficher();
-        }else afficher();
+            }else draw();
+        }else draw();
     }
     else if (board[r][c][0] === player) {//=== local_player -> add also premove here
             first_click = [r, c];
-            afficher();
-            getCase(r, c).focus();
+            draw();
+            getCase(ar, ac).focus();
     }
 }
 
@@ -58,14 +64,10 @@ function play_move(i,e){
         board[i[0]][i[1]] = "";
         start = ""; first_click = "";
         switch (move[4]){
-            case 0: break;
-            case 2: board[e[0]+1][e[1]] = ""; break;
+            case 2: board[e[0]+1][e[1]] = "";
+            case 0: end_move(); break;
             case 3: promote(player, e[1]); promotion = true; break;
         }
-        player = player === "w" ? "b" : "w";
-        console.log(list_positions);
-        list_positions += board.copy;
-        console.log(list_positions);
         
         }
         else {
@@ -73,8 +75,18 @@ function play_move(i,e){
             start = ""; first_click = "";
         }
     }
-    if(!promotion) afficher();
+    if(!promotion) draw();
     getCase(e[0],e[1]).focus();
+}
+function end_move(){
+    now = new Date();
+    p = player == local_player?0:1
+    time_move_start[p] = date_move_start.getTime()/1000 + time_move_start[p] - now.getTime()/1000 + 2;
+    date_move_start = new Date();
+    player = player === "w" ? "b" : "w";
+    console.log(list_positions);
+    list_positions += board.copy;
+    console.log(list_positions);
 }
 
 function getCase(r, c) {
@@ -115,13 +127,16 @@ function mouse_up(e) {
         start = "";
     }
 }
-function affiche_div(r,c,to_click=true){
+function draw_div(r,c,to_click=true){
         const div = document.createElement("div");
         div.className = "case " + ((r + c) % 2 ? "black" : "white");
         div.tabIndex = 0;
-        if (!(board[r][c] === "")) {
+        let p = local_player === "w";
+        let ar = p?r:7-r;
+        let ac = p?c:7-c;
+        if (!(board[ar][ac] === "")) {
             let img = document.createElement("img");
-            switch (board[r][c]){
+            switch (board[ar][ac]){
                 case "br": img.src = "../Sprites/Pieces_bitboards/blackRook.png"; break;
                 case "bn": img.src = "../Sprites/Pieces_bitboards/blackKnight.png"; break;
                 case "bb": img.src = "../Sprites/Pieces_bitboards/blackBishop.png"; break;
@@ -143,20 +158,25 @@ function affiche_div(r,c,to_click=true){
                     img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
                 }
             });
-            img.alt = board[r][c];
+            img.alt = board[ar][ac];
             img.dataset.r = r;
             img.dataset.c = c;
             div.appendChild(img);
         }
         div.dataset.r = r;
         div.dataset.c = c;
-        if(c==0){let coor = document.createElement("p");coor.innerHTML=8-r;coor.className=" lcoor"; div.appendChild(coor);}
-        if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[c];coor.className=" bcoor"; div.appendChild(coor);}
-        if (r === first_click[0] && c === first_click[1]) div.className += " first_click";
-        if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c)){
-            let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === r && m[3] === c);
+        //affichage des coordonnées:
+        if(c==0){let coor = document.createElement("p");coor.innerHTML=ar+1; coor.className=" lcoor"; div.appendChild(coor);}
+        if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[ac];coor.className=" bcoor"; div.appendChild(coor);}
+        //arrondi des bords:
+        if(c==0 && r==0) div.className += " tlcorner";if(c==7 && r==0) div.className += " trcorner";if(c==0 && r==7) div.className += " blcorner";if(c==7 && r==7) div.className += " brcorner";
+        //affichage du premier clic:
+        if (ar === first_click[0] && ac === first_click[1]) div.className += " first_click";
+        //affichage des coups légaux:
+        if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac)){
+            let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac);
             console.log(a);
-            if (board[r][c] === "" && a[4] !== 2) div.className += " legal_move";
+            if (board[ar][ac] === "" && a[4] !== 2) div.className += " legal_move";
             else div.className += " capturable";
         }
         if (to_click){
@@ -168,21 +188,32 @@ function affiche_div(r,c,to_click=true){
                     case "ArrowUp": getCase(r-1,c).focus();break;
                     case "ArrowRight": getCase(r+(c===7?1:0),(c+1)%8).focus();break;
                     case "ArrowLeft": getCase(r-(c===0?1:0),(c+7)%8).focus();break;
+                    case "x": case "X": local_player = local_player === "w" ? "b" : "w"; draw(); getCase(7-r,7-c).focus(); break;
                 }
         });}
     return div;
 }
-function afficher() {
+function draw_timer(){
+    var now = new Date();
+    var p = player === local_player ? "0" : "1";
+    var t1 = Math.floor(date_move_start.getTime()/1000 + time_move_start[p] - now.getTime()/1000);
+    var t2 = Math.floor(time_move_start[-p+1]);
+    timer[p].className += " active" + (t1 < 30 ? " red" : "");
+    timer[-p+1].classList.remove("active");timer[-p+1].classList.remove("red");
+    timer[p].innerHTML = t1 < 0 ? "---" : `${Math.floor(t1/60)}:${t1%60<10?"0":""}${t1%60}`;
+    timer[-p+1].innerHTML = t2 < 0 ? "---" : `${Math.floor(t2/60)}:${t2%60<10?"0":""}${t2%60}`;
+}
+function draw() {
     el.innerHTML = "";
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-            el.appendChild(affiche_div(r,c));
+            el.appendChild(draw_div(r,c));
         }
     }
     //console.error(new Error("affiche"));
-
-    document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
+    //document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
+
 function promote(player, c){
     d = player === "w" ? 1 : -1;
     r = player === "w" ? 0 : 7;
@@ -190,7 +221,7 @@ function promote(player, c){
     el.innerHTML = "";
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            let div = affiche_div(x,y,false);
+            let div = draw_div(x,y,false);
             div.tabIndex = -1;
             if (y === c && x < 4){
                 console.log("hello");
@@ -211,11 +242,12 @@ function promote(player, c){
                 div.className = "case promote";
                 div.addEventListener("click",() => {
                     board[0][c] = `${player}${text}`;
-                    afficher();
+                    end_move();
+                    draw();
                 });
                 div.addEventListener("keyup", () => {
                     switch (event.key){
-                        case "Enter": board[0][c] = `${player}${text}`; afficher();
+                        case "Enter": board[0][c] = `${player}${text}`; end_move();draw();
                         case "ArrowDown": case "ArrowRight": getCase(x==3?0:x+1,c).focus();break;
                         case "ArrowUp": case "ArrowLeft": getCase(x==0?3:x-1,c).focus();break;
                     }
@@ -226,5 +258,7 @@ function promote(player, c){
     }
 }
 
-afficher();
-
+window.onload= function() {
+    draw();
+	setInterval('draw_timer()', 20); 
+};

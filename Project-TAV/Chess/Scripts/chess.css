@@ -26,7 +26,6 @@ aside{
     justify-content: space-around;
     height: 70%;
     width: 10%;
-    overflow: hidden;
 }
 #board {
     display: grid;
@@ -35,9 +34,11 @@ aside{
     height: 100%;
     aspect-ratio: 1;
     margin: 0 10px 0 30px;
-    border-radius: 10px;
-    overflow: hidden;
 }
+.tlcorner{border-top-left-radius: 10px;}
+.trcorner{border-top-right-radius: 10px;}
+.blcorner{border-bottom-left-radius: 10px;}
+.brcorner{border-bottom-right-radius: 10px;}
 .case {
     display: flex;
     align-items: center;
@@ -102,8 +103,25 @@ aside{
     left: 80%;
     pointer-events: none;
 }
+#player_turn{
+    text-align: center;
+    margin: 10px 0;
+}
+#timer1, #timer0{
+    font-size: 1.5em;
+    text-align: center;
+    margin: 10px 0;
+}
+p.active{
+    outline: 1px double white;
+}
+p.active.red{
+    color: red;
+    outline: 1px double red;
+}
 
 header, footer{
     height: 5%;
     background-color: darkblue;
 }
+
