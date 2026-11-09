@@ -1,18 +1,65 @@
 import asyncio
-import csv
 import json
-import os
+import secrets
 import websockets
-#from websockets.asyncio.server import serve
+import os
+import csv
 
+DELAI_GRACE = 10  # secondes avant abandon
 FICHIER = "users.csv"
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-clients = set()
+connexions = {}          # nom -> ws actuelle
+sessions = {}            # token -> {"nom": ...}
+parties_par_nom = {}     # nom -> Partie
+attente = []             # liste de noms
+taches_abandon = {}      # nom -> task du délai de grâce
 
-parties = [] # [[client_1,client_2], [client_3,client_4]]
 
-clients_en_attente = []
+class Partie:
+    def __init__(self, j1, j2):
+        self.joueurs = [j1, j2]   # noms
+        self.tour = 0
+
+    def adversaire(self, nom):
+        return self.joueurs[1] if nom == self.joueurs[0] else self.joueurs[0]
+
+
+async def envoyer(nom, msg):
+    ws = connexions.get(nom)
+    if ws:
+        try:
+            await ws.send(json.dumps(msg))
+        except websockets.ConnectionClosed:
+            pass
+
+
+async def creer_partie(nom):
+    if nom in attente or nom in parties_par_nom:
+        return
+    attente.append(nom)
+    if len(attente) == 2:
+        j1, j2 = attente[:]
+        attente.clear()
+        partie = Partie(j1, j2)
+        parties_par_nom[j1] = partie
+        parties_par_nom[j2] = partie
+        await envoyer(j1, {"action": "partie_trouvee", "couleur": 0})
+        await envoyer(j2, {"action": "partie_trouvee", "couleur": 1})
+
+
+async def quitter_partie(nom):
+    partie = parties_par_nom.pop(nom, None)
+    if partie:
+        adv = partie.adversaire(nom)
+        parties_par_nom.pop(adv, None)
+        await envoyer(adv, {"action": "adversaire_parti"})
+
+
+async def delai_grace(nom):
+    await asyncio.sleep(DELAI_GRACE)
+    taches_abandon.pop(nom, None)
+    await quitter_partie(nom)
 
 
 def recevoir_coup():
@@ -20,15 +67,6 @@ def recevoir_coup():
 
 def envoyer_coup():
     pass
-
-def creer_partie(client):
-    if len(clients_en_attente) == 0:
-        clients_en_attente.append(client)
-
-    else:
-        clients_en_attente.append(client)
-        parties.append(clients_en_attente)
-        clients_en_attente = []    
 
 def lire_utilisateurs():
     if not os.path.exists(FICHIER):
@@ -54,23 +92,60 @@ def creer(nom, mdp):
         writer.writerow([nom, mdp])
     return True, "Account created!"
 
+
 async def handler(ws):
-    clients.add(ws)
+    utilisateur = None
 
-    async for message in ws:
-        d = json.loads(message)
+    try:
+        async for message in ws:
+            d = json.loads(message)
+            action = d.get("action")
 
-        if d["action"] == "connexion":
-            ok = verifier(d["nom"], d["mdp"])
-            await ws.send(json.dumps({"action": "connexion", "ok": ok}))
+            if action == "connexion":
+                ok = verifier(d["nom"], d["mdp"])
+                token = None
+                if ok:
+                    token = secrets.token_urlsafe(32)
+                    sessions[token] = {"nom": d["nom"]}
+                await ws.send(json.dumps({"action": "connexion", "ok": ok, "token": token}))
 
-        elif d["action"] == "creation":
-            ok, msg = creer(d["nom"], d["mdp"])
-            await ws.send(json.dumps({"action": "creation", "ok": ok, "message": msg}))
+            elif action == "creation":
+                ok, msg = creer(d["nom"], d["mdp"])
+                await ws.send(json.dumps({"action": "creation", "ok": ok, "message": msg}))
 
-        elif d["action"] == "attente_partie":
-            creer_partie(ws)
-            print(parties)
+            elif action == "reprise":
+                s = sessions.get(d.get("token"))
+                if s:
+                    utilisateur = s["nom"]
+                    connexions[utilisateur] = ws
+                    # annule l'abandon si le joueur revient à temps
+                    tache = taches_abandon.pop(utilisateur, None)
+                    if tache:
+                        tache.cancel()
+                await ws.send(json.dumps({
+                    "action": "reprise",
+                    "ok": bool(s),
+                    "en_partie": utilisateur in parties_par_nom
+                }))
+
+            elif action == "attente_partie":
+                if utilisateur is None:
+                    await ws.send(json.dumps({"action": "erreur", "message": "Non connecté"}))
+                    continue
+                await creer_partie(utilisateur)
+                
+                print("#")
+
+    except websockets.ConnectionClosed:
+        pass
+
+    finally:
+        if utilisateur and connexions.get(utilisateur) is ws:
+            del connexions[utilisateur]
+            if utilisateur in attente:
+                attente.remove(utilisateur)
+            if utilisateur in parties_par_nom:
+                taches_abandon[utilisateur] = asyncio.create_task(delai_grace(utilisateur))
 
 
     

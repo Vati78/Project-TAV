@@ -16,7 +16,7 @@
             <a href="homepage.html"> <img class="button" id = "exitButton" src="../Images/exit.png"></a>
           </div>
           <div class="vertical">
-            <input type="username" id="userBox" placeholder="Please enter username.">
+            <input type="text" id="userBox" placeholder="Please enter username.">
             <input type="password" id="passwordBox" placeholder="Please enter password.">
             <img class="button" id="enterButton" src="../Images/enter.png" alt="Enter">
             <p id="message"></p>
@@ -25,6 +25,8 @@
 
 <script>
   const ws = new WebSocket("ws://localhost:8765");
+
+
 
   document.getElementById("enterButton").addEventListener("click", () => {
     ws.send(JSON.stringify({
@@ -35,8 +37,10 @@
   });
 
   ws.onmessage = (event) => {
-    const reponse = JSON.parse(event.data);
-    if (reponse.ok) {
+    const r = JSON.parse(event.data);
+    if (r.action !== "connexion") return;
+    if (r.ok) {
+      sessionStorage.setItem("token", r.token);
       window.location.href = "menu_page.html";
     } else {
       document.getElementById("message").textContent = "Incorrect username or password.";
