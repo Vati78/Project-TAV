@@ -518,7 +518,7 @@ class Game:
         for color in range(2):
             for i in range(5):
                 for square in const.split_bits(self.players[color].pieces[i]):
-                    square_value[square] = const.piece_value[i]
+                    square_value[square] = const.PIECE_VALUE[i]
 
         def move_value(move):
             move_i, move_f, promotion = move
@@ -539,6 +539,27 @@ class Game:
                         list_moves.append((1 << i, move, False))
 
         return sorted(list_moves, key=move_value, reverse=True)
+
+
+    ################# Zobrist hashing #################
+    def zobrist_hash(self):
+        h = 0
+
+        for player in range(2):
+            # pieces
+            for piece_type in range(6):
+                for piece_position in const.split_bits(self.players[player].pieces[piece_type]):
+                    h ^= const.ZOBRIST_PIECES[player][piece_type][piece_position.bit_length()-1]
+
+            # castling rights
+            if self.players[player].s_castling_right: h ^= const.ZOBRIST_CASTLING_RIGHT[player][0]
+            if self.players[player].l_castling_right: h ^= const.ZOBRIST_CASTLING_RIGHT[player][1]
+
+            # en passant
+
+            if self.player_turn:
+                h ^= const.ZOBRIST_TURN
+        return h
 
 
     ################# move play #################
@@ -676,7 +697,7 @@ class Game:
     def evaluation(self) -> int:
         # game end
         if self.result:
-            return self.result * math.inf
+            return self.result * const.MATE
         elif self.result == 0:
             return 0
 
@@ -732,7 +753,7 @@ class Game:
                 player_pieces = player.pieces[i]
 
                 # material
-                e += coeff * player_pieces.bit_count() * pieces.get_type(i, index).value
+                e += coeff * player_pieces.bit_count() * const.PIECE_VALUE[i]
 
 
                 for piece in const.split_bits(player_pieces):

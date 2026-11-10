@@ -3,7 +3,10 @@ Toutes les constantes du jeu
 """
 
 import pygame as pg
+import random as rd
+
 pg.mixer.init()
+rng = rd.Random(16181510532020122) # Project TAV
 
 # Board
 SQUARE = 70
@@ -32,7 +35,8 @@ RANKS = ['1','2','3','4','5','6','7','8']
 
 
 # Pieces value
-piece_value = [100, 300, 330, 500, 900] # king has no value
+PIECE_VALUE = [100, 300, 330, 500, 900] # king has no value
+MATE = 100000000
 
 
 # Square value
@@ -46,6 +50,12 @@ for rank in range(8):
         elif d == 1: square_value.append(10)
         else: square_value.append(5)
 
+
+# Zobrist hashing
+ZOBRIST_PIECES = [[[rng.getrandbits(64) for _ in range(64)] for _ in range(6)] for _ in range(2)]
+ZOBRIST_TURN = rng.getrandbits(64)
+ZOBRIST_CASTLING_RIGHT = [[rng.getrandbits(64) for _ in range(2)] for _ in range(2)]
+ZOBRIST_EN_PASSANT = [rng.getrandbits(64) for _ in range(8)]
 
 # Themes and colors
 NMB_THEMES = 3
@@ -85,7 +95,7 @@ end_sound = pg.mixer.Sound("../Sounds/end.mp3")
 low_time_sound = pg.mixer.Sound("../Sounds/tenseconds.mp3")
 
 
-# splits bits into seperated bits
+# splits bits into separated bits
 def split_bits(n):
     parts = []
     while n:

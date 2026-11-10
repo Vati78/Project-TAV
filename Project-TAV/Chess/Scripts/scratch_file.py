@@ -4,3 +4,6 @@
 #- Elani (400 elo) : Victoire avec les noirs
 #- Janjay (700 elo) : Victoire avec les blancs
 #- Maria (1000 elo) : Victoire avec les noirs
+
+# TODO: change position only if both players are human
+# TODO: transposition table
