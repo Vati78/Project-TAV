@@ -166,7 +166,7 @@ function draw_div(r,c,to_click=true){
         div.dataset.r = r;
         div.dataset.c = c;
         //affichage des coordonnées:
-        if(c==0){let coor = document.createElement("p");coor.innerHTML=ar+1; coor.className=" lcoor"; div.appendChild(coor);}
+        if(c==0){let coor = document.createElement("p");coor.innerHTML=8-ar; coor.className=" lcoor"; div.appendChild(coor);}
         if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[ac];coor.className=" bcoor"; div.appendChild(coor);}
         //arrondi des bords:
         if(c==0 && r==0) div.className += " tlcorner";if(c==7 && r==0) div.className += " trcorner";if(c==0 && r==7) div.className += " blcorner";if(c==7 && r==7) div.className += " brcorner";
