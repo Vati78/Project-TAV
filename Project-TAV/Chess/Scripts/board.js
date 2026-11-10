@@ -12,7 +12,8 @@ let board = [
     ["wp","wp","wp","wp","wp","wp","wp","wp"],
     ["wr","wn","wb","wq","wk","wb","wn","wr"]
 ];
-let list_positions = board.copy;
+let list_positions = [];
+let move_index = 0;
 let first_click = "";
 let drag_start = "";
 let start = "";
@@ -28,9 +29,13 @@ let time_move_start = [600, 600];
 
 function stateUpdate(msg){
     board = msg.board;
+    if (arrayEquals(board, list_positions[list_positions.length - 1]) === false){
+        list_positions.push(structuredClone(board));
+        move_index++;
+    }
     player = msg.turn;
     legal_moves = msg.legal_moves;
-    //time_move_start = msg.time_move_start;
+    time_move_start = msg.time_move_start;
     //if premove exists and is in legal_moves, play it here
     draw();
 }
@@ -40,6 +45,7 @@ function clic(ar,ac){
     let c = local_player === "w" ? ac : 7 - ac;
     start = "";
     console.log("clic");
+    if (move_index !== list_positions.length - 1) return;
     if (first_click !== "" && (board[r][c][0] !== board[first_click[0]][first_click[1]][0])){
         if (r !== first_click[0] || c !== first_click[1]){
             if (board[r][c][0] !== player) {
@@ -58,7 +64,6 @@ function play_move(i,e){
     let promotion = false;
     if ((e[0] !== i[0] || e[1] !== i[1]) && board[e[0]][e[1]][0] !== player && board[i[0]][i[1]][0] === player) {
         if (legal_moves.some(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1])) {
-        //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
         let move = legal_moves.find(m => m[0] === i[0] && m[1] === i[1] && m[2] === e[0] && m[3] === e[1]);
         board[e[0]][e[1]] = board[i[0]][i[1]];
         board[i[0]][i[1]] = "";
@@ -79,14 +84,14 @@ function play_move(i,e){
     getCase(e[0],e[1]).focus();
 }
 function end_move(){
+    //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
     now = new Date();
     p = player == local_player?0:1
     time_move_start[p] = date_move_start.getTime()/1000 + time_move_start[p] - now.getTime()/1000 + 2;
     date_move_start = new Date();
     player = player === "w" ? "b" : "w";
-    console.log(list_positions);
-    list_positions += board.copy;
-    console.log(list_positions);
+    move_index += 1;
+    list_positions.push(structuredClone(board));
 }
 
 function getCase(r, c) {
@@ -134,9 +139,9 @@ function draw_div(r,c,to_click=true){
         let p = local_player === "w";
         let ar = p?r:7-r;
         let ac = p?c:7-c;
-        if (!(board[ar][ac] === "")) {
+        if (!(list_positions[move_index][ar][ac] === "")) {
             let img = document.createElement("img");
-            switch (board[ar][ac]){
+            switch (list_positions[move_index][ar][ac]){
                 case "br": img.src = "../Sprites/Pieces_bitboards/blackRook.png"; break;
                 case "bn": img.src = "../Sprites/Pieces_bitboards/blackKnight.png"; break;
                 case "bb": img.src = "../Sprites/Pieces_bitboards/blackBishop.png"; break;
@@ -158,7 +163,7 @@ function draw_div(r,c,to_click=true){
                     img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
                 }
             });
-            img.alt = board[ar][ac];
+            img.alt = list_positions[move_index][ar][ac];
             img.dataset.r = r;
             img.dataset.c = c;
             div.appendChild(img);
@@ -166,29 +171,34 @@ function draw_div(r,c,to_click=true){
         div.dataset.r = r;
         div.dataset.c = c;
         //affichage des coordonnées:
-        if(c==0){let coor = document.createElement("p");coor.innerHTML=8-ar; coor.className=" lcoor"; div.appendChild(coor);}
+        if(c==0){let coor = document.createElement("p");coor.innerHTML=ar+1; coor.className=" lcoor"; div.appendChild(coor);}
         if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[ac];coor.className=" bcoor"; div.appendChild(coor);}
         //arrondi des bords:
         if(c==0 && r==0) div.className += " tlcorner";if(c==7 && r==0) div.className += " trcorner";if(c==0 && r==7) div.className += " blcorner";if(c==7 && r==7) div.className += " brcorner";
         //affichage du premier clic:
         if (ar === first_click[0] && ac === first_click[1]) div.className += " first_click";
         //affichage des coups légaux:
+        if (move_index === list_positions.length - 1){
         if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac)){
             let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac);
             console.log(a);
             if (board[ar][ac] === "" && a[4] !== 2) div.className += " legal_move";
             else div.className += " capturable";
-        }
+        }}
         if (to_click){
             div.addEventListener("click", () => clic(r, c));
             div.addEventListener("keyup", () => {
                 switch (event.key){
                     case "Enter": clic(r, c);break;
-                    case "ArrowDown": getCase(r+1,c).focus();break;
-                    case "ArrowUp": getCase(r-1,c).focus();break;
-                    case "ArrowRight": getCase(r+(c===7?1:0),(c+1)%8).focus();break;
-                    case "ArrowLeft": getCase(r-(c===0?1:0),(c+7)%8).focus();break;
+                    case "s": case "S": getCase(r+1,c).focus();break;
+                    case "z": case "Z": getCase(r-1,c).focus();break;
+                    case "d": case "D": getCase(r+(c===7?1:0),(c+1)%8).focus();break;
+                    case "q": case "Q": getCase(r-(c===0?1:0),(c+7)%8).focus();break;
                     case "x": case "X": local_player = local_player === "w" ? "b" : "w"; draw(); getCase(7-r,7-c).focus(); break;
+                    case "ArrowDown": move_index = 0;draw();getCase(r,c).focus();break;
+                    case "ArrowUp": move_index = list_positions.length - 1;draw();getCase(r,c).focus();break;
+                    case "ArrowRight": move_index = Math.min(list_positions.length - 1, move_index+1);draw();getCase(r,c).focus();break;
+                    case "ArrowLeft": move_index = Math.max(0, move_index-1);draw();getCase(r,c).focus();break;
                 }
         });}
     return div;
@@ -258,7 +268,8 @@ function promote(player, c){
     }
 }
 
-window.onload= function() {
+window.onload = function() {
+    list_positions = [structuredClone(board)];
     draw();
-	setInterval('draw_timer()', 20); 
+	setInterval('draw_timer()', 20);
 };
