@@ -6,7 +6,6 @@ import pygame as pg
 import const
 import mouse_keys as mk
 import time
-import math
 
 pg.init()
 theme_index = 1
@@ -283,4 +282,59 @@ def split_bits(n):
         # removes the lowest bit
         n &= n - 1
     return parts
+
+
+def bit_to_str(gestionary):
+    game = gestionary.chess_game
+
+    list_str = [["" for col in range(8)] for rank in range(8)]
+
+
+    for rank in range(8):
+        for col in range(8):
+            square = 1 << (8*rank + col)
+
+            if square & game.total:
+                for i, c in enumerate(["w", "b"]):
+                    if square & game.players[i].pieces_total:
+                        for piece_type in range(6):
+                            if square & game.players[i].pieces[piece_type]:
+                                list_str[rank][col] = c + const.STRINGS[piece_type]
+
+                                break
+
+
+    return list_str
+
+def legal_moves_to_str(gestionary):
+    list_legal_moves = gestionary.chess_game.list_legal_moves
+
+    output_list = []
+
+    for i, square in enumerate(list_legal_moves):
+        special = 0
+
+        x_i = i%8
+        y_i = i//8
+        for legal_move in split_bits(square):
+            index = legal_move.bit_length() - 1
+
+            x_f = index%8
+            y_f = index//8
+
+            # pawn
+            if square & (gestionary.chess_game.players[0].pieces[0] | gestionary.chess_game.players[1].pieces[0]):
+                # promotion
+                if y_f in (0,7): special = 3
+
+                # en passant
+                if x_i != x_f and not square & gestionary.chess_game.total: special = 2
+
+            # king
+            elif square & (gestionary.chess_game.players[0].pieces[5] | gestionary.chess_game.players[1].pieces[5]):
+                if abs(x_f - x_i) == 2: special = 1
+
+            output_list.append((y_i, x_i, y_f, x_f, special))
+
+    return output_list
 
