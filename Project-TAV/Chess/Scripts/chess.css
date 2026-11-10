@@ -31,7 +31,8 @@ aside{
     display: grid;
     grid-template-columns: repeat(8, minmax(0,1fr));
     grid-template-rows: repeat(8, minmax(0,1fr));
-    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
     aspect-ratio: 1;
     margin: 0 10px 0 30px;
 }
@@ -92,15 +93,19 @@ aside{
 }
 .case .lcoor{
     position: absolute;
-    inset: 4%;
-    top: -20%;
+    top: 0px;
+    left: 0px;
+    max-width: 20%;
+    max-height: 20%;
+    font-size: 100%;
+    margin: 0px 0px 0px 4px;
     pointer-events: none;
 }
 .case .bcoor{
     position: absolute;
-    inset: 4%;
-    top: 45%;
-    left: 80%;
+    bottom: 0px;
+    right: 0px;
+    margin: 0px 4px 0px 0px;
     pointer-events: none;
 }
 #player_turn{
