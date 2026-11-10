@@ -56,6 +56,7 @@ async def quitter_partie(nom):
         await envoyer(adv, {"action": "adversaire_parti"})
 
 
+
 async def delai_grace(nom):
     await asyncio.sleep(DELAI_GRACE)
     taches_abandon.pop(nom, None)
@@ -95,6 +96,7 @@ def creer(nom, mdp):
 
 async def handler(ws):
     utilisateur = None
+    global attente
 
     try:
         async for message in ws:
@@ -109,9 +111,42 @@ async def handler(ws):
                     sessions[token] = {"nom": d["nom"]}
                 await ws.send(json.dumps({"action": "connexion", "ok": ok, "token": token}))
 
+                print("connexion :", sessions)
+                print()
+
+                
+
+            elif action == "quitter_menu":
+                print("#")
+                token = d.get("token")
+                s = sessions.get(token)
+
+                if not s:
+                    await ws.send(json.dumps({
+                        "action": "erreur",
+                        "message": "Session invalide"
+                    }))
+                    continue
+
+                utilisateur = s["nom"]
+
+                await quitter_partie(utilisateur)
+
+                if utilisateur in attente:
+                    attente.remove(utilisateur)
+
+                sessions.pop(token, None)
+                connexions.pop(utilisateur, None)
+
+                print(sessions)
+                
+
+
+
             elif action == "creation":
                 ok, msg = creer(d["nom"], d["mdp"])
                 await ws.send(json.dumps({"action": "creation", "ok": ok, "message": msg}))
+
 
             elif action == "reprise":
                 s = sessions.get(d.get("token"))
@@ -128,13 +163,15 @@ async def handler(ws):
                     "en_partie": utilisateur in parties_par_nom
                 }))
 
+
             elif action == "attente_partie":
                 if utilisateur is None:
                     await ws.send(json.dumps({"action": "erreur", "message": "Non connecté"}))
                     continue
                 await creer_partie(utilisateur)
                 
-                print("#")
+                print("listed'attente : ",attente)
+                print()
 
     except websockets.ConnectionClosed:
         pass

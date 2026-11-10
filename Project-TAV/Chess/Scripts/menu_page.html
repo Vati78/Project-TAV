@@ -20,9 +20,16 @@
 
         ws.onopen = () => {
             const token = sessionStorage.getItem("token");
-            if (!token) { window.location.href = "login.html"; return; }
+            if (!token) { window.location.href = "login_page.html"; return; }
             ws.send(JSON.stringify({ action: "reprise", token }));
         };
+
+        document.getElementById("exitButton").addEventListener("click", () => {
+            ws.send(JSON.stringify({
+            action: "quitter_menu",
+            token: sessionStorage.getItem("token"),
+            }));
+        });
 
         document.getElementById("gameButton").addEventListener("click", () => {
             ws.send(JSON.stringify({
