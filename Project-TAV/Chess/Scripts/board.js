@@ -19,7 +19,7 @@ let drag_start = "";
 let start = "";
 let player = "w";
 let local_player = "w";
-let legal_moves = [[0,1,2,2,0],[0,1,2,0,0],[0,1,1,3,0],[0,1,0,7,0],[6,4,4,4,0],[6,4,5,3,0],[6,4,5,5,0],[6,4,3,4,0],[6,4,0,4,3],[1,5,3,5,0],[3,4,2,5,2],[7,1,5,0,0],[7,1,5,2,0],[7,1,6,3,0],[7,1,7,3,0],[7,1,7,2,0],[7,1,7,0,0]];
+let legal_moves = [[0,1,2,2,0],[0,1,2,0,0],[0,1,1,3,0],[0,1,0,7,0],[6,4,4,4,0],[6,4,5,3,0],[6,4,5,5,0],[6,4,3,4,0],[4,4,3,4,0],[6,4,0,4,3],[1,5,3,5,0],[3,4,2,5,2],[3,4,2,4,0],[7,1,5,0,0],[7,1,5,2,0],[7,1,6,3,0],[7,1,7,3,0],[7,1,7,2,0],[7,1,7,0,0]];
                 //[ligne départ, colonne départ, ligne arrivée, colonne arrivée, spécial]
                 //spécial: {0:rien, 1:roque, 2:en passant, 3:promote}
 
@@ -36,7 +36,7 @@ function stateUpdate(msg){
     player = msg.turn;
     legal_moves = msg.legal_moves;
     time_move_start = msg.time_move_start;
-    //if premove exists and is in legal_moves, play it here
+    //TODO: if premove exists and is in legal_moves, play it here
     draw();
 }
 
@@ -171,7 +171,7 @@ function draw_div(r,c,to_click=true){
         div.dataset.r = r;
         div.dataset.c = c;
         //affichage des coordonnées:
-        if(c==0){let coor = document.createElement("p");coor.innerHTML=ar+1; coor.className=" lcoor"; div.appendChild(coor);}
+        if(c==0){let coor = document.createElement("p");coor.innerHTML=8-ar; coor.className=" lcoor"; div.appendChild(coor);}
         if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[ac];coor.className=" bcoor"; div.appendChild(coor);}
         //arrondi des bords:
         if(c==0 && r==0) div.className += " tlcorner";if(c==7 && r==0) div.className += " trcorner";if(c==0 && r==7) div.className += " blcorner";if(c==7 && r==7) div.className += " brcorner";
@@ -187,6 +187,7 @@ function draw_div(r,c,to_click=true){
         }}
         if (to_click){
             div.addEventListener("click", () => clic(r, c));
+            //TODO: add coloration of cases and arrows
             div.addEventListener("keyup", () => {
                 switch (event.key){
                     case "Enter": clic(r, c);break;
@@ -199,6 +200,7 @@ function draw_div(r,c,to_click=true){
                     case "ArrowUp": move_index = list_positions.length - 1;draw();getCase(r,c).focus();break;
                     case "ArrowRight": move_index = Math.min(list_positions.length - 1, move_index+1);draw();getCase(r,c).focus();break;
                     case "ArrowLeft": move_index = Math.max(0, move_index-1);draw();getCase(r,c).focus();break;
+                    //TODO: add first_click = ""; draw last move
                 }
         });}
     return div;
@@ -220,7 +222,6 @@ function draw() {
             el.appendChild(draw_div(r,c));
         }
     }
-    //console.error(new Error("affiche"));
     //document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
 
