@@ -42,8 +42,6 @@ class Gestionary:
         self.timer_enabled = o[3]
 
     def run(self):
-        # self.chess_game.players = [pb.Bot("w"), pb.Bot("b")]
-
         running = True
 
         const.start_sound.play()
