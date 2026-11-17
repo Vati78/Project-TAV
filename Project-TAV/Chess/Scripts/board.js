@@ -1,3 +1,4 @@
+const ws = new WebSocket("ws://localhost:8765");
 const el = document.getElementById("board");
 const timer = [document.getElementById("timer0"), document.getElementById("timer1")];
 el.addEventListener("pointerup", () => mouse_up(event));
@@ -36,6 +37,7 @@ function stateUpdate(msg){
     player = msg.turn;
     legal_moves = msg.legal_moves;
     time_move_start = msg.time_move_start;
+    date_move_start = new Date();
     //TODO: if premove exists and is in legal_moves, play it here
     draw();
 }
@@ -70,7 +72,12 @@ function play_move(i,e){
         start = ""; first_click = "";
         switch (move[4]){
             case 2: board[e[0]+1][e[1]] = "";
-            case 0: end_move(); break;
+            case 0: end_move(i,e,move[4]); break;
+            case 1:
+                if (e[1]===6) {board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = "";}
+                else if (e[1]===2) {board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = "";}
+                else console.error("pas de roque ??? ;(");
+                break;
             case 3: promote(player, e[1]); promotion = true; break;
         }
         
@@ -83,8 +90,15 @@ function play_move(i,e){
     if(!promotion) draw();
     getCase(e[0],e[1]).focus();
 }
-function end_move(){
+function end_move(i,e,special){
     //Send({type: "move", value: [i[0],i[1],e[0],e[1]]});
+    ws.send(JSON.stringify({
+        action: "move",
+        value: [i[0],i[1],e[0],e[1]], //
+        special: special,
+        piece: special > 3 ? special - 3 : 0, // index 1 to 4
+        token: token
+    }));
     now = new Date();
     p = player == local_player?0:1
     time_move_start[p] = date_move_start.getTime()/1000 + time_move_start[p] - now.getTime()/1000 + 2;
@@ -253,7 +267,7 @@ function promote(player, c){
                 div.className = "case promote";
                 div.addEventListener("click",() => {
                     board[0][c] = `${player}${text}`;
-                    end_move();
+                    end_move(i, e, 3 + 4 - x);
                     draw();
                 });
                 div.addEventListener("keyup", () => {
@@ -273,4 +287,17 @@ window.onload = function() {
     list_positions = [structuredClone(board)];
     draw();
 	setInterval('draw_timer()', 20);
+};
+ws.onopen = () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) { window.location.href = "login_page.html"; return; }
+    ws.send(JSON.stringify({ action: "reprise", token }));
+};
+socket.onmessage = (event) => {
+  msg = JSON.parse(event.data)
+  switch (msg.type){
+    case "local_player": local_player = msg.value; break;
+    case "state": stateUpdate(msg.value); break; //{ "type": "state", "board": {...}, "legal_moves": [...], "turn": "w", "check": false }
+    default: console.log("Message inconnu:", msg);
+  }
 };

@@ -4,6 +4,7 @@ import secrets
 import websockets
 import os
 import csv
+import main as mn
 
 DELAI_GRACE = 10  # secondes avant abandon
 FICHIER = "users.csv"
@@ -14,15 +15,10 @@ sessions = {}            # token -> {"nom": ...}
 parties_par_nom = {}     # nom -> Partie
 attente = []             # liste de noms
 taches_abandon = {}      # nom -> task du délai de grâce
+adversaires = {}
 
 
-class Partie:
-    def __init__(self, j1, j2):
-        self.joueurs = [j1, j2]   # noms
-        self.tour = 0
 
-    def adversaire(self, nom):
-        return self.joueurs[1] if nom == self.joueurs[0] else self.joueurs[0]
 
 
 async def envoyer(nom, msg):
@@ -41,19 +37,19 @@ async def creer_partie(nom):
     if len(attente) == 2:
         j1, j2 = attente[:]
         attente.clear()
-        partie = Partie(j1, j2)
-        parties_par_nom[j1] = partie
-        parties_par_nom[j2] = partie
+        partie = mn.Gestionary([2,1,"r",True,[10,1]])
+
+        parties_par_nom[j1] = [partie,0]
+        parties_par_nom[j2] = [partie,1]
+        adversaires[j1] = j2
+        adversaires[j2] = j1
         await envoyer(j1, {"action": "partie_trouvee", "couleur": 0})
         await envoyer(j2, {"action": "partie_trouvee", "couleur": 1})
 
 
 async def quitter_partie(nom):
-    partie = parties_par_nom.pop(nom, None)
-    if partie:
-        adv = partie.adversaire(nom)
-        parties_par_nom.pop(adv, None)
-        await envoyer(adv, {"action": "adversaire_parti"})
+    pass
+
 
 
 
@@ -63,10 +59,31 @@ async def delai_grace(nom):
     await quitter_partie(nom)
 
 
-def recevoir_coup():
+def recevoir_coup(joueur1,joueur2,partie_modifiee,couleur_joueur,coup_joue,type,piece_deplacee):
+    partie_modifiee.chess_game.play_move(8 * coup_joue[0] + coup_joue[1], 8 * coup_joue[2] + coup_joue[3], couleur_joueur, True if type == 3 else False)
+
+    print(joueur1,joueur2)
+
     pass
 
-def envoyer_coup():
+def envoyer_coup(joueur1,joueur2,partie_modifiee):
+    '''
+    board = [
+    ["br","bn","bb","bq","bk","bb","bn","br"],
+    ["bp","bp","bp","bp","bp","bp","bp","bp"],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["wp","wp","wp","wp","wp","wp","wp","wp"],
+    ["wr","wn","wb","wq","wk","wb","wn","wr"]
+];
+    :return:
+    -envoyer le plateau
+    -coups légaux
+    en json
+    '''
+
     pass
 
 def lire_utilisateurs():
@@ -117,7 +134,6 @@ async def handler(ws):
                 
 
             elif action == "quitter_menu":
-                print("#")
                 token = d.get("token")
                 s = sessions.get(token)
 
@@ -138,9 +154,34 @@ async def handler(ws):
                 sessions.pop(token, None)
                 connexions.pop(utilisateur, None)
 
-                print(sessions)
+                print("sessions actives :",  sessions)
+                print()
                 
+            elif action == "move":
+                token = d.get("token")
+                s = sessions.get(token)
 
+                if not s:
+                    await ws.send(json.dumps({
+                        "action": "erreur",
+                        "message": "Session invalide"
+                    }))
+                    continue
+
+                utilisateur = s["nom"]
+                partie_modifiee = parties_par_nom.get(utilisateur)[0]
+                couleur_joueur_origine = parties_par_nom.get(utilisateur)[1]
+
+                adversaire_utilisateur = adversaires[utilisateur]
+                couleur_adversaire_origine = parties_par_nom.get(adversaire_utilisateur)[1]
+
+                coup_joue = d["value"]
+                type = d["special"]
+                piece_deplacee = d["piece"]
+
+                recevoir_coup(utilisateur,adversaire_utilisateur,partie_modifiee,couleur_joueur_origine,coup_joue,type,piece_deplacee)
+
+                envoyer_coup(utilisateur,adversaire_utilisateur,partie_modifiee)
 
 
             elif action == "creation":
@@ -157,11 +198,15 @@ async def handler(ws):
                     tache = taches_abandon.pop(utilisateur, None)
                     if tache:
                         tache.cancel()
+
+                    print("reprise effectuée")
                 await ws.send(json.dumps({
                     "action": "reprise",
                     "ok": bool(s),
                     "en_partie": utilisateur in parties_par_nom
                 }))
+
+
 
 
             elif action == "attente_partie":

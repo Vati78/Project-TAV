@@ -284,9 +284,7 @@ def split_bits(n):
     return parts
 
 
-def bit_to_str(gestionary):
-    game = gestionary.chess_game
-
+def bit_to_str(game):
     list_str = [["" for col in range(8)] for rank in range(8)]
 
 
@@ -306,8 +304,8 @@ def bit_to_str(gestionary):
 
     return list_str
 
-def legal_moves_to_str(gestionary):
-    list_legal_moves = gestionary.chess_game.list_legal_moves
+def legal_moves_to_str(game):
+    list_legal_moves = game.list_legal_moves
 
     output_list = []
 
@@ -323,18 +321,57 @@ def legal_moves_to_str(gestionary):
             y_f = index//8
 
             # pawn
-            if square & (gestionary.chess_game.players[0].pieces[0] | gestionary.chess_game.players[1].pieces[0]):
+            if square & (game.players[0].pieces[0] | game.players[1].pieces[0]):
                 # promotion
                 if y_f in (0,7): special = 3
 
                 # en passant
-                if x_i != x_f and not square & gestionary.chess_game.total: special = 2
+                if x_i != x_f and not square & game.total: special = 2
 
             # king
-            elif square & (gestionary.chess_game.players[0].pieces[5] | gestionary.chess_game.players[1].pieces[5]):
+            elif square & (game.players[0].pieces[5] | game.players[1].pieces[5]):
                 if abs(x_f - x_i) == 2: special = 1
 
             output_list.append((y_i, x_i, y_f, x_f, special))
 
     return output_list
 
+def chess_notation(game, move):
+    # move = (rank_i, col_i, rank_f, col_f, special, promotion_piece)
+    possible_col, possible_rank, result, capture = "", "", "", ""
+
+    rank_i, col_i, rank_f, col_f, special, promotion_piece = move
+
+    # TODO: result
+
+    # roque
+    if special == 1:
+        if rank_f == 2:
+            return "O-O-O" + result
+        elif rank_f == 6:
+            return "O-O-O" + result
+
+
+    move_f_index = 8 * rank_f + col_f
+    square_f = 1 << move_f_index
+
+
+    col_name_f = const.COLS[col_f]
+    rank_name_f = const.RANKS[rank_f]
+
+    for piece_type in range(1, 6):
+        if square_f & (game.players[0].pieces[piece_type] | game.players[1].pieces[piece_type]):
+            piece_name = const.STRINGS[piece_type].upper()
+            break
+        else:
+            piece_name = "Error 404 : piece not found"
+
+
+    legal_moves_list = game.list_position[-1][23]
+    player_turn = game.player_turn ^ 1
+
+    for piece_position in split_bits(game.players[player_turn].pieces[piece_type]):
+        index = piece_position.bit_length() - 1
+
+
+    return piece_name + possible_col + possible_rank + col_name_f + capture + rank_name_f + result
