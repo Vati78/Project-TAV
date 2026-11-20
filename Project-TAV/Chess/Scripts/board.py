@@ -338,20 +338,30 @@ def legal_moves_to_str(game):
 
 def chess_notation(game, move):
     # move = (rank_i, col_i, rank_f, col_f, special, promotion_piece)
-    possible_col, possible_rank, result, capture = "", "", "", ""
 
     rank_i, col_i, rank_f, col_f, special, promotion_piece = move
 
-    # TODO: result
 
-    # roque
+    ################### result ###################
+
+    result = ""
+    if game.result:
+        if game.result == 0:
+            result = "1/2 - 1/2"
+        else:
+            result = "#"
+    if game.list_position[-1][24]:
+        result = "+"
+
+
+    ################### castling ###################
     if special == 1:
         if rank_f == 2:
             return "O-O-O" + result
         elif rank_f == 6:
             return "O-O-O" + result
 
-
+    move_i_index = 8 * rank_i + col_i
     move_f_index = 8 * rank_f + col_f
     square_f = 1 << move_f_index
 
@@ -359,19 +369,59 @@ def chess_notation(game, move):
     col_name_f = const.COLS[col_f]
     rank_name_f = const.RANKS[rank_f]
 
-    for piece_type in range(1, 6):
+
+    ################### piece_name ###################
+
+    piece_name = ""
+    for piece_type in range(6):
         if square_f & (game.players[0].pieces[piece_type] | game.players[1].pieces[piece_type]):
-            piece_name = const.STRINGS[piece_type].upper()
+            if piece_type != 0: piece_name = const.STRINGS[piece_type].upper()
             break
         else:
             piece_name = "Error 404 : piece not found"
 
 
+
+    ################### possible_rank and possible_col ###################
+
     legal_moves_list = game.list_position[-1][23]
     player_turn = game.player_turn ^ 1
+    possible_col, possible_rank = "", ""
+    list_col = []
+    list_rank = []
 
-    for piece_position in split_bits(game.players[player_turn].pieces[piece_type]):
-        index = piece_position.bit_length() - 1
+
+    if piece_type != 0:
+        for piece_position in split_bits(game.players[player_turn].pieces[piece_type]):
+            index = piece_position.bit_length() - 1
+            if square_f & legal_moves_list[index] and index != move_i_index:
+                list_col.append(index%8)
+                list_rank.append(index//8)
+
+        if int(col_i) in list_col and int(rank_i) in list_rank:
+            possible_col = const.COLS[col_i]
+            possible_rank = const.RANKS[rank_i]
+        elif len(list_col) != 0 and int(col_i) not in list_col:
+            possible_col = const.COLS[col_i]
+        elif len(list_rank) != 0 and int(rank_i) not in list_rank:
+            possible_rank = const.RANKS[rank_i]
+
+    else:
+        possible_col = const.COLS[col_i]
 
 
-    return piece_name + possible_col + possible_rank + col_name_f + capture + rank_name_f + result
+    ################### capture ###################
+
+    capture = ""
+    if game.total.bit_count() != game.list_position[-1][22].bit_count():
+        capture = "x"
+
+
+    ################### promotion ###################
+
+    promotion = ""
+    if special == 3:
+        promotion = f"={promotion_piece}"
+
+
+    return piece_name + possible_col + possible_rank + capture + col_name_f + rank_name_f + promotion + result
