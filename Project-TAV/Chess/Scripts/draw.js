@@ -26,7 +26,7 @@ function draw_div(r,c,to_click=true){
         img.addEventListener("pointermove", () => {
             if(start[0] == r && start[1] == c) {
                 img.style.position = "relative";
-                img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px)`;
+                img.style.transform = `translate(${event.clientX - drag_start[0]}px, ${event.clientY - drag_start[1]}px) rotate(${event.movementX}deg) `;
             }
         });
         img.alt = list_positions[move_index][ar][ac];
@@ -41,11 +41,11 @@ function draw_div(r,c,to_click=true){
     if(r==7){let coor = document.createElement("p");coor.innerHTML=coor_letter[ac];coor.className=" bcoor"; div.appendChild(coor);}
     //arrondi des bords:
     if(c==0 && r==0) div.className += " tlcorner";if(c==7 && r==0) div.className += " trcorner";if(c==0 && r==7) div.className += " blcorner";if(c==7 && r==7) div.className += " brcorner";
-    //last move
+    //display last move
     if(last_move.some(m => ar === m[0] && ac === m[1])){div.className += " last_move";}
-    //affichage du premier clic:
+    //display first click
     if (ar === first_click[0] && ac === first_click[1]) div.className += " first_click";
-    //affichage des coups légaux:
+    //display legal moves
     if (move_index === list_positions.length - 1){
         if (legal_moves.some(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac)){
             let a = legal_moves.find(m => m[0] === first_click[0] && m[1] === first_click[1] && m[2] === ar && m[3] === ac);
@@ -90,15 +90,15 @@ function draw_div(r,c,to_click=true){
     return div;
 }
 function draw_timer(){
-    var now = new Date();
-    var p = player === local_player ? "0" : "1";
-    var t1 = Math.floor(date_move_start.getTime()/1000 + time_move_start[p] - now.getTime()/1000);
-    var t2 = Math.floor(time_move_start[-p+1]);
+    const now = new Date();
+    const p = player === local_player ? "0" : "1";
+    const t1 = Math.floor(date_move_start.getTime()/1000 + time_move_start[player === "w" ? 0 : 1] - now.getTime()/1000);
+    const t2 = Math.floor(time_move_start[player === "w" ? 1 : 0]);
     timer[p].classList.add("active");
     if (t1 < 30) timer[p].classList.add("red");
     timer[-p+1].classList.remove("active");timer[-p+1].classList.remove("red");
-    timer[p].innerHTML = t1 < 0 ? "---" : `${Math.floor(t1/60)}:${t1%60<10?"0":""}${t1%60}`;
-    timer[-p+1].innerHTML = t2 < 0 ? "---" : `${Math.floor(t2/60)}:${t2%60<10?"0":""}${t2%60}`;
+    timer[p].innerHTML = t1 < 0 ? "Time out" : `${Math.floor(t1/60)}:${t1%60<10?"0":""}${t1%60}`;
+    timer[-p+1].innerHTML = t2 < 0 ? "Time out" : `${Math.floor(t2/60)}:${t2%60<10?"0":""}${t2%60}`;
 }
 function draw() {
     el.innerHTML = "";
@@ -110,10 +110,10 @@ function draw() {
     //document.getElementById("player_turn").innerHTML = (player === "w" ? "White" : "Black") + " is playing";
 }
 
-function promote(i,e,player){
+function promote(i,e,p){
     let c = e[1];
-    let d = player === "w" ? 1 : -1;
-    let r = player === "w" ? 0 : 7;
+    let d = p === local_player ? 1 : -1;
+    let r = p === local_player  ? 0 : 7;
     //for (let i=r; i<4; i++){
     el.innerHTML = "";
     for (let x = 0; x < 8; x++) {
@@ -132,21 +132,21 @@ function promote(i,e,player){
                     case 2: img_name = "Bishop"; text = "b"; break;
                     case 3: img_name = "Knight"; text = "n"; break;
                 }
-                img.src = `../Sprites/Pieces_bitboards/${player==="w"?"white":"black"}${img_name}.png`
+                img.src = `../Sprites/Pieces_bitboards/${p==="w"?"white":"black"}${img_name}.png`
                 img.alt = text;
                 img.dataset.index = x;
                 div.appendChild(img);
                 div.className = "case promote";
                 div.addEventListener("click",() => {
-                    board[0][c] = `${player}${text}`;
+                    board[0][c] = `${p}${text}`;
                     end_move(i, e, 3 + 4 - x);
                     draw();
                 });
                 div.addEventListener("keyup", () => {
                     switch (event.key){
-                        case "Enter": board[0][c] = `${player}${text}`; end_move();draw();
-                        case "ArrowDown": case "ArrowRight": getCase(x==3?0:x+1,c).focus();break;
-                        case "ArrowUp": case "ArrowLeft": getCase(x==0?3:x-1,c).focus();break;
+                        case "Enter": board[0][c] = `${p}${text}`; end_move();draw();break;
+                        case "s": case "d": getCase(x==3?0:x+1,c).focus();break;
+                        case "z": case "q": getCase(x==0?3:x-1,c).focus();break;
                     }
                 });
             }

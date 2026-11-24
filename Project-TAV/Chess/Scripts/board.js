@@ -127,21 +127,23 @@ function getCoor(e){
 }
 
 
-document.getElementById("board").addEventListener("pointerdown", () => {
+el.addEventListener("pointerdown", (event) => {
     //console.log(event);
     let c = getCoor(event);
     //console.log(board[c[0]][c[1]], player);
-    if (board[c[0]][c[1]][0] === player || first_click !== ""){
-        event.preventDefault();
+    if (board[c[0]][c[1]][0] === player){
+        //event.preventDefault();
         getImg(c).setPointerCapture(event.pointerId);
         start = c;
         drag_start = [event.clientX, event.clientY];
         console.log("start", start);
+        first_click = "";
+        // TODO: display legal moves
     }
 });
 
 function mouse_up(e) {
-    if ((drag_start[0] - e.clientX) ** 2 + (drag_start[1] - e.clientY) ** 2 > 25){
+    if ((drag_start[0] - e.clientX) ** 2 + (drag_start[1] - e.clientY) ** 2 > 25 && first_click === ""){
         console.log("up", e);
         getImg(start).style.visibility = "hidden";
         let c = getCoor(e);

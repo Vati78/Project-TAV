@@ -14,7 +14,7 @@ main{
     max-height: 100%;
     display: grid;
     grid-template-columns: 1fr 0.5fr;
-    grid-template-rows: 1fr 0.01fr 1fr;
+    grid-template-rows: minmax(0,1fr) minmax(0,0.01fr) minmax(0,1fr);
     justify-items: center;
     align-items: center;
 
@@ -35,8 +35,10 @@ main{
     grid-template-columns: repeat(8, minmax(0,1fr));
     grid-template-rows: repeat(8, minmax(0,1fr));
     /*min-height: 100%;*/
-    max-height: 100vh;
-    max-width: 100vw;
+    /*height: 100%;
+    width: 100%;*/
+    max-height: 100%;
+    max-width: 100%;
     aspect-ratio: 1;
     margin: 0 10px 0 30px;
 }
@@ -96,6 +98,7 @@ main{
     justify-self: center;
     z-index: 1;
 }
+.case img:hover{z-index: 10;}
 .case .lcoor{
     position: absolute;
     top: 0px;
@@ -142,17 +145,26 @@ header, footer{
 
 @media screen and (max-aspect-ratio: 1/1){
     main{
-        width: 100%;
-        height: 90%;
-        min-height: none;
-        max-height: 100%;
-        display: grid;
+        width: 100vw;
+        height: 100vh;
+        min-height: 0;
+        /*max-height: 100%;
+        /*display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 0.1fr 1fr 0.1fr;
-        justify-items: center;
+        grid-template-rows: minmax(0,0.1fr) minmax(0,1fr) minmax(0,0.01fr) minmax(0,0.01fr);*/
+        display: flex;
+        flex-direction: column;
+        justify-items: flex-start;
         align-items: center;
+        overflow: scroll;
     }
-    #timer1{grid-area: 1 / 1 / 2 / 2;}
+    /*#timer1{grid-area: 1 / 1 / 2 / 2;}
     #timer0{grid-area: 3 / 1 / 4 / 2;}
-    #board{grid-area: 2 / 1 / 3 / 2;}
+    #connection{grid-area: 4 / 1 / 5 / 1;}
+    #board{grid-area: 2 / 1 / 3 / 2;}*/
+    #timer1{order: 1;}
+    #timer0{order: 3;}
+    #connection{order: 4;}
+    #board{order: 2;}
+    *{/*outline: 1px solid red;*/margin: 0;padding: 0;}
 }
