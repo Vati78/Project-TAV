@@ -74,6 +74,7 @@ for i in range(64):
     KNIGHT_MOVES.append(moves_per_square)
 
 # Sounds
+'''
 move_sound = pg.mixer.Sound("../Sounds/move.mp3")
 illegal_sound = pg.mixer.Sound("../Sounds/illegal.mp3")
 check_sound = pg.mixer.Sound("../Sounds/check.mp3")
@@ -83,3 +84,4 @@ promote_sound = pg.mixer.Sound("../Sounds/promote.mp3")
 start_sound = pg.mixer.Sound("../Sounds/start.mp3")
 end_sound = pg.mixer.Sound("../Sounds/end.mp3")
 low_time_sound = pg.mixer.Sound("../Sounds/tenseconds.mp3")
+'''

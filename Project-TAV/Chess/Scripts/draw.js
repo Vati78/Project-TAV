@@ -138,15 +138,19 @@ function promote(i,e,p){
                 div.appendChild(img);
                 div.className = "case promote";
                 div.addEventListener("click",() => {
-                    board[0][c] = `${p}${text}`;
+                    board[e[0]][e[1]] = `${p}${text}`;
                     end_move(i, e, 3 + 4 - x);
                     draw();
                 });
-                div.addEventListener("keyup", () => {
-                    switch (event.key){
-                        case "Enter": board[0][c] = `${p}${text}`; end_move();draw();break;
-                        case "s": case "d": getCase(x==3?0:x+1,c).focus();break;
-                        case "z": case "q": getCase(x==0?3:x-1,c).focus();break;
+                div.addEventListener("keyup", (ev) => {
+                    switch (ev.key){
+                        case "Enter":
+                            board[e[0]][e[1]] = `${p}${text}`;
+                            end_move(i, e, 3 + 4 - x);
+                            draw();
+                            break;
+                        case "s": case "d": case "ArrowDown": case "ArrowRight": getCase(x==3?0:x+1,c).focus();break;
+                        case "z": case "q": case "ArrowUp": case "ArrowLeft": getCase(x==0?3:x-1,c).focus();break;
                     }
                 });
             }

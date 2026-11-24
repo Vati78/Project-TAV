@@ -1,6 +1,8 @@
 const ws = new WebSocket("ws://localhost:8765");
 let connected = false;
 let token = "";
+function arrayEquals(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+
 const el = document.getElementById("board");
 const timer = [document.getElementById("timer0"), document.getElementById("timer1")];
 el.addEventListener("pointerup", () => mouse_up(event));
@@ -23,7 +25,7 @@ let drag_start = "";
 let start = "";
 let player = "w";
 let local_player = "w";
-let legal_moves = [[0,1,2,2,0],[0,1,2,0,0],[0,1,1,3,0],[0,1,0,7,0],[6,4,4,4,0],[6,4,5,3,0],[6,4,5,5,0],[6,4,3,4,0],[4,4,3,4,0],[6,4,0,4,3],[1,5,3,5,0],[3,4,2,5,2],[3,4,2,4,0],[7,1,5,0,0],[7,1,5,2,0],[7,1,6,3,0],[7,1,7,3,0],[7,1,7,2,0],[7,1,7,0,0]];
+let legal_moves = [];
                 //[ligne départ, colonne départ, ligne arrivée, colonne arrivée, spécial]
                 //spécial: {0:rien, 1:roque, 2:en passant, 3:promote}
 
@@ -75,16 +77,16 @@ function play_move(i,e){
         board[i[0]][i[1]] = "";
         start = ""; first_click = "";
         switch (move[4]){
-            case 2: board[e[0]+1][e[1]] = "";
+            case 2: board[e[0] + (player === "w" ? 1 : -1)][e[1]] = "";
             case 0: end_move(i,e,move[4]); break;
             case 1:
-                if (e[1]===6) {board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = "";}
-                else if (e[1]===2) {board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = "";}
-                else console.error("pas de roque ??? ;(");
+                if (e[1] === 6) { board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = ""; }
+                else            { board[e[0]][3] = board[e[0]][0]; board[e[0]][0] = ""; }
+                end_move(i, e, 1);
                 break;
             case 3: promote(i,e,player); promotion = true; break;
         }
-        
+
         }
         else {
             console.log("illegal move");
@@ -167,11 +169,16 @@ ws.onopen = () => {
     document.getElementById("connection").innerText = "Connected";
 };
 ws.onclose = () => {connected = false;    document.getElementById("connection").innerText = "Connection lost";}
-socket.onmessage = (event) => {
-  msg = JSON.parse(event.data)
-  switch (msg.type){
-    case "local_player": local_player = msg.value; break;
-    case "state": stateUpdate(msg.value); break; //{ "type": "state", "board": {...}, "legal_moves": [...], "turn": "w", "check": false }
-    default: console.log("Message inconnu:", msg);
-  }
+ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.action === "reprise") {
+        if (!msg.ok) window.location.href = "login_page.html";
+        else if (!msg.en_partie) window.location.href = "menu.html"; // mets le vrai nom de ta page menu
+        return;
+    }
+    switch (msg.type) {
+        case "local_player": local_player = msg.value; draw(); break;
+        case "state": stateUpdate(msg.value); break; //{ "type": "state", "board": {...}, "legal_moves": [...], "turn": "w", "check": false }
+        default: console.log("Message inconnu:", msg);
+    }
 };

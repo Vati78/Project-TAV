@@ -6,7 +6,7 @@ import sys
 import pygame as pg
 import os
 import const
-import board
+#import board
 import game
 import sound
 import mouse_keys as mk
@@ -22,11 +22,13 @@ class Gestionary:
         :param o: nb of players, difficulty, color, timer.available, (time, increment)
         :return:
         """
+        """
         pg.init()
         pg.display.set_caption("Chess")
         pg.display.set_icon(pg.image.load("../Images/icon.png"))
         self.win = pg.display.set_mode((910, 560), pg.RESIZABLE)
         self.win.fill((50, 50, 50))
+        """
         self.chess_game = game.Game(self, o, VirtualEnvironment())
         self.mouse_pos = None
         self.previous_mouse_pos = []
@@ -36,8 +38,8 @@ class Gestionary:
         self.invert_position = False
 
 
-        board.load_sprites_unscaled(self)
-        board.load_sprites_scaled(self)
+        #board.load_sprites_unscaled(self)
+        #board.load_sprites_scaled(self)
 
         self.timer_enabled = o[3]
 
@@ -50,8 +52,8 @@ class Gestionary:
         self.chess_game.get_all_legal_moves(self.chess_game.player_turn)
         self.chess_game.list_position.append(self.chess_game.status_to_key())
 
-        pg.key.set_repeat(500,60)
-
+        #pg.key.set_repeat(500,60)
+        '''
         while running:
 
             self.mouse_pos = pg.mouse.get_pos()
@@ -195,7 +197,10 @@ class Gestionary:
 
             if len(self.previous_mouse_pos) > 5: del self.previous_mouse_pos[0]
 
-
+        '''
+        
+    '''
+        
     def promoting(self, color, col):
         board.draw_board(self)
         board.draw_coor(self)
@@ -235,7 +240,7 @@ class Gestionary:
                         elif color and 4 <= y <= 7: return list_pieces[7-y]
                     self.chess_game.left_click_down = 0
                     return False
-
+    '''
 
 class VirtualEnvironment:
     def __init__(self):
