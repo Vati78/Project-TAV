@@ -37,8 +37,8 @@ function stateUpdate(msg){
     board = msg.board;
     if (arrayEquals(board, list_positions[list_positions.length - 1]) === false){
         list_positions.push(structuredClone(board));
-        move_index++;
     }
+    move_index = list_positions.length - 1;
     player = msg.turn;
     legal_moves = msg.legal_moves;
     time_move_start = msg.time_move_start;
@@ -81,7 +81,7 @@ function play_move(i,e){
             case 0: end_move(i,e,move[4]); break;
             case 1:
                 if (e[1] === 6) { board[e[0]][5] = board[e[0]][7]; board[e[0]][7] = ""; }
-                else            { board[e[0]][3] = board[e[0]][0]; board[e[0]][0] = ""; }
+                else { board[e[0]][3] = board[e[0]][0]; board[e[0]][0] = ""; }
                 end_move(i, e, 1);
                 break;
             case 3: promote(i,e,player); promotion = true; break;
